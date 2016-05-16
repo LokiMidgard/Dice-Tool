@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="DiceTool.ParameterSetup"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:Viewmodel="clr-namespace:DiceTool.Viewmodel"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DiceTool"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="300"
+             d:DesignWidth="300"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <Viewmodel:ParameterSetupViewmodel />
+    </UserControl.DataContext>
+    <GroupBox>
+        <GroupBox.Header>
+            <CheckBox Content="Enabled" IsChecked="{Binding IsEnabled}" />
+
+        </GroupBox.Header>
+        <StackPanel IsEnabled="{Binding IsEnabled}">
+            <Label Content="Name" />
+            <TextBox Text="{Binding Name}" />
+            <Label Content="Type" />
+            <ComboBox ItemsSource="{Binding Configurations}" SelectedIndex="{Binding SelectedIndex}" DisplayMemberPath="Name" />
+
+            <StackPanel Visibility="{Binding NumberParameter.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Label Content="from" />
+                <TextBox />
+                <Label Content="To" />
+                <TextBox />
+            </StackPanel>
+            <StackPanel Visibility="{Binding StringParameter.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Label Content="Strings" />
+                <TextBox />
+
+            </StackPanel>
+        </StackPanel>
+    </GroupBox>
+</UserControl>
