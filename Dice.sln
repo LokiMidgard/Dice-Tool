@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceConsoleTest", "DiceCons
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dice", "Dice\Dice.csproj", "{6ADEDE6C-387C-4D6E-BB4F-177A0E327A18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceTool", "DiceTool\DiceTool.csproj", "{EB8CC5C4-FEC9-460E-91E0-D0A56E806961}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFChart", "WPFChart\WPFChart.csproj", "{4594058D-A96A-4B11-93B5-707215E40231}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{B7919B72-969B-41EC-81A7-6BE5F027BE6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,16 +23,11 @@ Global
 		{6ADEDE6C-387C-4D6E-BB4F-177A0E327A18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ADEDE6C-387C-4D6E-BB4F-177A0E327A18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ADEDE6C-387C-4D6E-BB4F-177A0E327A18}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB8CC5C4-FEC9-460E-91E0-D0A56E806961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB8CC5C4-FEC9-460E-91E0-D0A56E806961}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB8CC5C4-FEC9-460E-91E0-D0A56E806961}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB8CC5C4-FEC9-460E-91E0-D0A56E806961}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4594058D-A96A-4B11-93B5-707215E40231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4594058D-A96A-4B11-93B5-707215E40231}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4594058D-A96A-4B11-93B5-707215E40231}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4594058D-A96A-4B11-93B5-707215E40231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4ADC9B64-D5BE-4070-9AA4-2F9640B062B3} = {B7919B72-969B-41EC-81A7-6BE5F027BE6A}
 	EndGlobalSection
 EndGlobal
