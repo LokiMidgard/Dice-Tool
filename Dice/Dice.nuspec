@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>Dice</title>
+    <authors>Patrick Kranz</authors>
+    <owners>Patrick Kranz</owners>
+    <licenseUrl>https://tldrlegal.com/license/mit-license#summary</licenseUrl>
+    <projectUrl>https://github.com/LokiMidgard/Dice-Tool</projectUrl>
+    <iconUrl>https://github.com/LokiMidgard/Dice-Tool/master/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This library helps with the calculation of dice provability's.</description>
+    <releaseNotes>Initial Release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Dice calculation</tags>
+    <dependencies>
+      <group targetFramework="dotnet">
+        <dependency id="System.Collections" version="4.0.10" />
+        <dependency id="System.Diagnostics.Debug" version="4.0.10" />
+        <dependency id="System.Linq" version="4.0.0" />
+        <dependency id="System.Resources.ResourceManager" version="4.0.0" />
+        <dependency id="System.Runtime" version="4.0.20" />
+        <dependency id="System.Runtime.Extensions" version="4.0.10" />
+        <dependency id="System.Threading.Tasks" version="4.0.10" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
