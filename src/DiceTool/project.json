@@ -1,11 +1,11 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.1.0-*",
   "description": "This library helps with the calculation of dice provability's.",
   "authors": [ "Patrick Kranz" ],
   "tags": [ "Dice", "Dice Calculation" ],
   "projectUrl": "https://github.com/LokiMidgard/Dice-Tool",
   "licenseUrl": "https://tldrlegal.com/license/mit-license#summary",
-  "iconUrl": "https://github.com/LokiMidgard/Dice-Tool/master/icon.png",
+  "iconUrl": "https://raw.githubusercontent.com/LokiMidgard/Dice-Tool/master/icon.png",
 
   "frameworks": {
     "net451": { },
