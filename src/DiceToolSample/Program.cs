@@ -27,7 +27,7 @@ namespace DiceToolSample
 
             var erg = task.Result;
 
-            foreach (var item in erg.Where(x => x.Result).Where(x => x.Item1 == 8 && x.Item2 == 8 && x.Item3 == 8).Where(x => x.Item5 == 0).GroupBy(x => x.Item4).OrderBy(x => x.Key).Select(x => new { Percentage = x.Sum(y => y.Factor), Value = x.Key }))
+            foreach (var item in erg.Where(x => x.Result).Where(x => x.Item1 == 8 && x.Item2 == 8 && x.Item3 == 8).Where(x => x.Item5 == 0).GroupBy(x => x.Item4).OrderBy(x => x.Key).Select(x => new { Percentage = x.Sum(y => y.Propability), Value = x.Key }))
             {
                 Console.WriteLine($"{item.Value}: {100.0 * item.Percentage,2:F}%");
                 //Console.WriteLine($"{item.Key}: {100.0 * item.Value/ erg.Sum(y => y.Value),2:F}% ({item.Value}/{erg.Sum(y => y.Value)})");

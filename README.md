@@ -30,7 +30,7 @@ list of all possible results together with the probability.
 	var simpleDiceGenerator = new SimpleDiceRole();
 	var results = await simpleDiceGenerator.DoIt();
 	foreach (var r in results)
-		Console.WriteLine($"{r.Result}: {(r.Factor * 100):f2}%");
+		Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
 ```
 The result should be following:
 ```
@@ -65,7 +65,7 @@ stop. In order to get our results we need to abort the calculation after some ti
 	tokenSource.CancelAfter(2000);
 	var results = await repeatingDiceGenerator.DoIt(tokenSource.Token);
 	foreach (var r in results)
-		Console.WriteLine($"{r.Result}: {(r.Factor * 100):f2}%");
+		Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
 ```
 Every time a dice object stored in the Properties D2 to D100 is cast to an int, it is consider as a role.
 So it is **important** that you **don't** use the ```var``` keyword.
