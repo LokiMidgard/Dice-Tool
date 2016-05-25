@@ -71,8 +71,39 @@ Every time a dice object stored in the Properties D2 to D100 is cast to an int, 
 So it is **important** that you **don't** use the ```var``` keyword.
 The library determines the next role randomly but never creates a two identical combinations of rolls. 
 
-This should prevent missing important possibilitys. For example if we would calculate all dice beginning
+This should prevent missing important possibility's. For example if we would calculate all dice beginning
 with 1 and going up to the highest number, we would never get any result where we had rolled a 4 or up.
 This would mean missing the 16,66% chance for rolling the 6.
 
 If all possible combinations have been found, the ```Task``` returned by ```DoIt()``` is finished.
+
+## More Parameters
+
+You can also have multiple parameter to test against. Thes toolkit supports up to 5 parameters defined as
+generic type arguments.
+```
+    class MultiDiceRole : Dice.DiceCalculator<int, int>
+    {
+        protected override int RoleCalculation(int numberOfDices)
+        {
+            return numberOfDices * W6;
+        }
+    }
+
+```
+This sample have an additional parameter of the type int. The concrete value will be provided as methode parameter.
+Also note that multipling an int with a die means rolling that many dices. 
+
+```
+    var multiDiceGenerator = new MultiDiceRole();
+    var results = await multiDiceGenerator.DoIt(new int[] { 1, 2, 3 });
+    foreach (var f in results.GroupBy(x => x.Item1))
+    {
+        Console.WriteLine($"# of dice:{f.Key}");
+        foreach (var r in f)
+            Console.WriteLine($"\t{r.Result}: {(r.Propability  * 100):f2}%");
+    }
+
+```
+When we call ```DoIt()``` we need to provide all values that will be used.
+
