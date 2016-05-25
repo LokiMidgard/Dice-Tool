@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dice
 {
-    public abstract class DiceCalculator<T> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation();
@@ -48,7 +48,7 @@ namespace Dice
             return erg;
         }
     }
-    public abstract class DiceCalculator<T, P1> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T, P1> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation(P1 p1);
@@ -92,7 +92,7 @@ namespace Dice
             return erg;
         }
     }
-    public abstract class DiceCalculator<T, P1, P2> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T, P1, P2> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation(P1 p1, P2 p2);
@@ -137,7 +137,7 @@ namespace Dice
             return erg;
         }
     }
-    public abstract class DiceCalculator<T, P1, P2, P3> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T, P1, P2, P3> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3);
@@ -182,7 +182,7 @@ namespace Dice
             return erg;
         }
     }
-    public abstract class DiceCalculator<T, P1, P2, P3, P4> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T, P1, P2, P3, P4> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3, P4 p4);
@@ -229,7 +229,7 @@ namespace Dice
             return erg;
         }
     }
-    public abstract class DiceCalculator<T, P1, P2, P3, P4, P5> : BaseDiceCalculato<T>
+    public abstract class DiceCalculator<T, P1, P2, P3, P4, P5> : BaseDiceCalculator<T>
     {
 
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);

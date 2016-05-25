@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Dice
 {
-    public abstract class BaseDiceCalculato<T>
+    
+    public abstract class BaseDiceCalculator<T>
     {
         internal WAutomata<T> automata = new WAutomata<T>();
         #region Dices
@@ -213,7 +214,7 @@ namespace Dice
         #endregion
 
 
-        protected BaseDiceCalculato()
+        internal BaseDiceCalculator()
         {
             W2 = new D<T>(2, automata);
             W3 = new D<T>(3, automata);

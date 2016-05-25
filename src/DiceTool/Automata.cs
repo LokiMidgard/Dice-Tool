@@ -31,69 +31,129 @@ namespace Dice
 
         public IList<ResultEntry<T>> GetDistribution()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T>(
-                CalculatePropabilityFactor(x, 0),
-                x.Result)
-            ).ToArray();
+            return endNodeCach
+                .Select(x => new { Probability = CalculatePropabilityFactor(x, 0), Result = x.Result })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T>(x.Sum(y => y.Probability), x.Key))
+            .ToArray();
         }
         public IList<ResultEntry<T, P1>> GetDistribution<P1>()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T, P1>(
-                CalculatePropabilityFactor(x, 1),
-                x.Result,
-                GetNodeAt<P1>(0, x)
-            )).ToArray();
+            return endNodeCach
+                .Select(x => new
+                {
+                    Probability = CalculatePropabilityFactor(x, 1),
+                    Result = new
+                    {
+                        x.Result,
+                        P1 = GetNodeAt<P1>(0, x)
+                    }
+                })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T, P1>(
+                    x.Sum(y => y.Probability),
+                    x.Key.Result,
+                    x.Key.P1))
+            .ToArray();
         }
 
         public IList<ResultEntry<T, P1, P2>> GetDistribution<P1, P2>()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T, P1, P2>(
-                CalculatePropabilityFactor(x, 2),
-                x.Result,
-                GetNodeAt<P1>(0, x),
-                GetNodeAt<P2>(1, x)
-            )).ToArray();
+            return endNodeCach
+                .Select(x => new
+                {
+                    Probability = CalculatePropabilityFactor(x, 2),
+                    Result = new
+                    {
+                        x.Result,
+                        P1 = GetNodeAt<P1>(0, x),
+                        P2 = GetNodeAt<P2>(1, x)
+                    }
+                })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T, P1, P2>(
+                    x.Sum(y => y.Probability),
+                    x.Key.Result,
+                    x.Key.P1,
+                    x.Key.P2))
+            .ToArray();
         }
 
         public IList<ResultEntry<T, P1, P2, P3>> GetDistribution<P1, P2, P3>()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T, P1, P2, P3>(
-                CalculatePropabilityFactor(x, 3),
-                x.Result,
-                GetNodeAt<P1>(0, x),
-                GetNodeAt<P2>(1, x),
-                GetNodeAt<P3>(2, x)
-            )).ToArray();
+            return endNodeCach
+                .Select(x => new
+                {
+                    Probability = CalculatePropabilityFactor(x, 3),
+                    Result = new
+                    {
+                        x.Result,
+                        P1 = GetNodeAt<P1>(0, x),
+                        P2 = GetNodeAt<P2>(1, x),
+                        P3 = GetNodeAt<P3>(2, x)
+                    }
+                })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T, P1, P2, P3>(
+                    x.Sum(y => y.Probability),
+                    x.Key.Result,
+                    x.Key.P1,
+                    x.Key.P2, 
+                    x.Key.P3))
+            .ToArray();
         }
 
         public IList<ResultEntry<T, P1, P2, P3, P4>> GetDistribution<P1, P2, P3, P4>()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T, P1, P2, P3, P4>(
-                CalculatePropabilityFactor(x, 4),
-                x.Result,
-                GetNodeAt<P1>(0, x),
-                GetNodeAt<P2>(1, x),
-                GetNodeAt<P3>(2, x),
-                GetNodeAt<P4>(3, x)
-            )).ToArray();
+            return endNodeCach
+                .Select(x => new
+                {
+                    Probability = CalculatePropabilityFactor(x, 4),
+                    Result = new
+                    {
+                        x.Result,
+                        P1 = GetNodeAt<P1>(0, x),
+                        P2 = GetNodeAt<P2>(1, x),
+                        P3 = GetNodeAt<P3>(2, x),
+                        P4 = GetNodeAt<P4>(3, x)
+                    }
+                })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T, P1, P2, P3, P4>(
+                    x.Sum(y => y.Probability),
+                    x.Key.Result,
+                    x.Key.P1,
+                    x.Key.P2,
+                    x.Key.P3,
+                    x.Key.P4))
+            .ToArray();
         }
         public IList<ResultEntry<T, P1, P2, P3, P4, P5>> GetDistribution<P1, P2, P3, P4, P5>()
         {
-            return endNodeCach.Select(x =>
-            new ResultEntry<T, P1, P2, P3, P4, P5>(
-                CalculatePropabilityFactor(x, 5),
-                x.Result,
-                GetNodeAt<P1>(0, x),
-                GetNodeAt<P2>(1, x),
-                GetNodeAt<P3>(2, x),
-                GetNodeAt<P4>(3, x),
-                GetNodeAt<P5>(4, x)
-            )).ToArray();
+            return endNodeCach
+                .Select(x => new
+                {
+                    Probability = CalculatePropabilityFactor(x, 5),
+                    Result = new
+                    {
+                        x.Result,
+                        P1 = GetNodeAt<P1>(0, x),
+                        P2 = GetNodeAt<P2>(1, x),
+                        P3 = GetNodeAt<P3>(2, x),
+                        P4 = GetNodeAt<P4>(3, x),
+                        P5 = GetNodeAt<P5>(4, x)
+                    }
+                })
+                .GroupBy(x => x.Result)
+                .Select(x => new ResultEntry<T, P1, P2, P3, P4, P5>(
+                    x.Sum(y => y.Probability),
+                    x.Key.Result,
+                    x.Key.P1,
+                    x.Key.P2,
+                    x.Key.P3,
+                    x.Key.P4,
+                    x.Key.P5))
+            .ToArray();
         }
         public int GetCalculatedPosibilitys()
 
