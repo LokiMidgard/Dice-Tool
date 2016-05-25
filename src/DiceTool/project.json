@@ -1,0 +1,22 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "This library helps with the calculation of dice provability's.",
+  "authors": [ "Patrick Kranz" ],
+  "tags": [ "Dice", "Dice Calculation" ],
+  "projectUrl": "https://github.com/LokiMidgard/Dice-Tool",
+  "licenseUrl": "https://tldrlegal.com/license/mit-license#summary",
+  "iconUrl": "https://github.com/LokiMidgard/Dice-Tool/master/icon.png",
+
+  "frameworks": {
+    "net451": { },
+    "dotnet5.4": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "System.Collections": "4.0.11-beta-23516",
+        "System.Linq": "4.0.1-beta-23516",
+        "System.Runtime": "4.0.21-beta-23516",
+        "System.Threading": "4.0.11-beta-23516"
+      }
+    }
+  }
+}
