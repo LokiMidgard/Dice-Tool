@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>$id$</id>
+    <id>DiceTool</id>
     <version>$version$</version>
     <title>Dice</title>
     <authors>Patrick Kranz</authors>
