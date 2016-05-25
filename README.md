@@ -61,7 +61,7 @@ rolled number. Second if we role a three we will role again and add this role wi
 
 Unlike the first sample this has an infinite number of possibility's. If we would role only threes we would never
 stop. In order to get our results we need to abort the calculation after some time.
-```
+```c#
 	var repeatingDiceGenerator = new RepeatingDiceRole();
 	var tokenSource = new System.Threading.CancellationTokenSource();
 	tokenSource.CancelAfter(500); // should be enough time to get the lowest 19 results.
@@ -105,7 +105,7 @@ If all possible combinations have been found, the ```Task``` returned by ```DoIt
 
 You can also have multiple parameter to test against. Thes toolkit supports up to 5 parameters defined as
 generic type arguments.
-```
+```c#
     class MultiDiceRole : Dice.DiceCalculator<int, int>
     {
         protected override int RoleCalculation(int numberOfDices)
@@ -118,7 +118,7 @@ generic type arguments.
 This sample have an additional parameter of the type int. The concrete value will be provided as methode parameter.
 Also note that multipling an int with a die means rolling that many dices. 
 
-```
+```c#
 	var multiDiceGenerator = new MultiDiceRole();
 	var results = await multiDiceGenerator.DoIt(new int[] { 1, 2, 3 });
 	foreach (var f in results.GroupBy(x => x.Item1).OrderBy(x=>x.Key))
