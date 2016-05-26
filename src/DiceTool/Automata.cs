@@ -228,6 +228,19 @@ namespace Dice
 
         internal int CurrentDiceSize => currentNode.DiceSize;
 
+        public DiceCalculatorConfiguration configuration = new DiceCalculatorConfiguration();
+        public DiceCalculatorConfiguration Configuration
+        {
+            get
+            {
+                return configuration;
+            }
+            internal set
+            {
+                configuration = value ?? new DiceCalculatorConfiguration();
+            }
+        }
+
         internal IEnumerable<int> PosibleRoles()
         {
             return currentNode.Childs.Select((node, index) => new { index, node }).Where(x => !(x.node?.IsFinished ?? false)).Select(x => x.index + 1);

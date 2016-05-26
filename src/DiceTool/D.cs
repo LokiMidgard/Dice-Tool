@@ -25,11 +25,7 @@ namespace Dice
         {
             w.automata.Init(w);
             var posibleRoles = w.automata.PosibleRoles().ToArray();
-            int role;
-            if (w.automata.RandomDices)
-                role = posibleRoles[r.Next(posibleRoles.Length)];
-            else
-                role = posibleRoles[0];
+            int role = SelectRole(w);
             w.automata.Role(role);
             return w.Parameters[role - 1];
         }
@@ -100,15 +96,30 @@ namespace Dice
             if (w is D<T, int>)
                 return (int)(w as D<T, int>);
             w.automata.Init(w);
-            var posibleRoles = w.automata.PosibleRoles().ToArray();
-            int role;
-            if (w.automata.RandomDices)
-                role = posibleRoles[r.Next(posibleRoles.Length)];
-            else
-                role = posibleRoles[0];
+            int role = SelectRole(w);
             w.automata.Role(role);
             return role;
         }
 
+        protected static int SelectRole(D<T> w)
+        {
+            var posibleRoles = w.automata.PosibleRoles().ToArray();
+            int role;
+            switch (w.automata.Configuration.DiceResolution)
+            {
+                case DiceResolution.Random:
+                    role = posibleRoles[r.Next(posibleRoles.Length)];
+                    break;
+                case DiceResolution.SmallestDiceFirst:
+                    role = posibleRoles[0];
+                    break;
+                case DiceResolution.LargestDiceFirst:
+                    role = posibleRoles[posibleRoles.Length - 1];
+                    break;
+                default:
+                    throw new NotSupportedException(w.automata.Configuration.DiceResolution.ToString());
+            }
+            return role;
+        }
     }
 }

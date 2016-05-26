@@ -12,13 +12,14 @@ namespace Dice
 
         protected abstract T RoleCalculation();
 
-        public Task<IList<ResultEntry<T>>> DoIt(System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T>>> DoIt(System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T>>> DoIt(IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T>>> DoIt(IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
+            Automata.Configuration = configuration;
 
             var erg = Task.Factory.StartNew(() =>
             {
@@ -55,13 +56,14 @@ namespace Dice
         protected abstract T RoleCalculation(P1 p1);
 
 
-        public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(list1, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
+            Automata.Configuration = configuration;
 
             var erg = Task.Factory.StartNew(() =>
             {
@@ -100,14 +102,15 @@ namespace Dice
         protected abstract T RoleCalculation(P1 p1, P2 p2);
 
 
-        public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(list1, list2, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
 
+            Automata.Configuration = configuration;
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
@@ -145,14 +148,15 @@ namespace Dice
 
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3);
 
-        public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(list1, list2, list3, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
 
+            Automata.Configuration = configuration;
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
@@ -192,14 +196,15 @@ namespace Dice
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3, P4 p4);
 
 
-        public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, list4, null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(list1, list2, list3, list4, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
 
+            Automata.Configuration = configuration;
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
@@ -240,14 +245,15 @@ namespace Dice
         protected abstract T RoleCalculation(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
 
-        public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, list4, list5, null, default(TimeSpan), null, default(TimeSpan), cancel);
+            return DoIt(list1, list2, list3, list4, list5, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
-        public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken))
+        public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
 
+            Automata.Configuration = configuration;
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
