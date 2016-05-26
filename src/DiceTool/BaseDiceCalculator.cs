@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dice
 {
-    
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T>
     {
         internal WAutomata<T> automata = new WAutomata<T>();
