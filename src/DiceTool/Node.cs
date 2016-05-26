@@ -16,7 +16,7 @@ namespace Dice
             this.Dice = count;
             Depth = Parent?.Depth + 1 ?? 0;
         }
-        public IList<Node<T>> Childs { get; }
+        public IList<Node<T>> Childs { get; private set; }
         public D<T> Dice { get; }
 
         public int Depth { get; }
@@ -45,6 +45,7 @@ namespace Dice
                     var alFinished = Parent?.Childs.All(x => x?.IsFinished ?? false) ?? false;
                     if (alFinished)
                         Parent.IsFinished = true;
+                    this.Childs = null; // clear memory
                 }
                 else if (isFinished)
                 {

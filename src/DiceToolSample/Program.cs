@@ -8,64 +8,153 @@ namespace DiceToolSample
 {
     class Program
     {
-        private static readonly Random r = new Random();
-
         static void Main(string[] args)
         {
-            int counter = 0;
-            var busyIndicator = new char[] { '-', '\\', '|', '/' };
-            var t = new TestImpl();
-            var task = t.DoIt(Enumerable.Range(8, 1).ToArray(), Enumerable.Range(8, 1).ToArray(), Enumerable.Range(8, 1).ToArray(), Enumerable.Range(0, 21).ToArray(), Enumerable.Range(0, 1).ToArray(), new Progress<int>(progres =>
+            try
             {
-                //Console.CursorLeft = 0;
-                //Console.CursorTop = 0;
-                Console.WriteLine($"{busyIndicator[unchecked(counter++) % busyIndicator.Length]}  Bisher {progres,0:n} berechnet.            ");
-                //Console.WriteLine($"Geschätzt \n{progres.Max(x=>x.Factor),0:n}                    ");
-            }), TimeSpan.FromSeconds(2), null, default(TimeSpan));
-
-
-
-            var erg = task.Result;
-
-            foreach (var item in erg.Where(x => x.Result).Where(x => x.Item1 == 8 && x.Item2 == 8 && x.Item3 == 8).Where(x => x.Item5 == 0).GroupBy(x => x.Item4).OrderBy(x => x.Key).Select(x => new { Percentage = x.Sum(y => y.Propability), Value = x.Key }))
-            {
-                Console.WriteLine($"{item.Value}: {100.0 * item.Percentage,2:F}%");
-                //Console.WriteLine($"{item.Key}: {100.0 * item.Value/ erg.Sum(y => y.Value),2:F}% ({item.Value}/{erg.Sum(y => y.Value)})");
-                //Console.WriteLine($"{item.Key}: {100.0 * agreatedValue / erg.Sum(y => y.Value),2:F}% ({agreatedValue}/{erg.Sum(y => y.Value)})");
+                b1().Wait();
+                Console.ReadKey(true);
+                Console.Clear();
+                b2().Wait();
+                Console.ReadKey(true);
+                Console.Clear();
+                b3().Wait();
+                Console.ReadKey(true);
+                Console.Clear();
+                b4().Wait();
+                Console.ReadKey(true);
+                Console.Clear();
+                return;
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                Console.WriteLine(e.Message);
+                Console.ReadKey(true);
 
-
-            Console.ReadKey(true);
+            }
         }
 
-
-        public class TestImpl : DiceCalculator<bool, int, int, int, int, int>
+        public static async Task b1()
         {
-            protected override bool RoleCalculation(int e1, int e2, int e3, int taw, int dificulty)
+            var simpleDiceGenerator = new SimpleDiceRole();
+            var results = await simpleDiceGenerator.DoIt();
+            foreach (var r in results)
+                Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
+
+        }
+
+        public static async Task b2()
+        {
+            var repeatingDiceGenerator = new RepeatingDiceRole();
+            var tokenSource = new System.Threading.CancellationTokenSource();
+            tokenSource.CancelAfter(500);
+            var results = await repeatingDiceGenerator.DoIt(tokenSource.Token);
+            foreach (var r in results.OrderBy(x => x.Result).Take(19))
+                Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
+        }
+
+        public static async Task b3()
+        {
+            var multiDiceGenerator = new MultiDiceRole();
+            var results = await multiDiceGenerator.DoIt(new int[] { 1, 2, 3 });
+            foreach (var f in results.GroupBy(x => x.Item1).OrderBy(x => x.Key))
             {
-
-                //int i = 2 * W6;
-                //return i == taw;
-
-                int d1 = W20;
-                int d2 = W20;
-                int d3 = W20;
-
-                taw -= dificulty;
-
-                if (taw < 0)
-                {
-                    e1 += taw;
-                    e2 += taw;
-                    e3 += taw;
-                    taw = 0;
-                }
-
-                taw -= (Math.Max(0, d1 - e1) + Math.Max(0, d2 - e2) + Math.Max(0, d3 - e3));
-                return taw >= 0;
+                Console.WriteLine($"# of dice:{f.Key}");
+                foreach (var r in f.OrderBy(x => x.Result))
+                    Console.WriteLine($"\t{r.Result}: {(r.Propability * 100):f2}%");
             }
 
+        }
+
+        public static async Task b4()
+        {
+            var theDarkEyeGenerator = new ThDarkEyeRole();
+            var results = await theDarkEyeGenerator.DoIt(
+                Enumerable.Range(7, 8).ToList(),    // Attribute 1
+                Enumerable.Range(7, 8).ToList(),    // Attribute 2
+                Enumerable.Range(7, 8).ToList(),    // Attribute 3
+                Enumerable.Range(0, 15).ToList(),   // Skill
+                Enumerable.Range(-3, 11).ToList()); // Dificulty
+            foreach (var f in results.GroupBy(x => x.Item1).OrderBy(x => x.Key))
+            {
+                Console.WriteLine($"# of dice:{f.Key}");
+                foreach (var r in f.OrderBy(x => x.Result))
+                    Console.WriteLine($"\t{r.Result}: {(r.Propability * 100):f2}%");
+            }
 
         }
     }
+
+
+    class ThDarkEyeRole : Dice.DiceCalculator<int, int, int, int, int, int>
+    {
+        protected override int RoleCalculation(int attribute1, int attribute2, int attribute3, int skillValue, int dificulty)
+        {
+            int effectiveSkill = skillValue - dificulty;
+
+            // if it its more difficult than our skill substract from every Attribute
+            if (effectiveSkill < 0)
+            {
+                attribute1 += effectiveSkill;
+                attribute2 += effectiveSkill;
+                attribute3 += effectiveSkill;
+                effectiveSkill = 0;
+            }
+
+            int r1 = D20;
+            int r2 = D20;
+            int r3 = D20;
+
+            // calculate what we've lost when we rolled for
+            // every Attribute. We must role equal or less then
+            // the value.
+
+            int miss1 = Math.Min(0, attribute1 - r1);
+            int miss2 = Math.Min(0, attribute2 - r2);
+            int miss3 = Math.Min(0, attribute3 - r3);
+
+            var totalMiss = miss1 + miss2 + miss3;
+
+            // We return what we had left of points. But not more then
+            // our initial Skill value. And -1 if we failed.
+            var result = Math.Max(-1, Math.Min(effectiveSkill - totalMiss, skillValue));
+            return result;
+        }
+    }
+
+    class SimpleDiceRole : Dice.DiceCalculator<bool>
+    {
+        protected override bool RoleCalculation()
+        {
+            return D6 >= 5;
+        }
+    }
+    class RepeatingDiceRole : Dice.DiceCalculator<int>
+    {
+        protected override int RoleCalculation()
+        {
+            int result = 0;
+            int role;
+            do
+            {
+                role = D6;
+                result += role;
+            } while (role == 3);
+            return result;
+        }
+    }
+
+
+
+
+
+    class MultiDiceRole : Dice.DiceCalculator<int, int>
+    {
+        protected override int RoleCalculation(int numberOfDices)
+        {
+            return numberOfDices * W6;
+        }
+    }
+
 }

@@ -2,16 +2,11 @@
   "version": "1.0.0-*",
   "description": "DiceToolSample Console Application",
   "authors": [ "Patrick" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
-
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true
   },
-
   "dependencies": {
-    "DiceTool": "1.0.0-*"
+    "DiceTool": "1.1.0-*"
   },
 
   "commands": {
@@ -19,14 +14,15 @@
   },
 
   "frameworks": {
+    "net451": { },
     "dnx451": { },
-    "dnxcore50": {
+    "netstandard1.5": {
+      "imports": "dnxcore50",
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-beta-23516",
-        "System.Collections": "4.0.11-beta-23516",
-        "System.Console": "4.0.0-beta-23516",
-        "System.Linq": "4.0.1-beta-23516",
-        "System.Threading": "4.0.11-beta-23516"
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0-rc2-3002702"
+        }
       }
     }
   }

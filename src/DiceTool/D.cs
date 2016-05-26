@@ -8,7 +8,7 @@ namespace Dice
 {
     public class D<T, TParam> : D<T>
     {
-        internal D(WAutomata<T> automata, IList<TParam> p1, IList<double> propabilityDistribution = null) : base(p1.Count, automata)
+        internal D(WAutomataBase<T> automata, IList<TParam> p1, IList<double> propabilityDistribution = null) : base(p1.Count, automata)
         {
             this.Parameters = p1;
             if (propabilityDistribution != null)
@@ -25,7 +25,11 @@ namespace Dice
         {
             w.automata.Init(w);
             var posibleRoles = w.automata.PosibleRoles().ToArray();
-            var role = posibleRoles[r.Next(posibleRoles.Length)];
+            int role;
+            if (w.automata.RandomDices)
+                role = posibleRoles[r.Next(posibleRoles.Length)];
+            else
+                role = posibleRoles[0];
             w.automata.Role(role);
             return w.Parameters[role - 1];
         }
@@ -38,7 +42,7 @@ namespace Dice
     public class D<T>
     {
         internal static readonly Random r = new Random();
-        internal readonly WAutomata<T> automata;
+        internal readonly WAutomataBase<T> automata;
 
         public IList<double> Propabilitys { get; internal set; }
 
@@ -46,8 +50,10 @@ namespace Dice
 
         public int Size { get; }
 
-        internal D(int size, WAutomata<T> automata)
+        internal D(int size, WAutomataBase<T> automata)
         {
+            if (automata == null)
+                throw new ArgumentNullException(nameof(automata));
             this.Size = size;
             this.automata = automata;
             Propabilitys = Enumerable.Repeat(1.0 / size, size).ToArray();
@@ -69,7 +75,7 @@ namespace Dice
             for (int i = 0; i < count; i++)
                 tempNumbers = Cross(tempNumbers, numbers, (x1, x2) => x1 + x2);
 
-            var allVariants = Math.Pow( w.Size, count);
+            var allVariants = Math.Pow(w.Size, count);
 
             var group = tempNumbers.GroupBy(x => x).Select(x => new { Number = x.Key, Propability = (x.Count() / allVariants) }).OrderBy(x => x.Number).ToArray();
 
@@ -95,7 +101,11 @@ namespace Dice
                 return (int)(w as D<T, int>);
             w.automata.Init(w);
             var posibleRoles = w.automata.PosibleRoles().ToArray();
-            var role = posibleRoles[r.Next(posibleRoles.Length)];
+            int role;
+            if (w.automata.RandomDices)
+                role = posibleRoles[r.Next(posibleRoles.Length)];
+            else
+                role = posibleRoles[0];
             w.automata.Role(role);
             return role;
         }

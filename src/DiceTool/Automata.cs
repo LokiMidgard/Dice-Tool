@@ -7,12 +7,151 @@ using System.Threading.Tasks;
 namespace Dice
 {
 
-    internal class WAutomata<T>
+    internal class WAutomata<T, P1, P2, P3, P4, P5> : WAutomataBase<T>
     {
-        private Node<T> root;
-        private int lastRole;
-        private Node<T> currentNode;
-        private readonly List<EndNode<T>> endNodeCach = new List<EndNode<T>>();
+        private readonly Dictionary<Tuple<T, P1, P2, P3, P4, P5>, double> resultPropabilitys = new Dictionary<Tuple<T, P1, P2, P3, P4, P5>, double>();
+
+        protected override int NumberOfParameters { get; } = 5;
+        public IList<ResultEntry<T, P1, P2, P3, P4, P5>> GetDistribution() => resultPropabilitys.Select(x => new ResultEntry<T, P1, P2, P3, P4, P5>(x.Value, x.Key.Item1, x.Key.Item2, x.Key.Item3, x.Key.Item4, x.Key.Item5, x.Key.Item6)).ToArray();
+
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            var p1 = GetNodeAt<P1>(0, endnode);
+            var p2 = GetNodeAt<P2>(1, endnode);
+            var p3 = GetNodeAt<P3>(2, endnode);
+            var p4 = GetNodeAt<P4>(3, endnode);
+            var p5 = GetNodeAt<P5>(4, endnode);
+            var tuple = Tuple.Create(endnode.Result, p1, p2, p3, p4, p5);
+            if (!resultPropabilitys.ContainsKey(tuple))
+                resultPropabilitys.Add(tuple, 0.0);
+            resultPropabilitys[tuple] += propability;
+        }
+    }
+    internal class WAutomata<T, P1, P2, P3, P4> : WAutomataBase<T>
+    {
+        private readonly Dictionary<Tuple<T, P1, P2, P3, P4>, double> resultPropabilitys = new Dictionary<Tuple<T, P1, P2, P3, P4>, double>();
+
+        protected override int NumberOfParameters { get; } = 4;
+        public IList<ResultEntry<T, P1, P2, P3, P4>> GetDistribution() => resultPropabilitys.Select(x => new ResultEntry<T, P1, P2, P3, P4>(x.Value, x.Key.Item1, x.Key.Item2, x.Key.Item3, x.Key.Item4, x.Key.Item5)).ToArray();
+
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            var p1 = GetNodeAt<P1>(0, endnode);
+            var p2 = GetNodeAt<P2>(1, endnode);
+            var p3 = GetNodeAt<P3>(2, endnode);
+            var p4 = GetNodeAt<P4>(3, endnode);
+            var tuple = Tuple.Create(endnode.Result, p1, p2, p3, p4);
+            if (!resultPropabilitys.ContainsKey(tuple))
+                resultPropabilitys.Add(tuple, 0.0);
+            resultPropabilitys[tuple] += propability;
+        }
+    }
+    internal class WAutomata<T, P1, P2, P3> : WAutomataBase<T>
+    {
+        private readonly Dictionary<Tuple<T, P1, P2, P3>, double> resultPropabilitys = new Dictionary<Tuple<T, P1, P2, P3>, double>();
+
+        protected override int NumberOfParameters { get; } = 3;
+        public IList<ResultEntry<T, P1, P2, P3>> GetDistribution()
+        => resultPropabilitys.Select(x => new ResultEntry<T, P1, P2, P3>(x.Value, x.Key.Item1, x.Key.Item2, x.Key.Item3, x.Key.Item4)).ToArray();
+
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            var p1 = GetNodeAt<P1>(0, endnode);
+            var p2 = GetNodeAt<P2>(1, endnode);
+            var p3 = GetNodeAt<P3>(2, endnode);
+            var tuple = Tuple.Create(endnode.Result, p1, p2, p3);
+            if (!resultPropabilitys.ContainsKey(tuple))
+                resultPropabilitys.Add(tuple, 0.0);
+            resultPropabilitys[tuple] += propability;
+        }
+    }
+    internal class WAutomata<T, P1, P2> : WAutomataBase<T>
+    {
+        private readonly Dictionary<Tuple<T, P1, P2>, double> resultPropabilitys = new Dictionary<Tuple<T, P1, P2>, double>();
+        protected override int NumberOfParameters { get; } = 2;
+        public IList<ResultEntry<T, P1, P2>> GetDistribution() => resultPropabilitys.Select(x => new ResultEntry<T, P1, P2>(x.Value, x.Key.Item1, x.Key.Item2, x.Key.Item3)).ToArray();
+
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            var p1 = GetNodeAt<P1>(0, endnode);
+            var p2 = GetNodeAt<P2>(1, endnode);
+            var tuple = Tuple.Create(endnode.Result, p1, p2);
+            if (!resultPropabilitys.ContainsKey(tuple))
+                resultPropabilitys.Add(tuple, 0.0);
+            resultPropabilitys[tuple] += propability;
+        }
+    }
+    internal class WAutomata<T, P1> : WAutomataBase<T>
+    {
+        private readonly Dictionary<Tuple<T, P1>, double> resultPropabilitys = new Dictionary<Tuple<T, P1>, double>();
+        protected override int NumberOfParameters { get; } = 1;
+        public IList<ResultEntry<T, P1>> GetDistribution() => resultPropabilitys.Select(x => new ResultEntry<T, P1>(x.Value, x.Key.Item1, x.Key.Item2)).ToArray();
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            var p1 = GetNodeAt<P1>(0, endnode);
+            var tuple = Tuple.Create(endnode.Result, p1);
+            if (!resultPropabilitys.ContainsKey(tuple))
+                resultPropabilitys.Add(tuple, 0.0);
+            resultPropabilitys[tuple] += propability;
+        }
+    }
+    internal class WAutomata<T> : WAutomataBase<T>
+    {
+        private readonly Dictionary<T, double> resultPropabilitys = new Dictionary<T, double>();
+        protected override int NumberOfParameters { get; } = 0;
+
+        public IList<ResultEntry<T>> GetDistribution() => resultPropabilitys.Select(x => new ResultEntry<T>(x.Value, x.Key)).ToArray();
+
+        public override void Clear()
+        {
+            base.Clear();
+            resultPropabilitys.Clear();
+        }
+
+        protected override void AddPropability(EndNode<T> endnode, double propability)
+        {
+            if (!resultPropabilitys.ContainsKey(endnode.Result))
+                resultPropabilitys.Add(endnode.Result, 0.0);
+            resultPropabilitys[endnode.Result] += propability;
+        }
+    }
+    abstract internal class WAutomataBase<T>
+    {
+        internal bool RandomDices { get; } = false;
+        protected Node<T> root;
+        protected int lastRole;
+        protected Node<T> currentNode;
+
+        public int CalculatedPosibilitys { get; set; }
+
+        protected abstract int NumberOfParameters { get; }
+
+        protected abstract void AddPropability(EndNode<T> endnode, double propability);
 
         /// <summary>
         /// 
@@ -21,148 +160,21 @@ namespace Dice
         public bool NextRoll(T result)
         {
             var endNode = new EndNode<T>(result, currentNode);
-            endNodeCach.Add(endNode);
             currentNode.Childs[lastRole - 1] = endNode;
             currentNode = null;
+            var propability = CalculatePropabilityFactor(endNode);
+            AddPropability(endNode, propability);
             endNode.SetFinished();
+            CalculatedPosibilitys++;
             return !root.IsFinished;
         }
 
 
-        public IList<ResultEntry<T>> GetDistribution()
-        {
-            return endNodeCach
-                .Select(x => new { Probability = CalculatePropabilityFactor(x, 0), Result = x.Result })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T>(x.Sum(y => y.Probability), x.Key))
-            .ToArray();
-        }
-        public IList<ResultEntry<T, P1>> GetDistribution<P1>()
-        {
-            return endNodeCach
-                .Select(x => new
-                {
-                    Probability = CalculatePropabilityFactor(x, 1),
-                    Result = new
-                    {
-                        x.Result,
-                        P1 = GetNodeAt<P1>(0, x)
-                    }
-                })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T, P1>(
-                    x.Sum(y => y.Probability),
-                    x.Key.Result,
-                    x.Key.P1))
-            .ToArray();
-        }
 
-        public IList<ResultEntry<T, P1, P2>> GetDistribution<P1, P2>()
-        {
-            return endNodeCach
-                .Select(x => new
-                {
-                    Probability = CalculatePropabilityFactor(x, 2),
-                    Result = new
-                    {
-                        x.Result,
-                        P1 = GetNodeAt<P1>(0, x),
-                        P2 = GetNodeAt<P2>(1, x)
-                    }
-                })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T, P1, P2>(
-                    x.Sum(y => y.Probability),
-                    x.Key.Result,
-                    x.Key.P1,
-                    x.Key.P2))
-            .ToArray();
-        }
 
-        public IList<ResultEntry<T, P1, P2, P3>> GetDistribution<P1, P2, P3>()
+        protected double CalculatePropabilityFactor(EndNode<T> x)
         {
-            return endNodeCach
-                .Select(x => new
-                {
-                    Probability = CalculatePropabilityFactor(x, 3),
-                    Result = new
-                    {
-                        x.Result,
-                        P1 = GetNodeAt<P1>(0, x),
-                        P2 = GetNodeAt<P2>(1, x),
-                        P3 = GetNodeAt<P3>(2, x)
-                    }
-                })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T, P1, P2, P3>(
-                    x.Sum(y => y.Probability),
-                    x.Key.Result,
-                    x.Key.P1,
-                    x.Key.P2, 
-                    x.Key.P3))
-            .ToArray();
-        }
-
-        public IList<ResultEntry<T, P1, P2, P3, P4>> GetDistribution<P1, P2, P3, P4>()
-        {
-            return endNodeCach
-                .Select(x => new
-                {
-                    Probability = CalculatePropabilityFactor(x, 4),
-                    Result = new
-                    {
-                        x.Result,
-                        P1 = GetNodeAt<P1>(0, x),
-                        P2 = GetNodeAt<P2>(1, x),
-                        P3 = GetNodeAt<P3>(2, x),
-                        P4 = GetNodeAt<P4>(3, x)
-                    }
-                })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T, P1, P2, P3, P4>(
-                    x.Sum(y => y.Probability),
-                    x.Key.Result,
-                    x.Key.P1,
-                    x.Key.P2,
-                    x.Key.P3,
-                    x.Key.P4))
-            .ToArray();
-        }
-        public IList<ResultEntry<T, P1, P2, P3, P4, P5>> GetDistribution<P1, P2, P3, P4, P5>()
-        {
-            return endNodeCach
-                .Select(x => new
-                {
-                    Probability = CalculatePropabilityFactor(x, 5),
-                    Result = new
-                    {
-                        x.Result,
-                        P1 = GetNodeAt<P1>(0, x),
-                        P2 = GetNodeAt<P2>(1, x),
-                        P3 = GetNodeAt<P3>(2, x),
-                        P4 = GetNodeAt<P4>(3, x),
-                        P5 = GetNodeAt<P5>(4, x)
-                    }
-                })
-                .GroupBy(x => x.Result)
-                .Select(x => new ResultEntry<T, P1, P2, P3, P4, P5>(
-                    x.Sum(y => y.Probability),
-                    x.Key.Result,
-                    x.Key.P1,
-                    x.Key.P2,
-                    x.Key.P3,
-                    x.Key.P4,
-                    x.Key.P5))
-            .ToArray();
-        }
-        public int GetCalculatedPosibilitys()
-
-        {
-            return endNodeCach.Count;
-        }
-
-        private double CalculatePropabilityFactor(EndNode<T> x, int startingDepth)
-        {
+            var startingDepth = NumberOfParameters;
             var count = 1.0;
             for (Node<T> current = x, last = null; current != null && current.Depth >= startingDepth; last = current, current = current.Parent)
             {
@@ -174,8 +186,8 @@ namespace Dice
             return count;
         }
 
-        private List<Node<T>> getNodeCach;
-        private TParam GetNodeAt<TParam>(int index, EndNode<T> x)
+        protected List<Node<T>> getNodeCach;
+        protected TParam GetNodeAt<TParam>(int index, EndNode<T> x)
         {
             var list = getNodeCach;
             if (list == null || list[list.Count - 1] != x)
@@ -196,11 +208,10 @@ namespace Dice
 
 
 
-        public void Clear()
+        public virtual void Clear()
         {
             currentNode = null;
             root = null;
-            endNodeCach.Clear();
         }
 
         internal void Role(int i)
