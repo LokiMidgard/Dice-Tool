@@ -35,8 +35,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => x.Item1,
-                     x => x.Item1,
+                     x => x.Item2,
+                     x => x.Item2,
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2));
         }
@@ -49,8 +49,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => x.Item1,
-                     x => x.Item1,
+                     x => x.Item2,
+                     x => x.Item2,
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2));
         }
@@ -64,8 +64,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2),
-                     x => Tuple.Create(x.Item1, x.Item2),
+                     x => Tuple.Create(x.Item3, x.Item2),
+                     x => Tuple.Create(x.Item3, x.Item2),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3));
         }
@@ -78,8 +78,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2),
-                     x => Tuple.Create(x.Item1, x.Item2),
+                     x => Tuple.Create(x.Item3, x.Item2),
+                     x => Tuple.Create(x.Item3, x.Item2),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3));
         }
@@ -93,8 +93,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3),
+                     x => Tuple.Create(x.Item4, x.Item2, x.Item3),
+                     x => Tuple.Create(x.Item4, x.Item2, x.Item3),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4));
         }
@@ -107,8 +107,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3),
+                     x => Tuple.Create(x.Item4, x.Item2, x.Item3),
+                     x => Tuple.Create(x.Item4, x.Item2, x.Item3),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4));
         }
@@ -122,8 +122,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4),
+                     x => Tuple.Create(x.Item5, x.Item2, x.Item3, x.Item4),
+                     x => Tuple.Create(x.Item5, x.Item2, x.Item3, x.Item4),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4, x1.Item5));
         }
@@ -136,8 +136,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4),
+                     x => Tuple.Create(x.Item5, x.Item2, x.Item3, x.Item4),
+                     x => Tuple.Create(x.Item5, x.Item2, x.Item3, x.Item4),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4, x1.Item5));
         }
@@ -150,8 +150,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
+                     x => Tuple.Create(x.Item6, x.Item2, x.Item3, x.Item4, x.Item5),
+                     x => Tuple.Create(x.Item6, x.Item2, x.Item3, x.Item4, x.Item5),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4, x1.Item5, x1.Item6));
         }
@@ -164,8 +164,8 @@ namespace Dice
             return average2
                  .Join(
                      average,
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
-                     x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5),
+                     x => Tuple.Create(x.Item6, x.Item2, x.Item3, x.Item4, x.Item5),
+                     x => Tuple.Create(x.Item6, x.Item2, x.Item3, x.Item4, x.Item5),
                      (x1, x2) =>
                          Tuple.Create(x1.Item1 - Math.Pow(x2.Item1, 2), x1.Item2, x1.Item3, x1.Item4, x1.Item5, x1.Item6));
         }
