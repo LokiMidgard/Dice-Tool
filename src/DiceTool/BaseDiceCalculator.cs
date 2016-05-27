@@ -7,31 +7,62 @@ using System.Threading.Tasks;
 namespace Dice
 {
 
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T>();
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T, P1> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T, P1>();
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T, P1, P2> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T, P1, P2>();
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T, P1, P2, P3> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T, P1, P2, P3>();
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T, P1, P2, P3, P4> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T, P1, P2, P3, P4>();
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
 
 
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BaseDiceCalculator<T, P1, P2, P3, P4, P5> : BaseBaseDiceCalculator<T>
     {
         internal override WAutomataBase<T> Automata { get; } = new WAutomata<T, P1, P2, P3, P4, P5>();
+
+        internal BaseDiceCalculator()
+        {
+
+        }
     }
 
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
