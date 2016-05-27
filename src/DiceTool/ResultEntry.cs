@@ -15,6 +15,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T, TParam1, TParam2, TParam3, TParam4, TParam5> WithResult<T>(T v) => new ResultEntry<T, TParam1, TParam2, TParam3, TParam4, TParam5>(Propability, v, Item1, Item2, Item3, Item4, Item5);
     }
     public class ResultEntry<T, TParam1, TParam2, TParam3, TParam4> : Tuple<TParam1, TParam2, TParam3, TParam4>, IResultEntry<T>
     {
@@ -25,6 +27,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T, TParam1, TParam2, TParam3, TParam4> WithResult<T>(T v) => new ResultEntry<T, TParam1, TParam2, TParam3, TParam4>(Propability, v, Item1, Item2, Item3, Item4);
     }
     public class ResultEntry<T, TParam1, TParam2, TParam3> : Tuple<TParam1, TParam2, TParam3>, IResultEntry<T>
     {
@@ -35,6 +39,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T, TParam1, TParam2, TParam3> WithResult<T>(T v) => new ResultEntry<T, TParam1, TParam2, TParam3>(Propability, v, Item1, Item2, Item3);
     }
     public class ResultEntry<T, TParam1, TParam2> : Tuple<TParam1, TParam2>, IResultEntry<T>
     {
@@ -45,6 +51,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T, TParam1, TParam2> WithResult<T>(T v) => new ResultEntry<T, TParam1, TParam2>(Propability, v, Item1, Item2);
     }
     public class ResultEntry<T, TParam1> : Tuple<TParam1>, IResultEntry<T>
     {
@@ -55,6 +63,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T, TParam1> WithResult<T>(T v) => new ResultEntry<T, TParam1>(Propability, v, Item1);
     }
     public class ResultEntry<T> : IResultEntry<T>
     {
@@ -65,5 +75,8 @@ namespace Dice
         }
         public double Propability { get; }
         public T Result { get; }
+
+        internal ResultEntry<T> WithResult<T>(T v) => new ResultEntry<T>(Propability, v);
+
     }
 }
