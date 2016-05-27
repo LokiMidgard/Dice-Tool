@@ -6,7 +6,9 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "DiceTool": "1.1.0-*"
+    "DiceTool": {
+      "target": "project"
+    }
   },
 
   "commands": {
