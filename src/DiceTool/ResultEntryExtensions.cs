@@ -174,59 +174,76 @@ namespace Dice
 
 
         #region Average
-        public static double Average(this IEnumerable<ResultEntry<double>> results) => results.Sum(x => x.Propability * x.Result);
-        public static double Average<T>(this IEnumerable<ResultEntry<T>> results, Func<T, double> numericTranslation) => results.Sum(x => x.Propability * numericTranslation(x.Result));
-
+        public static double Average(this IEnumerable<ResultEntry<double>> results)
+        {
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.Sum(x => x.Propability / propabilitySum * x.Result);
+        }
+        public static double Average<T>(this IEnumerable<ResultEntry<T>> results, Func<T, double> numericTranslation)
+        {
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result));
+        }
 
 
         public static IEnumerable<Tuple<double, P1>> Average<P1>(this IEnumerable<ResultEntry<double, P1>> results)
         {
-            return results.GroupBy(x => x.Item1).Select(y => Tuple.Create(y.Sum(x => x.Propability * x.Result), y.Key));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => x.Item1).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * x.Result), y.Key));
         }
 
         public static IEnumerable<Tuple<double, P1>> Average<T, P1>(this IEnumerable<ResultEntry<T, P1>> results, Func<T, double> numericTranslation)
         {
-            return results.GroupBy(x => x.Item1).Select(y => Tuple.Create(y.Sum(x => x.Propability * numericTranslation(x.Result)), y.Key));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => x.Item1).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result)), y.Key));
         }
 
         public static IEnumerable<Tuple<double, P1, P2>> Average<P1, P2>(this IEnumerable<ResultEntry<double, P1, P2>> results)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2)).Select(y => Tuple.Create(y.Sum(x => x.Propability * x.Result), y.Key.Item1, y.Key.Item2));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * x.Result), y.Key.Item1, y.Key.Item2));
         }
 
         public static IEnumerable<Tuple<double, P1, P2>> Average<T, P1, P2>(this IEnumerable<ResultEntry<T, P1, P2>> results, Func<T, double> numericTranslation)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2)).Select(y => Tuple.Create(y.Sum(x => x.Propability * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2));
         }
 
 
         public static IEnumerable<Tuple<double, P1, P2, P3>> Average<P1, P2, P3>(this IEnumerable<ResultEntry<double, P1, P2, P3>> results)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3)).Select(y => Tuple.Create(y.Sum(x => x.Propability * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3));
         }
 
         public static IEnumerable<Tuple<double, P1, P2, P3>> Average<T, P1, P2, P3>(this IEnumerable<ResultEntry<T, P1, P2, P3>> results, Func<T, double> numericTranslation)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3)).Select(y => Tuple.Create(y.Sum(x => x.Propability * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3));
         }
 
         public static IEnumerable<Tuple<double, P1, P2, P3, P4>> Average<P1, P2, P3, P4>(this IEnumerable<ResultEntry<double, P1, P2, P3, P4>> results)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4)).Select(y => Tuple.Create(y.Sum(x => x.Propability * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4));
         }
 
         public static IEnumerable<Tuple<double, P1, P2, P3, P4>> Average<T, P1, P2, P3, P4>(this IEnumerable<ResultEntry<T, P1, P2, P3, P4>> results, Func<T, double> numericTranslation)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4)).Select(y => Tuple.Create(y.Sum(x => x.Propability * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4));
         }
         public static IEnumerable<Tuple<double, P1, P2, P3, P4, P5>> Average<P1, P2, P3, P4, P5>(this IEnumerable<ResultEntry<double, P1, P2, P3, P4, P5>> results)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)).Select(y => Tuple.Create(y.Sum(x => x.Propability * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4, y.Key.Item5));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * x.Result), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4, y.Key.Item5));
         }
 
         public static IEnumerable<Tuple<double, P1, P2, P3, P4, P5>> Average<T, P1, P2, P3, P4, P5>(this IEnumerable<ResultEntry<T, P1, P2, P3, P4, P5>> results, Func<T, double> numericTranslation)
         {
-            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)).Select(y => Tuple.Create(y.Sum(x => x.Propability * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4, y.Key.Item5));
+            var propabilitySum = results.Sum(x => x.Propability);
+            return results.GroupBy(x => Tuple.Create(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5)).Select(y => Tuple.Create(y.Sum(x => x.Propability / propabilitySum * numericTranslation(x.Result)), y.Key.Item1, y.Key.Item2, y.Key.Item3, y.Key.Item4, y.Key.Item5));
         }
 
 
