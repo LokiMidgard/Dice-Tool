@@ -8,6 +8,64 @@ namespace Dice
     public static class ResultEntryExtensions
     {
 
+        public static double Variance(this IEnumerable<ResultEntry<double>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static double Variance<T>(this IEnumerable<ResultEntry<T>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+        }
+
+        public static IEnumerable<Tuple<double, P1>> Variance<P1>(this IEnumerable<ResultEntry<double, P1>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static IEnumerable<Tuple<double, P1>> Variance<T, P1>(this IEnumerable<ResultEntry<T, P1>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+        }
+
+        public static IEnumerable<Tuple<double, P1, P2>> Variance<P1, P2>(this IEnumerable<ResultEntry<double, P1, P2>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static IEnumerable<Tuple<double, P1, P2>> Variance<T, P1, P2>(this IEnumerable<ResultEntry<T, P1, P2>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+        }
+
+        public static IEnumerable<Tuple<double, P1, P2, P3>> Variance<P1, P2, P3>(this IEnumerable<ResultEntry<double, P1, P2, P3>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static IEnumerable<Tuple<double, P1, P2, P3>> Variance<T, P1, P2, P3>(this IEnumerable<ResultEntry<T, P1, P2, P3>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+        }
+
+        public static IEnumerable<Tuple<double, P1, P2, P3, P4>> Variance<P1, P2, P3, P4>(this IEnumerable<ResultEntry<double, P1, P2, P3, P4>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static IEnumerable<Tuple<double, P1, P2, P3, P4>> Variance<T, P1, P2, P3, P4>(this IEnumerable<ResultEntry<T, P1, P2, P3, P4>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+
+        }
+        public static IEnumerable<Tuple<double, P1, P2, P3, P4, P5>> Variance<P1, P2, P3, P4, P5>(this IEnumerable<ResultEntry<double, P1, P2, P3, P4, P5>> results, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult(((x.Result) - min) / (max - min))));
+        }
+        public static IEnumerable<Tuple<double, P1, P2, P3, P4, P5>> Variance<T, P1, P2, P3, P4, P5>(this IEnumerable<ResultEntry<T, P1, P2, P3, P4, P5>> results, Func<T, double> numericTranslation, double min, double max)
+        {
+            return Variance(results.Select(x => x.WithResult((numericTranslation(x.Result) - min) / (max - min))));
+        }
+
+
+
+
+
         #region Variance
         public static double Variance(this IEnumerable<ResultEntry<double>> results)
         {
