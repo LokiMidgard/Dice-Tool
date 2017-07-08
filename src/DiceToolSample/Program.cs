@@ -72,8 +72,7 @@ namespace DiceToolSample
                 Enumerable.Range(-3, 11).ToList(),  // Dificulty
                 new Progress<int>(status =>
                 {
-                    Console.CursorLeft = 0;
-                    Console.CursorTop = 0;
+                    Console.Clear();
                     Console.WriteLine($"{status}/{calculateTotalPosibilitys}");
                     Console.Write("[");
                     const int progressbarWidth = 50;
@@ -130,9 +129,9 @@ namespace DiceToolSample
             // every Attribute. We must role equal or less then
             // the value.
 
-            int miss1 = Math.Min(0, attribute1 - r1);
-            int miss2 = Math.Min(0, attribute2 - r2);
-            int miss3 = Math.Min(0, attribute3 - r3);
+            int miss1 = Math.Abs(Math.Min(0, attribute1 - r1));
+            int miss2 = Math.Abs(Math.Min(0, attribute2 - r2));
+            int miss3 = Math.Abs(Math.Min(0, attribute3 - r3));
 
             var totalMiss = miss1 + miss2 + miss3;
 
