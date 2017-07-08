@@ -10,7 +10,7 @@
     <Description>This library helps with the calculation of dice provability's.</Description>
     <PackageTags>Dice; Dice Calculation</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
-     <Version>1.1.1</Version>
+     <Version>1.1.43</Version>
     <Version Condition="'$(Configuration)'=='Debug'">$(Version)-Debug</Version>
     <Authors>Patrick Kranz</Authors>
     <PackageLicenseUrl>https://github.com/LokiMidgard/Dice-Tool/blob/master/License.txt</PackageLicenseUrl>
