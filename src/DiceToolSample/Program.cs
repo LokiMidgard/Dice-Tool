@@ -10,6 +10,8 @@ namespace DiceToolSample
     {
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
             b1().Wait();
             Console.ReadKey(true);
             Console.Clear();
@@ -22,6 +24,7 @@ namespace DiceToolSample
             b4().Wait();
             Console.ReadKey(true);
             Console.Clear();
+            Console.ResetColor();
             return;
         }
 

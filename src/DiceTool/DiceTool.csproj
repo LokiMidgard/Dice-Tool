@@ -1,7 +1,28 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>DiceTool</PackageId>
+    <Description>This library helps with the calculation of dice provability's.</Description>
+    <PackageTags>Dice; Dice Calculation</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+     <Version>1.1.1</Version>
+    <Version Condition="'$(Configuration)'=='Debug'">$(Version)-Debug</Version>
+    <Authors>Patrick Kranz</Authors>
+    <PackageLicenseUrl>https://github.com/LokiMidgard/Dice-Tool/blob/master/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/LokiMidgard/Dice-Tool</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LokiMidgard/Dice-Tool.git</RepositoryUrl>
+    <Copyright>Patrick Kranz</Copyright>
+     <PackageReleaseNotes>
+      <![CDATA[
+Moved to NetStandard
+
+]]>
+    </PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
