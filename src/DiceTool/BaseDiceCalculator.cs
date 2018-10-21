@@ -69,6 +69,10 @@ namespace Dice
     public abstract class BaseBaseDiceCalculator<T>
     {
         internal abstract WAutomataBase<T> Automata { get; }
+
+        protected D<T, TParam> CreateDice<TParam>(params (TParam value, double propability)[] faces) => this.CreateDice(faces as IEnumerable<(TParam value, double propability)>);
+        protected D<T, TParam> CreateDice<TParam>(IEnumerable<(TParam value, double propability)> faces) => new D<T, TParam>(this.Automata, faces.Select(x => x.value).ToList(), faces.Select(x => x.propability).ToList());
+
         #region Dices
         protected D<T> W2 { get; }
         protected D<T> W3 { get; }
