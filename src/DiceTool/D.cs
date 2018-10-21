@@ -37,7 +37,6 @@ namespace Dice
 
     public class D<T>
     {
-        internal static readonly Random r = new Random();
         internal readonly WAutomataBase<T> automata;
 
         public IList<double> Propabilitys { get; internal set; }
@@ -108,7 +107,7 @@ namespace Dice
             switch (w.automata.Configuration.DiceResolution)
             {
                 case DiceResolution.Random:
-                    role = posibleRoles[r.Next(posibleRoles.Length)];
+                    role = posibleRoles[w.automata.Random.Next(posibleRoles.Length)];
                     break;
                 case DiceResolution.SmallestDiceFirst:
                     role = posibleRoles[0];

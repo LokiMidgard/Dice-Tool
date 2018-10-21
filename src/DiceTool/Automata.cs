@@ -147,6 +147,8 @@ namespace Dice
         protected int lastRole;
         protected Node<T> currentNode;
 
+        internal Random Random { get; private set; }
+
         public int CalculatedPosibilitys { get; set; }
 
         protected abstract int NumberOfParameters { get; }
@@ -212,6 +214,7 @@ namespace Dice
         {
             currentNode = null;
             root = null;
+            Random = this.Configuration.RandomSeed.HasValue ? new Random(this.Configuration.RandomSeed.Value) : new Random();
         }
 
         internal void Role(int i)

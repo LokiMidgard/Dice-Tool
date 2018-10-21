@@ -65,11 +65,11 @@ namespace DiceToolSample
             var theDarkEyeGenerator = new ThDarkEyeRole();
             var calculateTotalPosibilitys = 8 * 8 * 8 * 15 * 11 * 20 * 20 * 20;
             var results = await theDarkEyeGenerator.DoIt(
-                Enumerable.Range(7, 8).ToList(),    // Attribute 1
-                Enumerable.Range(7, 8).ToList(),    // Attribute 2
-                Enumerable.Range(7, 8).ToList(),    // Attribute 3
-                Enumerable.Range(0, 15).ToList(),   // Skill
-                Enumerable.Range(-3, 11).ToList(),  // Dificulty
+                Enumerable.Range(12, 1).ToList(),    // Attribute 1
+                Enumerable.Range(13, 1).ToList(),    // Attribute 2
+                Enumerable.Range(13, 1).ToList(),    // Attribute 3
+                Enumerable.Range(0, 1).ToList(),   // Skill
+                Enumerable.Range(0, 1).ToList(),  // Dificulty
                 new Progress<int>(status =>
                 {
                     Console.Clear();

@@ -14,36 +14,38 @@ namespace Dice
 
         public Task<IList<ResultEntry<T>>> DoIt(System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T>>> DoIt(IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            Automata.Configuration = configuration;
-
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    result = RoleCalculation();
+                    result = this.RoleCalculation();
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }
@@ -58,39 +60,42 @@ namespace Dice
 
         public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(list1, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T, P1>>> DoIt(IList<P1> list1, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            Automata.Configuration = configuration;
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
 
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    P1 d1 = new D<T, P1>(Automata, list1);
+                    P1 d1 = new D<T, P1>(this.Automata, list1);
 
 
-                    result = RoleCalculation(d1);
+                    result = this.RoleCalculation(d1);
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }
@@ -104,40 +109,42 @@ namespace Dice
 
         public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(list1, list2, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T, P1, P2>>> DoIt(IList<P1> list1, IList<P2> list2, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-
-            Automata.Configuration = configuration;
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    P1 d1 = new D<T, P1>(Automata, list1);
-                    P2 d2 = new D<T, P2>(Automata, list2);
+                    P1 d1 = new D<T, P1>(this.Automata, list1);
+                    P2 d2 = new D<T, P2>(this.Automata, list2);
 
 
-                    result = RoleCalculation(d1, d2);
+                    result = this.RoleCalculation(d1, d2);
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }
@@ -150,41 +157,43 @@ namespace Dice
 
         public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(list1, list2, list3, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T, P1, P2, P3>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-
-            Automata.Configuration = configuration;
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    P1 d1 = new D<T, P1>(Automata, list1);
-                    P2 d2 = new D<T, P2>(Automata, list2);
-                    P3 d3 = new D<T, P3>(Automata, list3);
+                    P1 d1 = new D<T, P1>(this.Automata, list1);
+                    P2 d2 = new D<T, P2>(this.Automata, list2);
+                    P3 d3 = new D<T, P3>(this.Automata, list3);
 
 
-                    result = RoleCalculation(d1, d2, d3);
+                    result = this.RoleCalculation(d1, d2, d3);
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }
@@ -198,42 +207,44 @@ namespace Dice
 
         public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, list4, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(list1, list2, list3, list4, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T, P1, P2, P3, P4>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-
-            Automata.Configuration = configuration;
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    P1 d1 = new D<T, P1>(Automata, list1);
-                    P2 d2 = new D<T, P2>(Automata, list2);
-                    P3 d3 = new D<T, P3>(Automata, list3);
-                    P4 d4 = new D<T, P4>(Automata, list4);
+                    P1 d1 = new D<T, P1>(this.Automata, list1);
+                    P2 d2 = new D<T, P2>(this.Automata, list2);
+                    P3 d3 = new D<T, P3>(this.Automata, list3);
+                    P4 d4 = new D<T, P4>(this.Automata, list4);
 
 
-                    result = RoleCalculation(d1, d2, d3, d4);
+                    result = this.RoleCalculation(d1, d2, d3, d4);
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }
@@ -247,42 +258,44 @@ namespace Dice
 
         public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-            return DoIt(list1, list2, list3, list4, list5, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
+            return this.DoIt(list1, list2, list3, list4, list5, null, default(TimeSpan), null, default(TimeSpan), cancel, configuration);
         }
 
         public Task<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> DoIt(IList<P1> list1, IList<P2> list2, IList<P3> list3, IList<P4> list4, IList<P5> list5, IProgress<int> progressSimple, TimeSpan reportIntervallSimple, IProgress<IList<ResultEntry<T, P1, P2, P3, P4, P5>>> progress, TimeSpan reportIntervall, System.Threading.CancellationToken cancel = default(System.Threading.CancellationToken), DiceCalculatorConfiguration configuration = null)
         {
-
-            Automata.Configuration = configuration;
+            this.Automata.Configuration = configuration ?? new DiceCalculatorConfiguration();
+            this.Automata.Clear(); // Resets everythink
             var erg = Task.Factory.StartNew(() =>
             {
                 DateTime start = DateTime.Now;
                 DateTime startSimple = DateTime.Now;
                 T result;
+                ulong count = 0;
                 do
                 {
-                    P1 d1 = new D<T, P1>(Automata, list1);
-                    P2 d2 = new D<T, P2>(Automata, list2);
-                    P3 d3 = new D<T, P3>(Automata, list3);
-                    P4 d4 = new D<T, P4>(Automata, list4);
-                    P5 d5 = new D<T, P5>(Automata, list5);
+                    P1 d1 = new D<T, P1>(this.Automata, list1);
+                    P2 d2 = new D<T, P2>(this.Automata, list2);
+                    P3 d3 = new D<T, P3>(this.Automata, list3);
+                    P4 d4 = new D<T, P4>(this.Automata, list4);
+                    P5 d5 = new D<T, P5>(this.Automata, list5);
 
-                    result = RoleCalculation(d1, d2, d3, d4, d5);
+                    result = this.RoleCalculation(d1, d2, d3, d4, d5);
                     if (progress != null && DateTime.Now - start > reportIntervall)
                     {
-                        var data = Automata.GetDistribution();
+                        var data = this.Automata.GetDistribution();
                         progress.Report(data);
                         start = DateTime.Now;
                     }
                     if (progressSimple != null && DateTime.Now - startSimple > reportIntervallSimple)
                     {
-                        var data = Automata.CalculatedPosibilitys;
+                        var data = this.Automata.CalculatedPosibilitys;
                         progressSimple.Report(data);
                         startSimple = DateTime.Now;
                     }
-                } while (Automata.NextRoll(result) && !cancel.IsCancellationRequested);
+                    count++;
+                } while (this.Automata.NextRoll(result) && !cancel.IsCancellationRequested && (Automata.Configuration.NumberOfIterrations == 0 || Automata.Configuration.NumberOfIterrations > count));
 
-                return Automata.GetDistribution();
+                return this.Automata.GetDistribution();
             }, TaskCreationOptions.LongRunning);
             return erg;
         }

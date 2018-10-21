@@ -7,7 +7,21 @@ namespace Dice
 {
     public class DiceCalculatorConfiguration
     {
+        /// <summary>
+        /// Default Random
+        /// </summary>
         public DiceResolution DiceResolution { get; set; } = DiceResolution.Random;
+
+
+        /// <summary>
+        /// If set provides the seed to the internal rng for deterministic results.
+        /// </summary>
+        public int? RandomSeed { get; set; }
+
+        /// <summary>
+        /// Specifies the number of Itterations (0 equals infinit).
+        /// </summary>
+        public ulong NumberOfIterrations { get; set; }
     }
 
     public enum DiceResolution
