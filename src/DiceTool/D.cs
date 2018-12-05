@@ -15,7 +15,7 @@ namespace Dice
             {
                 if (p1.Count != propabilityDistribution.Count)
                     throw new ArgumentException("Number of Parameters and Propabilitys must have the same size.");
-                Propabilitys = propabilityDistribution;
+                this.Propabilitys = propabilityDistribution;
             }
         }
 
@@ -28,6 +28,31 @@ namespace Dice
             int role = SelectRole(w);
             w.automata.Role(role);
             return w.Parameters[role - 1];
+        }
+
+        public D<T, TOut> Acumulate<TOut>(IEnumerable<(TParam value, TOut result)> results)
+        {
+            if (!(results is IList<(TParam value, TOut result)> list))
+                list = results.ToArray();
+
+            var lookup = results.Select(x => x.value).ToLookup(x => x);
+            foreach (var item in this.Parameters)
+            {
+                if (!lookup.Contains(item))
+                    throw new ArgumentException();
+                if (lookup[item].Count() != 1)
+                    throw new ArgumentException();
+            }
+
+            var group = results.GroupBy(x => x.result);
+
+            var r = group.Select(x =>
+            {
+                var prop = x.Select(y => this.Propabilitys[this.Parameters.IndexOf(y.value)]).Sum();
+                return (Propapbility: prop, Result: x.Key);
+            });
+
+            return new D<T, TOut>(this.automata, r.Select(x => x.Result).ToList(), r.Select(x => x.Propapbility).ToList());
         }
 
 
@@ -51,7 +76,7 @@ namespace Dice
                 throw new ArgumentNullException(nameof(automata));
             this.Size = size;
             this.automata = automata;
-            Propabilitys = Enumerable.Repeat(1.0 / size, size).ToArray();
+            this.Propabilitys = Enumerable.Repeat(1.0 / size, size).ToArray();
         }
 
 
@@ -62,6 +87,7 @@ namespace Dice
         //        erg += w; // implicit cast to int, so we role count dice.
         //    return erg;
         //}
+
 
         public static D<T, int> operator *(int count, D<T> w)
         {
