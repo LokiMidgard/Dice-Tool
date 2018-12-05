@@ -10,7 +10,7 @@
     <Description>This library helps with the calculation of dice provability's.</Description>
     <PackageTags>Dice; Dice Calculation</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
-    <Version>1.1.45</Version>
+    <Version>1.1.46</Version>
     <Version Condition="'$(Configuration)'=='Debug'">$(Version)-Debug</Version>
     <Authors>Patrick Kranz</Authors>
     <IconUrl>https://raw.githubusercontent.com/LokiMidgard/Dice-Tool/master/icon.png</IconUrl>
@@ -20,7 +20,7 @@
     <Copyright>Patrick Kranz</Copyright>
      <PackageReleaseNotes>
       <![CDATA[
-Added missing icon
+Added suport to acuumulate dice results to lower the computation time.
 ]]>
     </PackageReleaseNotes>
   </PropertyGroup>
