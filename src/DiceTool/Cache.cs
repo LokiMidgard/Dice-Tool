@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Dice.Tables;
 
-namespace Dice
+namespace Dice.Caches
 {
     internal class Cache
     {

@@ -6,7 +6,8 @@ namespace Dice
     public class ResultEntry<TResult>
     {
         private readonly TResult result;
-        private readonly double propability;
+        private readonly Exception? exception;
+
         public TResult Result
         {
             get => this.State != ResultState.Completed
@@ -23,27 +24,26 @@ namespace Dice
 
         public ResultState State { get; }
 
-        public double Propability => this.propability;
+        public double Propability { get; }
 
-        private readonly Exception? exception;
 
         internal ResultEntry(TResult result, double propability)
         {
             this.State = ResultState.Completed;
             this.result = result;
-            this.propability = propability;
+            this.Propability = propability;
         }
         internal ResultEntry(Exception result, double propability)
         {
             this.State = ResultState.Faulted;
             this.exception = result;
-            this.propability = propability;
+            this.Propability = propability;
             this.result = default!; // if State is non Completed, we never access result
         }
 
         internal ResultEntry(double propability) // only for cancled.
         {
-            this.propability = propability;
+            this.Propability = propability;
             this.State = ResultState.Canceld;
             this.result = default!; // if State is non Completed, we never access result
         }

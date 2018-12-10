@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dice.States;
+using System;
 
 namespace Dice
 {
@@ -557,7 +558,7 @@ namespace Dice
         {
             var composer = e1.Composer;
             var p = P<bool>.Create(composer);
-            composer.NextStates(CombinationState.Create(composer.CurrentState, p, e1, e2, (x1, x2) => Object.Equals(x1, x2)));
+            composer.NextStates(CombinationState.Create(composer.CurrentState, p, e1, e2, (x1, x2) => Equals(x1, x2))); 
             return p;
         }
 

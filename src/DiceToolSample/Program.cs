@@ -1,6 +1,6 @@
 ﻿using Dice;
 using System;
-using System.Threading.Tasks;
+
 
 namespace SampleApp
 {
@@ -121,7 +121,7 @@ namespace SampleApp
             while (enumerator.MoveNextAsync().Result)
             {
                 var item = enumerator.Current;
-                Console.WriteLine($"{item.Result}:\t{(item.Propability * 100):00.00}%");
+                Console.WriteLine($"{item.Result}:\t{item.Propability * 100:00.00}%");
                 sum += item.Propability;
 
                 Console.WriteLine($"GetElement took {watch.Elapsed}");

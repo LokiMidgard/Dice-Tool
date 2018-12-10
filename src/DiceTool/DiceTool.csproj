@@ -32,10 +32,4 @@ Reimplemented version, which is much faster. But loops do not work currently.
     <WarningsAsErrors>NU1605;CS8603</WarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!--<PackageReference Include="AsyncEnumerator" Version="2.2.1" />-->
- 
-    <!--<PackageReference Include="System.Interactive.Async" Version="3.2.0" />-->
-  </ItemGroup>
-
 </Project>

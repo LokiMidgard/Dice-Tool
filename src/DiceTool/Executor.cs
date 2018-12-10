@@ -1,9 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using Dice.States;
+using Dice.Tables;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dice
 {
+
+
+    public interface IExecutor<TResult, Tin>
+    {
+
+        IAsyncEnumerable<ResultEntry<TResult>> Calculate(Tin input);
+
+    }
+
     internal class Executor<TResult, TIn> : IExecutor<TResult, TIn>
     {
         private readonly IEnumerable<(P<TResult> Variable, State lastState)> results;
