@@ -1,30 +1,36 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using Dice.Tables;
+using System.Collections.ObjectModel;
 
 namespace Dice.States
 {
     internal abstract class State
     {
-        protected State(State parent)
-        {
-            this.Parent = parent;
-        }
+        private readonly HashSet<IP> nededVariables = new HashSet<IP>();
 
         public virtual double StatePropability => this.Parent?.StatePropability ?? 1.0;
-
 
         public virtual IComposer Composer => Parent!.Composer;
         public virtual int Depth => Parent!.Depth + 1;
 
         public State? Parent { get; }
 
+        protected ISet<IP> NededVariables { get; }
+
+
+        protected State(State parent)
+        {
+            this.Parent = parent;
+            this.NededVariables = this.nededVariables.AsReadOnly();
+        }
+
+
         public virtual Table GetTable<T>(P<T> index)
         {
             return this.Parent?.GetTable(index) ?? throw new KeyNotFoundException($"The key with id {index.Id} was not found.");
         }
 
-        protected readonly HashSet<IP> nededVariables = new HashSet<IP>();
 
         public virtual void PrepareOptimize(IEnumerable<IP> ps)
         {
@@ -34,8 +40,6 @@ namespace Dice.States
         }
 
         protected virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
-
-
 
         internal virtual void Optimize()
         {

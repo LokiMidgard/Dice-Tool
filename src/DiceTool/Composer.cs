@@ -10,9 +10,13 @@ namespace Dice
     {
         State CurrentState { get; }
 
-        State NextStates(params State[] states);
 
-        uint CreateId();
+        P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func);
+        P<T> CreateConstState<T>(T value);
+        bool CreateDevideState(P<bool> p);
+        P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func);
+        P<T> CreateVariableState<T>(params (T value, double propability)[] distribution);
+
     }
 
     public class Composer<TInput> : IComposer
@@ -34,25 +38,13 @@ namespace Dice
             throw new NotImplementedException();
         }
 
-        public P<T> Const<T>(T constant)
-        {
-            var p = P<T>.Create(this);
-            var newState = new NewConstState<T>(this.CurrentState, p, constant);
-            this.CurrentState = newState;
-            return p;
-        }
+        public P<T> Const<T>(T constant) => this.CreateConstState(constant);
         public P<int> Dice(int faces) => this.Distribution(Enumerable.Range(1, faces).Select(i => (i, 1.0 / faces)).ToArray());
-        public P<T> Distribution<T>(params (T value, double propability)[] distribution)
-        {
-            var p = P<T>.Create(this);
-            var newState = new NewVariableState<T>(this.CurrentState, p, distribution);
-            this.CurrentState = newState;
-            return p;
-        }
+        public P<T> Distribution<T>(params (T value, double propability)[] distribution) => this.CreateVariableState(distribution);
 
         uint idCounter = 1;
 
-        internal uint CreateId()
+        private uint CreateId()
         {
             return this.idCounter++;
         }
@@ -173,9 +165,62 @@ namespace Dice
         }
 
 
+        internal P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
+        {
+            var p = P.Create<TOut>(this, this.CreateId());
+            var state = new CombinationState<TIn1, TIn2, TOut>(this.CurrentState, p, e1, e2, func);
+            this.NextStates(state);
+            return p;
+        }
+
+
+        /// <summary>
+        /// Creates a devine state and returns which path was taken.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        internal bool CreateDevideState(P<bool> p)
+        {
+            var trueState = new DevideState(this.CurrentState, p, true);
+            var falseState = new DevideState(this.CurrentState, p, false);
+            return trueState == this.NextStates(trueState, falseState);
+        }
+
+        internal P<T> CreateConstState<T>(T value)
+        {
+            var p = P.Create<T>(this, this.CreateId());
+            var state = new NewConstState<T>(this.CurrentState, p, value);
+            this.NextStates(state);
+            return p;
+
+        }
+
+        internal P<T> CreateVariableState<T>(params (T value, double propability)[] distribution)
+        {
+            var p = P.Create<T>(this, this.CreateId());
+            var state = new NewVariableState<T>(this.CurrentState, p, distribution);
+            this.NextStates(state);
+            return p;
+        }
+
+        internal P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func)
+        {
+            var p = P.Create<TOut>(this, this.CreateId());
+            var state = new TransformState<TIn, TOut>(this.CurrentState, p, e, func);
+            this.NextStates(state);
+            return p;
+        }
+
+        P<TOut> IComposer.CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => this.CreateCombineState(e1, e2, func);
+
+        P<T> IComposer.CreateConstState<T>(T value) => this.CreateConstState(value!);
+
+        bool IComposer.CreateDevideState(P<bool> p) => this.CreateDevideState(p);
+
+        P<TOut> IComposer.CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func) => this.CreateTransformState(e, func);
+
+        P<T> IComposer.CreateVariableState<T>(params (T value, double propability)[] distribution) => this.CreateVariableState(distribution);
 
         State IComposer.CurrentState => this.CurrentState;
-        uint IComposer.CreateId() => this.CreateId();
-        State IComposer.NextStates(params State[] states) => this.NextStates(states);
     }
 }

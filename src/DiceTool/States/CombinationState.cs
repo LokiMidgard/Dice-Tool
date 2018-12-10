@@ -7,7 +7,6 @@ namespace Dice.States
 {
     internal static class CombinationState
     {
-        public static CombinationState<TIn1, TIn2, TOut> Create<TIn1, TIn2, TOut>(State parent, P<TOut> p, P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => new CombinationState<TIn1, TIn2, TOut>(parent, p, e1, e2, func);
 
     }
     internal class CombinationState<TIn1, TIn2, TOut> : State

@@ -10,15 +10,20 @@ namespace Dice
         IComposer Composer { get; }
     }
 
-    
-    public struct P<T> : IP, IEquatable<P<T>>
+    internal static class P
+    {
+        internal static P<T> Create<T>(IComposer composer, uint id) => new P<T>(composer, id);
+    }
+
+
+    public readonly struct P<T> : IP, IEquatable<P<T>>
     {
         internal readonly uint Id;
         internal readonly IComposer Composer;
 
-        private P(IComposer composer)
+        internal P(IComposer composer, uint id)
         {
-            this.Id = composer.CreateId();
+            this.Id = id;
             this.Composer = composer ?? throw new ArgumentNullException(nameof(composer));
         }
 
@@ -28,7 +33,6 @@ namespace Dice
 
         IComposer IP.Composer => this.Composer;
 
-        internal static P<T> Create(IComposer composer) => new P<T>(composer);
 
         public override bool Equals(object obj)
         {

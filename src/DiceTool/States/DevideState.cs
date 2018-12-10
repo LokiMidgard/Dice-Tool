@@ -8,15 +8,13 @@ namespace Dice.States
     {
         private readonly DevideTable table;
 
-        private DevideState(State parent, P<bool> p, bool value) : base(parent)
+        internal DevideState(State parent, P<bool> p, bool value) : base(parent)
         {
             this.table = new DevideTable(parent.GetTable(p), p, value);
         }
 
         public override double StatePropability => base.StatePropability * this.table.PartPropability;
 
-
-        public static (DevideState trueState, DevideState falseState) Create(State parent, P<bool> p) => (new DevideState(parent, p, true), new DevideState(parent, p, false));
 
         public override Table GetTable<T>(P<T> index)
         {
