@@ -23,11 +23,14 @@ namespace Dice
 
     }
 
-    public partial class Composer<TInput> : IComposer
+    public partial class Composer<TInput> : IComposer, Composer<TInput>.IInternalComposer
     {
         private readonly RootState root;
 
         internal StateAdministrator State { get; }
+
+        ComposerWraper Composer<TInput>.IInternalComposer.ComposerWraper => this.composerWraper;
+        StateAdministrator Composer<TInput>.IInternalComposer.State => this.State;
 
         private readonly ComposerWraper composerWraper;
 
@@ -35,7 +38,7 @@ namespace Dice
         public Composer()
         {
             this.root = new RootState(this);
-            this.State = new StateAdministrator(root);
+            this.State = new StateAdministrator(this.root);
             this.composerWraper = new ComposerWraper(this);
         }
 
@@ -57,6 +60,13 @@ namespace Dice
         {
             this.idCounter++;
             return this.idCounter;
+        }
+
+        private void SetId(uint minId)
+        {
+            if (minId < this.idCounter)
+                throw new ArgumentException($"Value was to small {minId}. Expected at least {this.idCounter}", nameof(minId));
+            this.idCounter = minId;
         }
 
         /// <summary>
@@ -139,6 +149,20 @@ namespace Dice
 
         P<T> IComposer.CreateVariableState<T>(params (T value, double propability)[] distribution) => this.CreateVariableState(distribution);
 
+        uint Composer<TInput>.IInternalComposer.CreateId() => this.CreateId();
+
+        void Composer<TInput>.IInternalComposer.SetId(uint minValue)
+        {
+            this.SetId(minValue);
+        }
+
+        private interface IInternalComposer : IComposer
+        {
+            StateAdministrator State { get; }
+            uint CreateId();
+            ComposerWraper ComposerWraper { get; }
+            void SetId(uint minValue);
+        }
     }
 
     internal class ComposerWraper : IComposer

@@ -1,5 +1,6 @@
 ﻿using Dice.States;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Dice
@@ -7,7 +8,7 @@ namespace Dice
     public partial class Composer<TInput>
     {
 
-        internal class DoComposer : IComposer
+        private class DoComposer : IComposer
         {
             private enum DoComposerState
             {
@@ -16,38 +17,73 @@ namespace Dice
             }
 
 
-            private readonly Composer<TInput> parent;
+            private readonly IInternalComposer parent;
             private readonly Func<P<bool>> @do;
             private readonly uint startId;
             private uint specialId;
             private uint createdIdsCount;
 
             public StateAdministrator State { get; }
+            public MergeState MergedState { get; private set; }
 
-            private DoComposerState DoState;
+            private DoComposerState ProcessState;
 
+            public DoState DoState { get; }
 
-
-            public DoComposer(Composer<TInput> parent, System.Func<P<bool>> @do)
+            public DoComposer(IInternalComposer parent, System.Func<P<bool>> @do)
             {
                 this.parent = parent;
                 this.@do = @do;
-                this.startId = parent.idCounter;
+                this.startId = parent.CreateId();
                 this.createdIdsCount = 0;
-                this.DoState = DoComposerState.FirstRun;
+                this.ProcessState = DoComposerState.FirstRun;
+                this.DoState = new DoState(parent.State.CurrentState);
 
-                this.State = new StateAdministrator(parent.State.CurrentState);
+                this.State = new StateAdministrator(this.DoState);
             }
+
+            private readonly List<(IP issuedVariable, IP originalVariable, IP whileBodyVariable)> replacedVariableList = new List<(IP issuedVariable, IP originalVariable, IP whileBodyVariable)>();
 
             public void Initilize()
             {
-                var savedState = this.State.ExportCurrentState();
-                this.@do();
-                System.Diagnostics.Debug.Assert(this.createdIdsCount == this.createdIdsList.Count);
-                this.createdIdsCount = 0;
-                this.DoState = DoComposerState.SeccondRun;
-                this.State.ImportSavedState(savedState);
-                this.@do();
+
+                var whiles = new List<WhileState>();
+                do
+                {
+                    var savedState = this.State.ExportCurrentState();
+                    this.@do();
+                    System.Diagnostics.Debug.Assert(this.createdIdsCount == this.createdIdsList.Count);
+                    this.createdIdsCount = 0;
+                    this.ProcessState = DoComposerState.SeccondRun;
+                    this.State.ImportSavedState(savedState);
+                    var condition = this.@do();
+
+                    // Save the replaced variabes
+                    var whileState = new WhileState(this.State.CurrentState, condition, this.replacedVariableList.ToArray());
+                    this.replacedVariableList.Clear();
+                    this.State.NextStates(whileState);
+
+                    whiles.Add(whileState);
+
+
+                } while (this.State.MoveNext()); // Will propably not work;
+
+                this.MergedState = new MergeState(whiles.Select(x => x.EndState));
+                for (int i = 1; i < whiles.Count; i++)
+                {
+                    var currentState = whiles[i];
+                    var previousState = whiles[i - 1];
+
+                    foreach (var item in currentState.VariableMapping)
+                        this.MergedState.AddMapping(previousState.EndState, item.issuedVariable, item.originalVariable);
+
+                }
+
+
+                // When finished we need to put our parent back in control
+                this.parent.State.NextStates(this.MergedState);
+                this.parent.SetId(this.startId + this.createdIdsCount + this.specialId);
+                this.parent.ComposerWraper.Internal = this.parent;
             }
 
             public P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
@@ -78,7 +114,7 @@ namespace Dice
             private uint CreateId()
             {
                 var id = this.createdIdsCount + this.startId + 1;
-                if (this.DoState == DoComposerState.FirstRun)
+                if (this.ProcessState == DoComposerState.FirstRun)
                 {
                     this.createdIdsList.Add(new IdHistory(id, null, null));
                 }
@@ -94,7 +130,7 @@ namespace Dice
             private uint CreateId<T1>(ref P<T1> first)
             {
                 var id = this.createdIdsCount + this.startId + 1;
-                if (this.DoState == DoComposerState.FirstRun)
+                if (this.ProcessState == DoComposerState.FirstRun)
                 {
                     this.createdIdsList.Add(new IdHistory(id, first, null));
                 }
@@ -107,7 +143,7 @@ namespace Dice
                     if (lastState.FirstParent.Id != first.Id)
                     {
                         this.specialId++;
-                        var newP = P.Create<T1>(this.parent.composerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
+                        var newP = P.Create<T1>(this.parent.ComposerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
                         this.AddMapping(newP, (P<T1>)lastState.FirstParent, first);
                         first = newP;
                     }
@@ -118,7 +154,7 @@ namespace Dice
             private uint CreateId<T1, T2>(ref P<T1> first, ref P<T2> seccond)
             {
                 var id = this.createdIdsCount + this.startId + 1;
-                if (this.DoState == DoComposerState.FirstRun)
+                if (this.ProcessState == DoComposerState.FirstRun)
                 {
                     this.createdIdsList.Add(new IdHistory(id, first, seccond));
                 }
@@ -131,7 +167,7 @@ namespace Dice
                     if (lastState.FirstParent.Id != first.Id)
                     {
                         this.specialId++;
-                        var newP = P.Create<T1>(this.parent.composerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
+                        var newP = P.Create<T1>(this.parent.ComposerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
                         this.AddMapping(newP, (P<T1>)lastState.FirstParent, first);
                         first = newP;
                     }
@@ -139,7 +175,7 @@ namespace Dice
                     if (lastState.SeccondParent?.Id != seccond.Id)
                     {
                         this.specialId++;
-                        var newP = P.Create<T2>(this.parent.composerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
+                        var newP = P.Create<T2>(this.parent.ComposerWraper, (uint)(this.startId + this.specialId + this.createdIdsList.Count));
                         this.AddMapping(newP, (P<T2>)lastState.SeccondParent, seccond);
                         seccond = newP;
                     }
@@ -147,7 +183,7 @@ namespace Dice
                 this.createdIdsCount++;
                 return id;
             }
-            
+
             private void AddMapping<T>(P<T> newValue, P<T> replacedOriginal, P<T> replacedNew)
             {
                 // when the newValue is asked, and we don't wan't to iterate more loops we search DoState parent for replaceOriginal
