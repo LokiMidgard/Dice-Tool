@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dice.States;
 
 namespace Dice
@@ -11,11 +12,11 @@ namespace Dice
         {
             var composer = new Composer<TIn>();
             var results = new List<(P<TResult> Variable, State lastState)>();
-            do
-            {
-                var item = configurations(composer);
-                results.Add((item, composer.CurrentState));
-            } while (composer.Reset());
+            //do
+            //{
+            var item = configurations(composer);
+            results.AddRange(composer.State.CollectResults().Select(x => (item, x)));
+            //} while (composer.Reset());
 
             composer.Optimize(results);
 
@@ -28,5 +29,5 @@ namespace Dice
 
 
 
-    
+
 }

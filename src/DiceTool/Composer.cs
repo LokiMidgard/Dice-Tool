@@ -17,37 +17,57 @@ namespace Dice
         /// <param name="p"></param>
         /// <returns></returns>
 
-        bool CreateDevideState(P<bool> p);
+        //bool CreateDevideState(P<bool> p);
         P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func);
         P<T> CreateVariableState<T>(params (T value, double propability)[] distribution);
 
+        //P<T> AssigneNameState<T>(string name, P<T> value);
+        P<T> GetNamed<T>(string name);
+
+
     }
 
-    public partial class Composer<TInput> : IComposer, Composer<TInput>.IInternalComposer
+    public partial class Composer<TInput> : IComposer
     {
         private readonly RootState root;
 
         internal StateAdministrator State { get; }
 
-        ComposerWraper Composer<TInput>.IInternalComposer.ComposerWraper => this.composerWraper;
-        StateAdministrator Composer<TInput>.IInternalComposer.State => this.State;
-
-        private readonly ComposerWraper composerWraper;
 
 
         public Composer()
         {
             this.root = new RootState(this);
             this.State = new StateAdministrator(this.root);
-            this.composerWraper = new ComposerWraper(this);
         }
 
 
-        [Obsolete("Not Yet implemented", true)]
         public void DoWhile(Func<P<bool>> @do)
         {
-            this.composerWraper.Internal = new DoComposer(this, @do);
+            this.State.NextStates(currentState => new DoState(currentState));
+            var condition = @do();
 
+            this.State.NextStates(currentState => new WhileState(currentState, condition).EndState);
+        }
+
+        public void If(P<bool> condition, Action then, Action? @else = null)
+        {
+            var states = this.State.NextStates(currentState =>
+            {
+                var trueState = new DevideState<bool>(currentState, condition, true);
+                var falseState = new DevideState<bool>(currentState, condition, false);
+
+                return new[] { trueState, falseState };
+            });
+
+            //var states = this.State.NextStates(trueState, falseState);
+            foreach (var currentState in states.OfType<DevideState<bool>>())
+            {
+                if (currentState.Value)
+                    then();
+                else
+                    @else?.Invoke();
+            }
         }
 
         public P<T> Const<T>(T constant) => this.CreateConstState(constant);
@@ -56,10 +76,10 @@ namespace Dice
 
         uint idCounter = 0;
 
-        private uint CreateId()
+        private string CreateId()
         {
             this.idCounter++;
-            return this.idCounter;
+            return this.idCounter.ToString();
         }
 
         private void SetId(uint minId)
@@ -69,16 +89,6 @@ namespace Dice
             this.idCounter = minId;
         }
 
-        /// <summary>
-        /// Restes all counter so a different path can searched.
-        /// </summary>
-        /// <returns><c>true</c> if not all possible pathes have been searched.</returns>
-        internal bool Reset()
-        {
-            this.idCounter = 1;
-
-            return this.State.MoveNext();
-        }
 
         internal void Optimize<TResult>(IEnumerable<(P<TResult> result, State state)> resultData)
         {
@@ -95,47 +105,78 @@ namespace Dice
         internal P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
         {
             var p = P.Create<TOut>(this, this.CreateId());
-            var state = new CombinationState<TIn1, TIn2, TOut>(this.State.CurrentState, p, e1, e2, func);
-            this.State.NextStates(state);
+            this.State.NextStates(currentState => new CombinationState<TIn1, TIn2, TOut>(currentState, p, e1, e2, func));
             return p;
         }
 
 
-        /// <summary>
-        /// Creates a devine state and returns which path was taken.
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        internal bool CreateDevideState(P<bool> p)
-        {
-            var trueState = new DevideState(this.State.CurrentState, p, true);
-            var falseState = new DevideState(this.State.CurrentState, p, false);
-            return trueState == this.State.NextStates(trueState, falseState);
-        }
+        ///// <summary>
+        ///// Creates a devine state and returns which path was taken.
+        ///// </summary>
+        ///// <param name="p"></param>
+        ///// <returns></returns>
+        //internal bool CreateDevideState(P<bool> p)
+        //{
+        //    var trueState = new DevideState<bool>(this.State.CurrentState, p, true);
+        //    var falseState = new DevideState<bool>(this.State.CurrentState, p, false);
+        //    return trueState == this.State.NextStates(trueState, falseState);
+        //}
 
         internal P<T> CreateConstState<T>(T value)
         {
             var p = P.Create<T>(this, this.CreateId());
-            var state = new NewConstState<T>(this.State.CurrentState, p, value);
-            this.State.NextStates(state);
+            this.State.NextStates(currentState => new NewConstState<T>(currentState, p, value));
             return p;
-
         }
 
         internal P<T> CreateVariableState<T>(params (T value, double propability)[] distribution)
         {
             var p = P.Create<T>(this, this.CreateId());
-            var state = new NewVariableState<T>(this.State.CurrentState, p, distribution);
-            this.State.NextStates(state);
+            this.State.NextStates(currentState => new NewVariableState<T>(currentState, p, distribution));
             return p;
         }
 
         internal P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func)
         {
             var p = P.Create<TOut>(this, this.CreateId());
-            var state = new TransformState<TIn, TOut>(this.State.CurrentState, p, e, func);
-            this.State.NextStates(state);
+            this.State.NextStates(currentState => new TransformState<TIn, TOut>(currentState, p, e, func));
             return p;
+        }
+
+        public P<T> AssignName<T>(string name, P<T> value)
+        {
+            if (this.variableTypeMapping.ContainsKey(name))
+            {
+                var oldType = this.variableTypeMapping[name];
+                if (oldType != typeof(T))
+                    throw new InvalidOperationException($"Cannot Cast {name}({oldType}) to {typeof(T)}");
+            }
+            else
+            {
+                this.variableTypeMapping.Add(name, typeof(T));
+            }
+            var variable = P.Create<T>(this, name);
+            this.State.NextStates(currentState => AssignState.Create(currentState, variable, value));
+            return variable;
+        }
+
+        private readonly Dictionary<string, Type> variableTypeMapping = new Dictionary<string, Type>();
+
+        public P<T> GetNamed<T>(string name)
+        {
+            if (this.variableTypeMapping.ContainsKey(name))
+            {
+                var oldType = this.variableTypeMapping[name];
+                if (oldType != typeof(T))
+                    throw new InvalidOperationException($"Cannot Cast {name}({oldType}) to {typeof(T)}");
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unknow Variable {name}({typeof(T)})");
+            }
+            var variable = P.Create<T>(this, name);
+
+            return variable;
         }
 
 
@@ -143,46 +184,14 @@ namespace Dice
 
         P<T> IComposer.CreateConstState<T>(T value) => this.CreateConstState(value!);
 
-        bool IComposer.CreateDevideState(P<bool> p) => this.CreateDevideState(p);
+        //bool IComposer.CreateDevideState(P<bool> p) => this.CreateDevideState(p);
 
         P<TOut> IComposer.CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func) => this.CreateTransformState(e, func);
 
         P<T> IComposer.CreateVariableState<T>(params (T value, double propability)[] distribution) => this.CreateVariableState(distribution);
 
-        uint Composer<TInput>.IInternalComposer.CreateId() => this.CreateId();
 
-        void Composer<TInput>.IInternalComposer.SetId(uint minValue)
-        {
-            this.SetId(minValue);
-        }
 
-        private interface IInternalComposer : IComposer
-        {
-            StateAdministrator State { get; }
-            uint CreateId();
-            ComposerWraper ComposerWraper { get; }
-            void SetId(uint minValue);
-        }
     }
 
-    internal class ComposerWraper : IComposer
-    {
-        public ComposerWraper(IComposer composer)
-        {
-            this.Internal = composer ?? throw new ArgumentNullException(nameof(composer));
-        }
-
-        public IComposer Internal { get; set; }
-
-
-        public P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => this.Internal.CreateCombineState(e1, e2, func);
-
-        public P<T> CreateConstState<T>(T value) => this.Internal.CreateConstState(value);
-
-        public bool CreateDevideState(P<bool> p) => this.Internal.CreateDevideState(p);
-
-        public P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func) => this.Internal.CreateTransformState(e, func);
-
-        public P<T> CreateVariableState<T>(params (T value, double propability)[] distribution) => this.Internal.CreateVariableState(distribution);
-    }
 }

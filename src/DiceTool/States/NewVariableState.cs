@@ -5,7 +5,7 @@ namespace Dice.States
     internal class NewVariableState<T> : State
     {
         private readonly SingelVariableTable<T> table;
-        private uint Id { get; }
+        private string Id { get; }
 
         public NewVariableState(State parent, P<T> variable, params (T value, double propability)[] distribution) : base(parent)
         {

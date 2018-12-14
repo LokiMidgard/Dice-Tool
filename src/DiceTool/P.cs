@@ -6,33 +6,41 @@ namespace Dice
 
     internal interface IP
     {
-        uint Id { get; }
+        string Id { get; }
         IComposer Composer { get; }
+
+        Type Type { get; }
     }
 
     internal static class P
     {
-        internal static P<T> Create<T>(IComposer composer, uint id) => new P<T>(composer, id);
+        public static IP FromIdentifier(string identifier)
+        {
+            throw new NotImplementedException();
+        }
+        internal static P<T> Create<T>(IComposer composer, string id) => new P<T>(composer, id);
     }
 
 
+    [System.Diagnostics.DebuggerDisplay("{Id}")]
     public readonly struct P<T> : IP, IEquatable<P<T>>
     {
-        internal readonly uint Id;
+        internal readonly string Id;
         internal readonly IComposer Composer;
 
-        internal P(IComposer composer, uint id)
+        internal P(IComposer composer, string id)
         {
-            this.Id = id;
+            this.Id = id ?? throw new ArgumentNullException(nameof(id));
             this.Composer = composer ?? throw new ArgumentNullException(nameof(composer));
         }
 
         internal static P<T> Empty => default;
 
-        uint IP.Id => this.Id;
+        string IP.Id => this.Id;
 
         IComposer IP.Composer => this.Composer;
 
+        Type IP.Type => typeof(T);
 
         public override bool Equals(object obj)
         {

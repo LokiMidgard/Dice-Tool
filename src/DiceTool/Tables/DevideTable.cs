@@ -2,15 +2,15 @@
 
 namespace Dice.Tables
 {
-    internal class DevideTable : Table
+    internal class DevideTable<T> : Table
     {
         private readonly Table original;
-        private readonly bool value;
+        private readonly T value;
         private int[]? indexLookup;
         private double partPropability = -1;
-        public P<bool> ConditionVariable { get; }
+        public P<T> ConditionVariable { get; }
 
-        public DevideTable(Table table, P<bool> p, bool value)
+        public DevideTable(Table table, P<T> p, T value)
         {
             this.original = table;
             this.ConditionVariable = p;
@@ -42,7 +42,7 @@ namespace Dice.Tables
                 var list = new List<int>();
                 for (var i = 0; i < this.original.Count; i++)
                 {
-                    if (this.original.GetValue(this.ConditionVariable, i) == this.value)
+                    if (Equals(this.original.GetValue(this.ConditionVariable, i), this.value))
                     {
                         list.Add(i);
                     }

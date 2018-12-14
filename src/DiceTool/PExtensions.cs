@@ -787,50 +787,7 @@ namespace Dice
             return composer.CreateTransformState(e, selector);
         }
 
-        public static ExecuteElse Then(this in P<bool> condition, Action then)
-        {
-            var composer = condition.Composer;
-            var isTrueStateChoosen = composer.CreateDevideState(condition);
-
-            if (isTrueStateChoosen)
-                then();
-
-            return new ExecuteElse(!isTrueStateChoosen);
-
-
-        }
-
-        public static ExecuteElse ElseIf(this in ExecuteElse postThen, P<bool> condition, Action then)
-        {
-            if (postThen.executeElse)
-            {
-                var composer = condition.Composer;
-                var isTrueStateChoosen = composer.CreateDevideState(condition);
-
-                if (isTrueStateChoosen)
-                    then();
-
-                return new ExecuteElse(!isTrueStateChoosen);
-            }
-            return default;
-        }
-
-        public static void Else(this in ExecuteElse postThen, Action then)
-        {
-            if (postThen.executeElse)
-                then();
-        }
-
-        public readonly struct ExecuteElse
-        {
-            public readonly bool executeElse;
-
-
-            internal ExecuteElse(bool executeElse)
-            {
-                this.executeElse = executeElse;
-            }
-        }
+       
 
     }
 }

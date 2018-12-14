@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Dice.States;
 
 namespace Dice
@@ -8,141 +10,76 @@ namespace Dice
     {
         private readonly State startState;
 
-        public State CurrentState { get; private set; }
-
-        private LastChoise? lastPath;
-        private LastChoise? currentPath;
 
         public StateAdministrator(State startState)
         {
             this.startState = startState ?? throw new ArgumentNullException(nameof(startState));
-            this.CurrentState = startState;
+            this.current = new StateTree() { State = startState };
         }
 
-        public bool MoveNext()
+        public void NextStates(Func<State, State> state)
         {
-            this.lastPath = this.currentPath;
-            while (this.lastPath != null && this.lastPath?.choise == this.lastPath?.maxChoises - 1)
-                this.lastPath = this.lastPath.parent; // remove completed pathes
-
-            this.currentPath = null;
-            this.CurrentState = this.startState;
-
-            return this.lastPath != null; // we have no last path, either we never encuntered a fork, or we have calculated the last posible way.
-
-        }
-
-        public ISaveState ExportCurrentState()
-        {
-            return new SaveState(this.lastPath);
-        }
-
-        public void ImportSavedState(ISaveState state)
-        {
-            if (state is SaveState saveState)
-                this.lastPath = saveState.LastPath;
-            else
-                throw new ArgumentException("Save state was not generated from this Class.");
-        }
-
-
-        public State NextStates(params State[] states)
-        {
-            State stateToReturn;
-            if (states.Length == 1)
+            foreach (var item in this.GetLeaves())
             {
-                stateToReturn = states[0];
+                var s = state(item.State);
+                var current = new StateTree() { Parent = item, State = s };
+                item.Children = new StateTree[] { current };
             }
-            else
+        }
+
+        public IEnumerable<State> NextStates<T>(Func<State, IEnumerable<DevideState<T>>> stateFucntion)
+        {
+
+            foreach (var item in this.GetLeaves())
             {
-                var numberOfChoises = states.Length;
+                var states = stateFucntion(item.State).ToArray();
 
-                if (this.lastPath != null)
+                if (states.Length == 0)
+                    throw new ArgumentException("At least one state must be returned.");
+
+                var children = states.Select(x => new StateTree() { State = x, Parent = item }).ToArray();
+                item.Children = children;
+                var oldCurrent = this.current;
+                foreach (var currentState in children)
                 {
-
-                    if (this.lastPath.depth == this.CurrentState.Depth)
-                    {
-                        // we are at position when last time we did the last decision
-                        // so now we need to do another decision.
-                        this.currentPath = new LastChoise()
-                        {
-                            depth = this.CurrentState.Depth,
-                            choise = this.lastPath.choise + 1,
-                            maxChoises = numberOfChoises,
-                            parent = currentPath
-                        };
-                    }
-                    else if (this.lastPath.depth > this.CurrentState.Depth)
-                    {
-                        // We need to follow the last path further
-                        var current = this.lastPath;
-                        while (current.depth != this.CurrentState.Depth)
-                            current = current.parent ?? throw new InvalidOperationException("Did not find correct parent");
-
-                        this.currentPath = new LastChoise()
-                        {
-                            depth = this.CurrentState.Depth,
-                            choise = current.choise,
-                            maxChoises = numberOfChoises,
-                            parent = currentPath
-                        };
-                    }
-                    else
-                    {
-                        // this is the first time we got here
-                        this.currentPath = new LastChoise()
-                        {
-                            depth = this.CurrentState.Depth,
-                            choise = 0,
-                            maxChoises = numberOfChoises,
-                            parent = currentPath
-                        };
-
-                    }
-                    stateToReturn = states[this.currentPath.choise];
+                    this.current = currentState;
+                    yield return this.current.State;
                 }
+                this.current = oldCurrent;
+
+            }
+        }
+
+
+
+        private StateTree current;
+
+        private IEnumerable<StateTree> GetLeaves()
+        {
+            var queue = new Queue<StateTree>();
+            queue.Enqueue(this.current);
+            while (queue.Count > 0)
+            {
+                var s = queue.Dequeue();
+                if (s.Children.Any())
+                    foreach (var item in s.Children)
+                        queue.Enqueue(item);
                 else
-                {
-                    // this is the first time so we will always take the first choise
-                    this.currentPath = new LastChoise()
-                    {
-                        depth = this.CurrentState.Depth,
-                        choise = 0,
-                        maxChoises = numberOfChoises,
-                        parent = currentPath
-                    };
-                    stateToReturn = states[0];
-                }
-
-
-
-            }
-
-            return this.CurrentState = stateToReturn;
-        }
-
-
-        private class LastChoise
-        {
-            public int depth;
-            public int choise;
-            public int maxChoises;
-            public LastChoise? parent;
-        }
-
-        private class SaveState : ISaveState
-        {
-            public readonly LastChoise? LastPath;
-
-            public SaveState(LastChoise? lastPath)
-            {
-                this.LastPath = lastPath;
+                    yield return s;
             }
         }
 
-        public interface ISaveState
+        public IEnumerable<State> CollectResults() => GetLeaves().Select(x => x.State);
+
+        private class StateTree
         {
+            public State State { get; set; }
+
+            public StateTree Parent { get; set; }
+
+            public IEnumerable<StateTree> Children { get; set; } = Enumerable.Empty<StateTree>();
         }
+
     }
 
 }

@@ -9,12 +9,12 @@ namespace Dice.States
     {
         private readonly HashSet<IP> nededVariables = new HashSet<IP>();
 
-        public virtual double StatePropability => this.Parent?.StatePropability ?? 1.0;
+        public virtual double StatePropability => this.Parent.StatePropability;
 
         public virtual IComposer Composer => Parent!.Composer;
-        public virtual int Depth => Parent!.Depth + 1;
+        public virtual int Depth => Parent.Depth + 1;
 
-        public State? Parent { get; }
+        public State Parent { get; }
 
         protected ISet<IP> NededVariables { get; }
 
@@ -28,7 +28,7 @@ namespace Dice.States
 
         public virtual Table GetTable<T>(P<T> index)
         {
-            return this.Parent?.GetTable(index) ?? throw new KeyNotFoundException($"The key with id {index.Id} was not found.");
+            return this.Parent.GetTable(index);
         }
 
 
@@ -36,14 +36,14 @@ namespace Dice.States
         {
             foreach (var p in ps)
                 this.nededVariables.Add(p);
-            this.Parent?.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
+            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
         }
 
-        protected virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
+        protected internal virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
 
         internal virtual void Optimize()
         {
-            this.Parent?.Optimize();
+            this.Parent.Optimize();
         }
     }
 

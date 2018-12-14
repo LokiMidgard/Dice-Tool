@@ -32,7 +32,7 @@ namespace Dice.States
                 this.table.Keep(item);
         }
 
-        protected override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.table.FirstCalculationVariable, this.table.SeccondCalculationVariable });
         }

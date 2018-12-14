@@ -4,10 +4,13 @@ using System.Text;
 
 namespace Dice.Tables
 {
-    internal class MaskTable : Table
+    internal class MergeTable : Table
     {
-        public MaskTable(IEnumerable<(IP substitue, IP original, Table originalTable)> mappings)
+        private IEnumerable<Table> tables;
+
+        public MergeTable(IEnumerable<Table> tables)
         {
+            this.tables = tables;
         }
 
         public override int Count => throw new NotImplementedException();

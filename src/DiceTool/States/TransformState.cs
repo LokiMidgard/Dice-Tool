@@ -30,7 +30,7 @@ namespace Dice.States
             base.PrepareOptimize(ps);
 
         }
-        protected override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.table.PFrom });
         }

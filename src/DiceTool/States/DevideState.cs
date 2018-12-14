@@ -4,13 +4,15 @@ using Dice.Tables;
 
 namespace Dice.States
 {
-    internal class DevideState : State
+    internal class DevideState<T> : State
     {
-        private readonly DevideTable table;
+        private readonly DevideTable<T> table;
+        public T Value { get; }
 
-        internal DevideState(State parent, P<bool> p, bool value) : base(parent)
+        internal DevideState(State parent, P<T> p, T value) : base(parent)
         {
-            this.table = new DevideTable(parent.GetTable(p), p, value);
+            this.table = new DevideTable<T>(parent.GetTable(p), p, value);
+            this.Value = value;
         }
 
         public override double StatePropability => base.StatePropability * this.table.PartPropability;
@@ -28,7 +30,7 @@ namespace Dice.States
             base.PrepareOptimize(p);
         }
 
-        protected override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.table.ConditionVariable });
         }

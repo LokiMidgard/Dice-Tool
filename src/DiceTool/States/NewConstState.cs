@@ -5,7 +5,7 @@ namespace Dice.States
     internal class NewConstState<T> : State
     {
         private readonly ConstTable<T> table;
-        private uint Id { get; }
+        private string Id { get; }
 
         public NewConstState(State parent, P<T> variable, T value) : base(parent)
         {
