@@ -32,21 +32,38 @@ namespace Dice
 
         }
 
+        private void Optimize<TResult>(IEnumerable<(P<TResult> result, State state, WhileManager manager)> resultData)
+        {
+            foreach (var (p, state, manager) in resultData)
+                state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>(), manager);
+
+            foreach (var (_, state, manager) in resultData)
+                state.Optimize(manager);
+
+
+        }
+
+
         private IEnumerable<ResultEntry<TResult>> CalculateInternal(TIn input)
         {
             var sum = new Dictionary<TResult, double>();
 
+            int whileIndex = 1;
+            //            Optimize(results);
+
             foreach (var (variable, state) in this.results)
             {
-                var table = state.GetTable(variable);
+                IWhileManager initialState = new InitialWhileManager(whileIndex, state.WhileCount);
+                var whileManager = new WhileManager(initialState, -1, null!, 0);
+                var table = state.GetTable(variable, whileManager);
 
-                for (int i = 0; i < table.Count; i++)
+                for (int i = 0; i < table.GetCount(); i++)
                 {
                     var value = table.GetValue(variable, i);
                     var p = table.GetValue(Table.PropabilityKey, i);
                     if (!sum.ContainsKey(value))
                         sum.Add(value, 0.0);
-                    sum[value] += p * state.StatePropability;
+                    sum[value] += p * state.GetStatePropability(whileManager);
                 }
 
 

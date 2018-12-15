@@ -90,16 +90,6 @@ namespace Dice
         }
 
 
-        internal void Optimize<TResult>(IEnumerable<(P<TResult> result, State state)> resultData)
-        {
-            foreach (var (p, state) in resultData)
-                state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>());
-
-            foreach (var (_, state) in resultData)
-                state.Optimize();
-
-
-        }
 
 
         internal P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)

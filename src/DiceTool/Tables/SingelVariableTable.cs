@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Dice.States;
+using System.Collections.Generic;
 
 namespace Dice.Tables
 {
@@ -13,11 +14,14 @@ namespace Dice.Tables
             this.distribution = distribution;
         }
 
-        public override int Count => this.distribution.Length;
+        public override int GetCount(in WhileManager manager)
+        {
+            return this.distribution.Length;
+        }
 
-        protected override bool InternalContains(IP key) => this.variable.Id == key.Id;
+        protected override bool InternalContains(IP key, in WhileManager manager) => this.variable.Id == key.Id;
 
-        public override object GetValue(IP p, int index)
+        public override object GetValue(IP p, int index, in WhileManager manager)
         {
             switch (p)
             {

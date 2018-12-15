@@ -15,21 +15,21 @@ namespace Dice.States
 
         public CombinationState(State parent, P<TOut> p, P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) : base(parent)
         {
-            this.table = new CombinationTable<TIn1, TIn2, TOut>(parent.GetTable(e1), parent.GetTable(e2), p, e1, e2, func);
+            this.table = new CombinationTable<TIn1, TIn2, TOut>(this, p, e1, e2, func);
         }
 
-        public override Table GetTable<T>(P<T> index)
+        public override (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
         {
-            if (this.table.Contains(index))
-                return this.table;
-            return base.GetTable(index);
+            if (this.table.Contains(index, manager))
+                return (manager, this.table);
+            return base.GetTable(index, manager);
         }
 
-        public override void PrepareOptimize(IEnumerable<IP> p)
+        public override void PrepareOptimize(IEnumerable<IP> p, in WhileManager manager)
         {
-            base.PrepareOptimize(p);
+            base.PrepareOptimize(p, manager);
             foreach (var item in p)
-                this.table.Keep(item);
+                this.table.Keep(item, manager);
         }
 
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
@@ -39,10 +39,10 @@ namespace Dice.States
 
 
 
-        internal override void Optimize()
+        internal override void Optimize(in WhileManager manager)
         {
-            base.Optimize();
-            this.table.Optimize();
+            base.Optimize(manager);
+            this.table.Optimize(manager);
         }
     }
 }

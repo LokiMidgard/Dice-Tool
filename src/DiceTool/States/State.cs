@@ -2,17 +2,25 @@
 using System.Collections.Generic;
 using Dice.Tables;
 using System.Collections.ObjectModel;
+using System;
 
 namespace Dice.States
 {
     internal abstract class State
     {
         private readonly HashSet<IP> nededVariables = new HashSet<IP>();
+        public virtual int WhileCount => Parent.WhileCount;
+        public virtual int DoCount => Parent.DoCount;
 
-        public virtual double StatePropability => this.Parent.StatePropability;
+        public virtual int LoopRecursion => Parent.LoopRecursion;
+
+        public virtual double GetStatePropability(in WhileManager manager)
+        {
+            return this.Parent.GetStatePropability(manager);
+        }
 
         public virtual IComposer Composer => Parent!.Composer;
-        public virtual int Depth => Parent.Depth + 1;
+        public virtual int Depth => this.Parent.Depth + 1;
 
         public State Parent { get; }
 
@@ -26,25 +34,27 @@ namespace Dice.States
         }
 
 
-        public virtual Table GetTable<T>(P<T> index)
+        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
         {
-            return this.Parent.GetTable(index);
+            return this.Parent.GetTable(index, manager);
         }
 
 
-        public virtual void PrepareOptimize(IEnumerable<IP> ps)
+        public virtual void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
         {
             foreach (var p in ps)
                 this.nededVariables.Add(p);
-            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
+            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()), manager);
         }
 
         protected internal virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
 
-        internal virtual void Optimize()
+        internal virtual void Optimize(in WhileManager manager)
         {
-            this.Parent.Optimize();
+            this.Parent.Optimize(manager);
         }
     }
+
+  
 
 }

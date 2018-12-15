@@ -18,7 +18,6 @@ namespace Dice
             results.AddRange(composer.State.CollectResults().Select(x => (item, x)));
             //} while (composer.Reset());
 
-            composer.Optimize(results);
 
             return new Executor<TResult, TIn>(results);
         }

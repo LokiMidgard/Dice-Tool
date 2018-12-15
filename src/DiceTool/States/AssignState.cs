@@ -25,7 +25,7 @@ namespace Dice.States
         {
             this.variable = variable;
             this.value = value;
-            this.table = new AssignTable<T>(this.variable, this.value, this.Parent!.GetTable(this.value));
+            this.table = new AssignTable<T>(this.variable, this.value, this);
         }
 
         public static AssignState<T> Create(State parent, P<T> variable, P<T> value)
@@ -34,13 +34,13 @@ namespace Dice.States
             return newState;
         }
 
-        public override Table GetTable<T1>(P<T1> index)
+        public override (WhileManager manager, Table table) GetTable<T1>(P<T1> index, in WhileManager manager)
         {
 
-            if (this.table.Contains(index))
-                return this.table;
+            if (this.table.Contains(index, manager))
+                return (manager, this.table);
 
-            return base.GetTable(index);
+            return base.GetTable(index, manager);
         }
 
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()

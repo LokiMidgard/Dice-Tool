@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Dice.Caches;
+using Dice.States;
 
 namespace Dice.Tables
 {
     internal class CombinationTable<TIn1, TIn2, TOut> : Table
     {
-        private readonly Table First;
-        private readonly Table Seccond;
+        private readonly CombinationState<TIn1, TIn2, TOut> state;
         private readonly P<TOut> ownP;
         private readonly Func<TIn1, TIn2, TOut> func;
         private HashSet<IP>? variablesToKeep;
@@ -16,94 +16,105 @@ namespace Dice.Tables
         public P<TIn1> FirstCalculationVariable { get; }
         public P<TIn2> SeccondCalculationVariable { get; }
 
-        public CombinationTable(Table first, Table seccond, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
+
+        public (WhileManager manager, Table table) GetFirst(in WhileManager manager)
         {
-            this.First = first;
-            this.Seccond = seccond;
+            return this.state.Parent.GetTable(this.FirstCalculationVariable, manager);
+        }
+
+
+        public (WhileManager manager, Table table) GetSeccond(in WhileManager manager)
+        {
+            return this.state.Parent.GetTable(this.SeccondCalculationVariable, manager);
+        }
+
+        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
+        {
+            this.state = parent;
             this.ownP = p;
             this.FirstCalculationVariable = firstCalculation;
             this.SeccondCalculationVariable = seccondCalculation;
             this.func = func;
         }
 
-        public override int Count
+        public override int GetCount(in WhileManager manager)
         {
-            get
-            {
 
-                if (this.cache != null)
-                    return this.cache.Count;
+            if (this.cache != null)
+                return this.cache.Count;
 
-                return this.ParentTablesAreSame
-                    ? this.First.Count
-                    : this.First.Count * this.Seccond.Count;
-            }
+            return this.GetParentTablesAreSame(manager)
+                ? this.GetFirst(manager).GetCount()
+                : this.GetFirst(manager).GetCount() * this.GetSeccond(manager).GetCount();
         }
 
+        private bool GetParentTablesAreSame(in WhileManager manager)
+        {
+            var second = this.GetSeccond(manager);
+            var first = this.GetFirst(manager);
+            return first.table == second.table && Equals(first.manager, second.manager);
+        }
 
-        private bool ParentTablesAreSame => this.First == this.Seccond;
-
-
-        public override object GetValue(IP p, int index)
+        public override object GetValue(IP p, int index, in WhileManager manager)
         {
             if (this.cache != null)
                 return this.cache[p, index];
 
 
-            if (index >= this.Count)
-                throw new IndexOutOfRangeException($"The Index was out of Range index:{index} count:{this.Count}");
+            if (index >= this.GetCount(manager))
+                throw new IndexOutOfRangeException($"The Index was out of Range index:{index} count:{this.GetCount(manager)}");
 
             int firstIndex;
             int secconedIndex;
 
-            if (this.ParentTablesAreSame)
+            if (this.GetParentTablesAreSame(manager))
             {
                 firstIndex = index;
                 secconedIndex = index;
             }
             else
             {
-                firstIndex = index % this.First.Count;
-                secconedIndex = index / this.First.Count;
+                firstIndex = index % this.GetFirst(manager).GetCount();
+                secconedIndex = index / this.GetFirst(manager).GetCount();
             }
 
             if (p.Id == PropabilityKey.Id)
             {
-                if (this.ParentTablesAreSame)
-                    return this.First.GetValue(p, index);
-                return this.First.GetValue(PropabilityKey, firstIndex) * this.Seccond.GetValue(PropabilityKey, secconedIndex);
+                if (this.GetParentTablesAreSame(manager))
+                    return this.GetFirst(manager).GetValue(p, index);
+                return this.GetFirst(manager).GetValue(PropabilityKey, firstIndex) * this.GetSeccond(manager).GetValue(PropabilityKey, secconedIndex);
             }
 
             if (p.Id == this.ownP.Id)
             {
-                var firstValue = this.First.GetValue(this.FirstCalculationVariable, firstIndex);
-                var seccondValue = this.Seccond.GetValue(this.SeccondCalculationVariable, secconedIndex);
+                var firstValue = this.GetFirst(manager).GetValue(this.FirstCalculationVariable, firstIndex);
+                var seccondValue = this.GetSeccond(manager).GetValue(this.SeccondCalculationVariable, secconedIndex);
                 return this.func(firstValue, seccondValue)!;
             }
 
-            if (this.First.Contains(p))
-                return this.First.GetValue(p, firstIndex);
-            if (this.Seccond.Contains(p))
-                return this.Seccond.GetValue(p, secconedIndex);
+            if (this.GetFirst(manager).Contains(p))
+                return this.GetFirst(manager).GetValue(p, firstIndex);
+            if (this.GetSeccond(manager).Contains(p))
+                return this.GetSeccond(manager).GetValue(p, secconedIndex);
 
             throw new KeyNotFoundException($"Key with id {p.Id} of type {typeof(TIn1)} not found.");
         }
 
-        protected override bool InternalContains(IP key) => key.Id == this.ownP.Id ? true : this.First.Contains(key) || this.Seccond.Contains(key);
+        protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.ownP.Id ? true : this.GetFirst(manager).Contains(key) || this.GetSeccond(manager).Contains(key);
 
-        internal void Keep(IP nededVariable)
+        internal void Keep(IP nededVariable, in WhileManager manager)
         {
-            if (this.Contains(nededVariable))
+            if (this.Contains(nededVariable, manager))
             {
                 this.variablesToKeep ??= new HashSet<IP>();
                 this.variablesToKeep!.Add(nededVariable);
             }
         }
 
-        internal void Optimize()
+        internal void Optimize(in WhileManager manager)
         {
             if (this.variablesToKeep != null)
-                this.cache ??= new Cache(this, this.variablesToKeep);
+                this.cache ??= new Cache(this, this.variablesToKeep, manager);
 
         }
     }

@@ -16,19 +16,14 @@ namespace Dice.States
 
         public TransformState(State parent, P<TOut> p, P<TIn> e, Func<TIn, TOut> func) : base(parent)
         {
-            this.table = new TransformTable<TIn, TOut>(parent.GetTable(e), e, p, func);
+            this.table = new TransformTable<TIn, TOut>(this, e, p, func);
         }
 
-        public override Table GetTable<T>(P<T> index)
+        public override (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
         {
-            if (this.table.Contains(index))
-                return this.table;
-            return base.GetTable(index);
-        }
-        public override void PrepareOptimize(IEnumerable<IP> ps)
-        {
-            base.PrepareOptimize(ps);
-
+            if (this.table.Contains(index, manager))
+                return (manager, this.table);
+            return base.GetTable(index, manager);
         }
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {

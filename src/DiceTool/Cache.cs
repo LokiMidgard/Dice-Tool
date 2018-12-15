@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Dice.Tables;
+using Dice.States;
 
 namespace Dice.Caches
 {
@@ -87,7 +88,7 @@ namespace Dice.Caches
             }
         }
 
-        public Cache(Table t, IEnumerable<IP> variablesToKeep)
+        public Cache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
         {
             var count = 0;
             foreach (var item in variablesToKeep)
@@ -98,12 +99,12 @@ namespace Dice.Caches
 
             var rows = new List<CacheRow>();
 
-            for (var i = 0; i < t.Count; i++)
+            for (var i = 0; i < t.GetCount(manager); i++)
             {
-                var r = new CacheRow(this.indexLookup.Count, this, t.GetValue(Table.PropabilityKey, i));
+                var r = new CacheRow(this.indexLookup.Count, this, t.GetValue(Table.PropabilityKey, i, manager));
 
                 foreach (var key in this.indexLookup.Keys)
-                    r.columns[this.indexLookup[key]] = t.GetValue(key, i);
+                    r.columns[this.indexLookup[key]] = t.GetValue(key, i, manager);
                 rows.Add(r);
             }
 
