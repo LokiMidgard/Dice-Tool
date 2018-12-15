@@ -1,5 +1,7 @@
 ﻿using Dice.Tables;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dice.States
 {
@@ -15,11 +17,11 @@ namespace Dice.States
         }
 
 
-        public override (WhileManager manager, Table table) GetTable<T1>(P<T1> index, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
         {
-            if (index.Id == this.Id)
+            if (variable.Id == this.Id)
                 return (manager, this.table);
-            return base.GetTable(index, manager);
+            return base.GetTable(variable, index, manager);
         }
     }
 

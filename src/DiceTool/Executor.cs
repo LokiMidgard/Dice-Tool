@@ -32,44 +32,57 @@ namespace Dice
 
         }
 
-        private void Optimize<TResult>(IEnumerable<(P<TResult> result, State state, WhileManager manager)> resultData)
+        private void PrepareOptimize<TResult>(IEnumerable<(P<TResult> result, State state)> resultData)
         {
-            foreach (var (p, state, manager) in resultData)
+            // For perpartion we obly need to perform two loops. 
+            // This steps only recordes which variables will be used from further down states. So running more then twice will not change the used variables.
+            foreach (var (p, state) in resultData)
+            {
+                IWhileManager initialState = new InitialWhileManager(1, state.WhileCount);
+                var manager = new WhileManager(initialState, -1, null!, 0);
                 state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>(), manager);
-
-            foreach (var (_, state, manager) in resultData)
-                state.Optimize(manager);
+            }
 
 
         }
 
 
+
         private IEnumerable<ResultEntry<TResult>> CalculateInternal(TIn input)
         {
+
             var sum = new Dictionary<TResult, double>();
-
-            int whileIndex = 1;
-            //            Optimize(results);
-
-            foreach (var (variable, state) in this.results)
+            for (int whileIndex = 0; whileIndex < 4; whileIndex++)
             {
-                IWhileManager initialState = new InitialWhileManager(whileIndex, state.WhileCount);
-                var whileManager = new WhileManager(initialState, -1, null!, 0);
-                var table = state.GetTable(variable, whileManager);
-
-                for (int i = 0; i < table.GetCount(); i++)
+                System.Console.WriteLine($"BEGIN index {whileIndex}");
+                //            Optimize(results);
+                //this.PrepareOptimize(results);
+                foreach (var (variable, state) in this.results)
                 {
-                    var value = table.GetValue(variable, i);
-                    var p = table.GetValue(Table.PropabilityKey, i);
-                    if (!sum.ContainsKey(value))
-                        sum.Add(value, 0.0);
-                    sum[value] += p * state.GetStatePropability(whileManager);
+                    IWhileManager initialState = new InitialWhileManager(whileIndex, state.WhileCount);
+                    var whileManager = new WhileManager(initialState, -1, null!, 0);
+                    state.Optimize(whileManager);
+
+                    for (int j = 0; j < state.TableCount(whileManager); j++)
+                    {
+
+
+                        var table = state.GetTable(variable, j, whileManager);
+
+                        for (int i = 0; i < table.GetCount(); i++)
+                        {
+                            var value = table.GetValue(variable, i);
+                            var p = table.GetValue(Table.PropabilityKey, i);
+                            if (!sum.ContainsKey(value))
+                                sum.Add(value, 0.0);
+                            sum[value] += p * state.GetStatePropability(whileManager);
+                        }
+                    }
                 }
+                System.Console.WriteLine($"END  index {whileIndex}");
 
 
             }
-
-
             foreach (var item in sum.OrderBy(x => x.Value))
             {
                 yield return new ResultEntry<TResult>(item.Key, item.Value);

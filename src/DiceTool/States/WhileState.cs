@@ -24,33 +24,45 @@ namespace Dice.States
         public override int WhileCount => base.WhileCount + 1;
         public override int LoopRecursion => base.LoopRecursion - 1;
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
         {
-            var newManager = new WhileManager(manager, this.WhileCount, this, 0);
-            return base.GetTable(index, newManager);
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
+            return base.GetTable(variable, index, newManager);
+        }
+
+        public override double TablePropability(int index, in WhileManager manager)
+        {
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
+            return base.TablePropability(index, newManager);
         }
 
         public override double GetStatePropability(in WhileManager manager)
         {
-            var newManager = new WhileManager(manager, this.WhileCount, this, 0);
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
             return base.GetStatePropability(newManager);
         }
 
         internal override void Optimize(in WhileManager manager)
         {
-            var newManager = new WhileManager(manager, this.WhileCount, this, 0);
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
             base.Optimize(newManager);
         }
 
         public override void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
         {
-            var newManager = new WhileManager(manager, this.WhileCount, this, 0);
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
             base.PrepareOptimize(ps, newManager);
         }
 
+        public override int TableCount(in WhileManager manager)
+        {
+            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
+            return base.TableCount(newManager);
+        }
 
     }
 
+    [System.Diagnostics.DebuggerDisplay("{this[1]}")]
     internal readonly struct WhileManager : IWhileManager, IEquatable<WhileManager>
     {
 

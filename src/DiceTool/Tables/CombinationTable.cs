@@ -8,10 +8,11 @@ namespace Dice.Tables
     internal class CombinationTable<TIn1, TIn2, TOut> : Table
     {
         private readonly CombinationState<TIn1, TIn2, TOut> state;
+        private readonly int index;
         private readonly P<TOut> ownP;
         private readonly Func<TIn1, TIn2, TOut> func;
         private HashSet<IP>? variablesToKeep;
-        private Cache? cache;
+        private OptimizedTableCache? cache;
 
         public P<TIn1> FirstCalculationVariable { get; }
         public P<TIn2> SeccondCalculationVariable { get; }
@@ -19,18 +20,19 @@ namespace Dice.Tables
 
         public (WhileManager manager, Table table) GetFirst(in WhileManager manager)
         {
-            return this.state.Parent.GetTable(this.FirstCalculationVariable, manager);
+            return this.state.Parent.GetTable(this.FirstCalculationVariable, index, manager);
         }
 
 
         public (WhileManager manager, Table table) GetSeccond(in WhileManager manager)
         {
-            return this.state.Parent.GetTable(this.SeccondCalculationVariable, manager);
+            return this.state.Parent.GetTable(this.SeccondCalculationVariable, index, manager);
         }
 
-        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
+        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, int index, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
         {
             this.state = parent;
+            this.index = index;
             this.ownP = p;
             this.FirstCalculationVariable = firstCalculation;
             this.SeccondCalculationVariable = seccondCalculation;
@@ -114,7 +116,7 @@ namespace Dice.Tables
         internal void Optimize(in WhileManager manager)
         {
             if (this.variablesToKeep != null)
-                this.cache ??= new Cache(this, this.variablesToKeep, manager);
+                this.cache ??= new OptimizedTableCache(this, this.variablesToKeep, manager);
 
         }
     }

@@ -5,6 +5,7 @@ namespace Dice.Tables
 {
     internal class DevideTable<T> : Table
     {
+        private readonly int index;
         private readonly T value;
         private int[]? indexLookup;
         private double partPropability = -1;
@@ -12,11 +13,12 @@ namespace Dice.Tables
         public State State { get; }
         public P<T> ConditionVariable { get; }
 
-        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.State.Parent.GetTable(this.ConditionVariable, manager);
+        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.State.Parent.GetTable(this.ConditionVariable, index, manager);
 
-        public DevideTable(State state, P<T> p, T value)
+        public DevideTable(State state, int index, P<T> p, T value)
         {
             this.State = state;
+            this.index = index;
             this.ConditionVariable = p;
             this.value = value;
         }
@@ -28,8 +30,8 @@ namespace Dice.Tables
 
         public double GetPartPropability(in WhileManager manager)
         {
-            if (this.partPropability >= 0)
-                return this.partPropability;
+            //if (this.partPropability >= 0)
+            //    return this.partPropability;
             this.partPropability = 0;
             for (var i = 0; i < this.GetCount(manager); i++)
                 this.partPropability += this.GetOriginal(manager).GetValue(PropabilityKey, this.GetIndexLookup(manager)[i]);
@@ -38,8 +40,8 @@ namespace Dice.Tables
 
         private int[] GetIndexLookup(in WhileManager manager)
         {
-            if (this.indexLookup != null)
-                return this.indexLookup;
+            //if (this.indexLookup != null)
+            //    return this.indexLookup;
             var list = new List<int>();
             for (var i = 0; i < this.GetOriginal(manager).GetCount(); i++)
             {

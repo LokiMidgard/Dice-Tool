@@ -9,10 +9,10 @@ namespace Dice.States
     internal abstract class State
     {
         private readonly HashSet<IP> nededVariables = new HashSet<IP>();
-        public virtual int WhileCount => Parent.WhileCount;
-        public virtual int DoCount => Parent.DoCount;
+        public virtual int WhileCount => this.Parent.WhileCount;
+        public virtual int DoCount => this.Parent.DoCount;
 
-        public virtual int LoopRecursion => Parent.LoopRecursion;
+        public virtual int LoopRecursion => this.Parent.LoopRecursion;
 
         public virtual double GetStatePropability(in WhileManager manager)
         {
@@ -33,12 +33,11 @@ namespace Dice.States
             this.NededVariables = this.nededVariables.AsReadOnly();
         }
 
+        public virtual double TablePropability(int index, in WhileManager manager) => this.Parent.TablePropability(index, manager);
 
-        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
-        {
-            return this.Parent.GetTable(index, manager);
-        }
+        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager) => this.Parent.GetTable(variable, index, manager);
 
+        public virtual int TableCount(in WhileManager manager) => this.Parent.TableCount(manager);
 
         public virtual void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
         {
@@ -53,8 +52,22 @@ namespace Dice.States
         {
             this.Parent.Optimize(manager);
         }
+
+        public IEnumerable<State> Ancestors()
+        {
+            var current = this;
+            while (true)
+            {
+                yield return current;
+                if (current.Parent is null)
+                    yield break;
+                current = current.Parent;
+            }
+        }
+
+
     }
 
-  
+
 
 }

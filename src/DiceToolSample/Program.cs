@@ -45,6 +45,22 @@ namespace SampleApp
                 return x.GetNamed<int>("result");
             });
 
+            var simpleWhile2 = Calculator<int>.Configure(x =>
+            {
+                x.AssignName("y", x.Const(0));
+                x.AssignName("x", x.Dice(4));
+                x.DoWhile(() =>
+                {
+                    x.AssignName("x", x.GetNamed<int>("x").Add(x.Const(1)));
+                    x.If(x.GetNamed<int>("x").Modulo(x.Const(2)).AreEqual(x.Const(0)), () =>
+                    {
+                        x.AssignName("y", x.GetNamed<int>("y").Add(x.Const(1)));
+                    });
+                    return x.GetNamed<int>("x").LessThen(x.Const(7));
+                });
+                return x.GetNamed<int>("y");
+            });
+
             var multiDiceRoll = Calculator<int>.Configure(x =>
             {
                 return x.Dice(6)
@@ -129,8 +145,11 @@ namespace SampleApp
             //Console.WriteLine("double if");
             //PrintResults(doubleIf);
 
-            Console.WriteLine("simple while");
-            PrintResults(simpleWhile);
+            //Console.WriteLine("simple while");
+            //PrintResults(simpleWhile);
+
+            Console.WriteLine("simple while 2");
+            PrintResults(simpleWhile2);
 
             //Console.WriteLine("multi Dice roll");
             //PrintResults(multiDiceRoll);

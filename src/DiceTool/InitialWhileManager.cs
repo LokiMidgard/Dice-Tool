@@ -14,6 +14,6 @@ namespace Dice
 
         private int[] counter;
 
-        public (int count, WhileState state) this[int index] => (this.counter[index - 1], null!);
+        public (int count, WhileState state) this[int index] => (this.counter[index], null!);
     }
 }

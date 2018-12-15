@@ -34,9 +34,12 @@ namespace Dice.States
             return 1.0;
         }
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> index, in WhileManager manager)
+        public override int TableCount(in WhileManager manager) => 1;
+        public override double TablePropability(int index, in WhileManager manager) => 1;
+
+        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
         {
-            throw new KeyNotFoundException($"The key with id {index.Id} was not found.");
+            throw new KeyNotFoundException($"The key with id {variable.Id} was not found.");
         }
 
     }

@@ -6,16 +6,16 @@ using Dice.States;
 
 namespace Dice.Caches
 {
-    internal class Cache
+    internal class OptimizedTableCache
     {
 
         private class CacheRow : IEquatable<CacheRow>
         {
             public readonly object[] columns;
             public readonly double Propability;
-            private readonly Cache parent;
+            private readonly OptimizedTableCache parent;
 
-            public CacheRow(int numberOfVariables, Cache parent, double propability)
+            public CacheRow(int numberOfVariables, OptimizedTableCache parent, double propability)
             {
                 this.columns = new object[numberOfVariables];
                 this.parent = parent;
@@ -41,7 +41,7 @@ namespace Dice.Caches
             public bool Equals(CacheRow other)
             {
                 if (other == null
-                    || !EqualityComparer<Cache>.Default.Equals(this.parent, other.parent)
+                    || !EqualityComparer<OptimizedTableCache>.Default.Equals(this.parent, other.parent)
                     || this.columns.Length != other.columns.Length)
                     return false;
 
@@ -88,7 +88,7 @@ namespace Dice.Caches
             }
         }
 
-        public Cache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
+        public OptimizedTableCache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
         {
             var count = 0;
             foreach (var item in variablesToKeep)
