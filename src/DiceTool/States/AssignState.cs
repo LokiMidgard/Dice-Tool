@@ -39,5 +39,9 @@ namespace Dice.States
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.value });
         }
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        {
+            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+        }
     }
 }

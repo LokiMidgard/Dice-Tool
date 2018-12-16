@@ -34,19 +34,6 @@ namespace Dice
 
         }
 
-        private void PrepareOptimize<TResult>(IEnumerable<(P<TResult> result, State state)> resultData)
-        {
-            // For perpartion we obly need to perform two loops. 
-            // This steps only recordes which variables will be used from further down states. So running more then twice will not change the used variables.
-            //foreach (var (p, state) in resultData)
-            //{
-            //    IWhileManager initialState = new InitialWhileManager(1, state.WhileCount);
-            //    var manager = new WhileManager(initialState, -1, null!, 0);
-            //    state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>(), manager);
-            //}
-
-
-        }
 
         public double Epsylon { get; set; } = 0.000000001;
 
@@ -55,12 +42,10 @@ namespace Dice
         {
 
             var sum = new Dictionary<TResult, double>();
-            //            Optimize(results);
-            //this.PrepareOptimize(results);
 
             // prepeare Optimization
-            foreach (var item in results)
-                item.lastState.PrepareOptimize(Enumerable.Repeat(item.Variable as IP, 1));
+            foreach (var (Variable, lastState) in this.results)
+                lastState.PrepareOptimize(Enumerable.Repeat(Variable as IP, 1));
 
             foreach (var (variable, state) in this.results)
             {
@@ -68,7 +53,7 @@ namespace Dice
                 var whileManager = new WhileManager(choiseManager);
 
 
-                int counter = 0;
+                //int counter = 0;
 
                 while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability - 1) > this.Epsylon)
                 {
@@ -81,7 +66,8 @@ namespace Dice
                     var statePropability = state.GetStatePropability(whileManager);
                     var table = state.GetTable(variable, whileManager);
                     var currentSum = 0.0;
-                    for (int i = 0; i < table.GetCount(); i++)
+                    var tableCount = table.GetCount();
+                    for (int i = 0; i < tableCount; i++)
                     {
                         var value = table.GetValue(variable, i);
                         var p = table.GetValue(Table.PropabilityKey, i);
@@ -91,24 +77,24 @@ namespace Dice
                         currentSum += propability;
                         sum[value] += propability;
                     }
-
+                    foreach (var item in sum.OrderBy(x => x.Value))
+                    {
+                        yield return new ResultEntry<TResult>(item.Key, item.Value, currentSum);
+                    }
+                    sum.Clear();
                     choiseManager.Terminate(currentSum);
-                    System.Console.WriteLine($"Terminated {++counter} run. Searched {choiseManager.SolvedPropability}");
+                    //System.Console.WriteLine($"Terminated {++counter} run. Searched {choiseManager.SolvedPropability}");
                     //if (counter++ > 3)
                     //    break;
                 }
 
 
             }
-            foreach (var item in sum.OrderBy(x => x.Value))
-            {
-                yield return new ResultEntry<TResult>(item.Key, item.Value);
-            }
         }
 
         private class Wraper : IAsyncEnumerable<ResultEntry<TResult>>
         {
-            private IEnumerable<ResultEntry<TResult>> enumerable;
+            private readonly IEnumerable<ResultEntry<TResult>> enumerable;
 
             public Wraper(IEnumerable<ResultEntry<TResult>> enumerable)
             {

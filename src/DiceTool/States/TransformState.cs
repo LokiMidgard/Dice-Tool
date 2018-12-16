@@ -12,11 +12,13 @@ namespace Dice.States
     }
     internal class TransformState<TIn, TOut> : TableState<TransformTable<TIn, TOut>>
     {
+        private readonly P<TOut> variable;
         private readonly P<TIn> input;
         private readonly TransformTable<TIn, TOut> table;
 
         public TransformState(State parent, P<TOut> variable, P<TIn> input, Func<TIn, TOut> func) : base(parent)
         {
+            this.variable = variable;
             this.input = input;
             this.table = new TransformTable<TIn, TOut>(this, input, variable, func);
         }
@@ -28,6 +30,12 @@ namespace Dice.States
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.input });
         }
+
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        {
+            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+        }
+
 
     }
 }

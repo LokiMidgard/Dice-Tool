@@ -26,19 +26,22 @@ namespace Dice
 
         public double Propability { get; }
 
+        public double CompletePercentage { get; }
 
-        internal ResultEntry(TResult result, double propability)
+        internal ResultEntry(TResult result, double propability, double completePercentage)
         {
             this.State = ResultState.Completed;
             this.result = result;
             this.Propability = propability;
+            this.CompletePercentage = completePercentage;
         }
-        internal ResultEntry(Exception result, double propability)
+        internal ResultEntry(Exception result, double propability, double completePercentage)
         {
             this.State = ResultState.Faulted;
             this.exception = result;
             this.Propability = propability;
             this.result = default!; // if State is non Completed, we never access result
+            this.CompletePercentage = completePercentage;
         }
 
         internal ResultEntry(double propability) // only for cancled.

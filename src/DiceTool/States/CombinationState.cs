@@ -12,6 +12,7 @@ namespace Dice.States
     }
     internal class CombinationState<TIn1, TIn2, TOut> : TableState<CombinationTable<TIn1, TIn2, TOut>>
     {
+        private readonly P<TOut> variable;
         private readonly P<TIn1> in1;
         private readonly P<TIn2> in2;
 
@@ -21,6 +22,7 @@ namespace Dice.States
         public CombinationState(State parent, P<TOut> variable, P<TIn1> in1, P<TIn2> in2, Func<TIn1, TIn2, TOut> func) : base(parent)
         {
             this.Table = new CombinationTable<TIn1, TIn2, TOut>(this, variable, in1, in2, func);
+            this.variable = variable;
             this.in1 = in1;
             this.in2 = in2;
         }
@@ -37,6 +39,10 @@ namespace Dice.States
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {
             return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.in1, this.in2 });
+        }
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        {
+            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
         }
 
 

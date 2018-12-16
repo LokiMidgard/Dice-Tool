@@ -9,14 +9,21 @@ namespace Dice.States
     {
 
         private readonly SingelVariableTable<T> table;
-
+        private readonly P<T> variable;
 
         public NewVariableState(State parent, P<T> variable, params (T value, double propability)[] distribution) : base(parent)
         {
             table = new SingelVariableTable<T>(variable, distribution);
+            this.variable = variable;
         }
 
         public override SingelVariableTable<T> Table => table;
+
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        {
+            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+        }
+
     }
 
 }

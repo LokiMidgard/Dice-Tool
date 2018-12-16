@@ -79,17 +79,9 @@ namespace Dice
             return this.idCounter.ToString();
         }
 
-        private void SetId(uint minId)
-        {
-            if (minId < this.idCounter)
-                throw new ArgumentException($"Value was to small {minId}. Expected at least {this.idCounter}", nameof(minId));
-            this.idCounter = minId;
-        }
 
 
-
-
-        internal P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
+        public P<TOut> Combine<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
         {
             var p = P.Create<TOut>(this, this.CreateId());
             this.State.NextStates(new CombinationState<TIn1, TIn2, TOut>(this.State.Current, p, e1, e2, func));
@@ -167,7 +159,7 @@ namespace Dice
         }
 
 
-        P<TOut> IComposer.CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => this.CreateCombineState(e1, e2, func);
+        P<TOut> IComposer.CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => this.Combine(e1, e2, func);
 
         P<T> IComposer.CreateConstState<T>(T value) => this.CreateConstState(value!);
 

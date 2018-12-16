@@ -42,15 +42,19 @@ namespace Dice.States
                 var newPs = ps.Except(this.nededVariables);
                 if (!newPs.Any())
                     return;
-             
             }
 
             foreach (var p in ps)
                 this.nededVariables.Add(p);
-            this.Parent?.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
+            this.Parent?.PrepareOptimize(
+                ps: ps
+                .Except(this.GetVarialesProvidedByThisState())
+                .Concat(this.GetOptimizedVariablesForParent())
+                );
         }
 
         protected internal virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
+        protected internal virtual IEnumerable<IP> GetVarialesProvidedByThisState() => Enumerable.Empty<IP>();
 
         internal virtual void Optimize(in WhileManager manager)
         {
