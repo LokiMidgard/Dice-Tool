@@ -88,14 +88,19 @@ namespace Dice.Caches
             }
         }
 
+        public IEnumerable<IP> Variables => this.indexLookup.Keys;
+
         public OptimizedTableCache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
         {
             System.Diagnostics.Debug.Assert(variablesToKeep.Count() > 0);
             var count = 0;
             foreach (var item in variablesToKeep)
             {
-                this.indexLookup[item] = count;
-                count++;
+                if (t.Contains(item, manager))
+                {
+                    this.indexLookup[item] = count;
+                    count++;
+                }
             }
 
             var rows = new List<CacheRow>();
@@ -115,6 +120,9 @@ namespace Dice.Caches
 
         }
 
-
+        public bool Contains(IP key)
+        {
+            return this.indexLookup.ContainsKey(key);
+        }
     }
 }

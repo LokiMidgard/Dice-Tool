@@ -23,7 +23,7 @@ namespace Dice.States
 
         internal override void PreCalculatePath(in WhileManager whileManager) { }
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
             throw new KeyNotFoundException($"The key with id {variable.Id} was not found.");
         }

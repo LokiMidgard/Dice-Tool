@@ -16,7 +16,7 @@ namespace Dice.States
 
         public WhileState WhileState { get; private set; }
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
 
             var choise = manager.Choise;

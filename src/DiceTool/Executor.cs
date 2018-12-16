@@ -1,5 +1,6 @@
 ﻿using Dice.States;
 using Dice.Tables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +48,7 @@ namespace Dice
 
         }
 
+        public double Epsylon { get; set; } = 0.000000001;
 
 
         private IEnumerable<ResultEntry<TResult>> CalculateInternal(TIn input)
@@ -68,13 +70,13 @@ namespace Dice
 
                 int counter = 0;
 
-                while (!choiseManager.IsCompleted)
+                while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability - 1) > this.Epsylon)
                 {
                     using (choiseManager.EnableMutation())
                         state.PreCalculatePath(whileManager);
 
-                        state.Optimize(whileManager);
-                        
+                    state.Optimize(whileManager);
+
 
                     var statePropability = state.GetStatePropability(whileManager);
                     var table = state.GetTable(variable, whileManager);

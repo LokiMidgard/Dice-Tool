@@ -29,7 +29,7 @@ namespace Dice.States
         }
 
 
-        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> variable, in WhileManager manager) => this.Parent.GetTable(variable, manager);
+        public virtual (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager) => this.Parent.GetTable(variable, manager);
 
         public virtual bool Contains(IP variable, in WhileManager manager) => this.Parent.Contains(variable, manager);
 
@@ -47,7 +47,7 @@ namespace Dice.States
 
             foreach (var p in ps)
                 this.nededVariables.Add(p);
-            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
+            this.Parent?.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
         }
 
         protected internal virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();

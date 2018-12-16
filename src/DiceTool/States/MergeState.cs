@@ -10,6 +10,15 @@ namespace Dice.States
     {
         private readonly State parent1;
         private readonly State parent2;
+        private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
+
+        internal MergeTable? GetTable(in WhileManager manager)
+        {
+            if (this.cache.TryGet<MergeTable>(nameof(GetTable), manager, out var value))
+                return value;
+            return null;
+        }
+
 
         public MergeState(State parent1, State parent2) : base(null!)
         {
@@ -28,8 +37,12 @@ namespace Dice.States
                 return this.parent2.GetStatePropability(newManager);
         }
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
+            var mergeTable = this.GetTable(manager);
+            if (mergeTable != null)
+                return (manager, mergeTable);
+
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 
@@ -42,6 +55,9 @@ namespace Dice.States
 
         internal override void Optimize(in WhileManager manager)
         {
+            if (this.GetTable(manager) != null)
+                return;
+
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 
@@ -50,6 +66,18 @@ namespace Dice.States
             else
                 this.parent2.Optimize(newManager);
 
+            //this.NededVariables.;
+
+            this.cache.Create(nameof(GetTable), manager, new MergeTable(this, this.NededVariables, manager));
+
+
+        }
+
+        public override void PrepareOptimize(IEnumerable<IP> ps)
+        {
+            base.PrepareOptimize(ps);
+            this.parent1.PrepareOptimize(ps);
+            this.parent2.PrepareOptimize(ps);
         }
 
         internal override void PreCalculatePath(in WhileManager manager)
@@ -65,6 +93,10 @@ namespace Dice.States
 
         public override bool Contains(IP variable, in WhileManager manager)
         {
+            var mergeTable = this.GetTable(manager);
+            if (mergeTable != null)
+                return mergeTable.Contains(variable, manager);
+
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 
@@ -74,12 +106,7 @@ namespace Dice.States
                 return this.parent2.Contains(variable, newManager);
         }
 
-        public override void PrepareOptimize(IEnumerable<IP> ps)
-        {
-            this.parent1.PrepareOptimize(ps);
-            this.parent2.PrepareOptimize(ps);
 
-        }
 
 
 

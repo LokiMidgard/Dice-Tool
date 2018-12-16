@@ -12,7 +12,7 @@ namespace Dice.States
         {
         }
 
-        public override (WhileManager manager, Table table) GetTable<T1>(P<T1> variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
             if (Table.Contains(variable, manager))
                 return (manager, this.Table);

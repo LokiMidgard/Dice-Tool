@@ -48,6 +48,23 @@ namespace SampleApp
             var simpleWhile2 = Calculator<int>.Configure(x =>
             {
                 x.AssignName("y", x.Const(0));
+                const int Faces = 6;
+                x.AssignName("x", x.Dice(Faces));
+                x.DoWhile(() =>
+                {
+                    x.AssignName("x", x.GetNamed<int>("x").Add(x.Const(1)));
+                    x.If(x.GetNamed<int>("x").Modulo(x.Const(2)).AreEqual(x.Const(0)), () =>
+                    {
+                        x.AssignName("y", x.GetNamed<int>("y").Add(x.Const(1)));
+                    });
+                    return x.GetNamed<int>("x").LessThen(x.Const(Faces + 1));
+                });
+                return x.GetNamed<int>("y");
+            });
+
+            var simpleWhile3 = Calculator<int>.Configure(x =>
+            {
+                x.AssignName("y", x.Const(0));
                 const int Faces = 4;
                 x.AssignName("x", x.Dice(Faces));
                 x.DoWhile(() =>
@@ -137,29 +154,29 @@ namespace SampleApp
 
             Console.WriteLine($"Configuration took {watch.Elapsed}");
 
-            //Console.WriteLine("simple Rolle");
-            //PrintResults(simpleDiceRole);
+            Console.WriteLine("simple Rolle");
+            PrintResults(simpleDiceRole);
 
-            //Console.WriteLine("simple if");
-            //PrintResults(simpleIf);
+            Console.WriteLine("simple if");
+            PrintResults(simpleIf);
 
-            //Console.WriteLine("double if");
-            //PrintResults(doubleIf);
+            Console.WriteLine("double if");
+            PrintResults(doubleIf);
 
-            //Console.WriteLine("simple while");
-            //PrintResults(simpleWhile);
+            Console.WriteLine("simple while");
+            PrintResults(simpleWhile);
 
             Console.WriteLine("simple while 2");
             PrintResults(simpleWhile2);
 
-            //Console.WriteLine("multi Dice roll");
-            //PrintResults(multiDiceRoll);
+            Console.WriteLine("multi Dice roll");
+            PrintResults(multiDiceRoll);
 
-            //Console.WriteLine("Masive role");
-            //PrintResults(massiveRole);
+            Console.WriteLine("Masive role");
+            PrintResults(massiveRole);
 
-            //Console.WriteLine("The Dark Eye role");
-            //PrintResults(theDarkEyeRole);
+            Console.WriteLine("The Dark Eye role");
+            PrintResults(theDarkEyeRole);
 
 
             //await foreach (var item in asyncEnumerable)
