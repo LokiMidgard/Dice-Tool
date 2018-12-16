@@ -90,6 +90,7 @@ namespace Dice.Caches
 
         public OptimizedTableCache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
         {
+            System.Diagnostics.Debug.Assert(variablesToKeep.Count() > 0);
             var count = 0;
             foreach (var item in variablesToKeep)
             {
@@ -105,6 +106,7 @@ namespace Dice.Caches
 
                 foreach (var key in this.indexLookup.Keys)
                     r.columns[this.indexLookup[key]] = t.GetValue(key, i, manager);
+
                 rows.Add(r);
             }
 

@@ -14,6 +14,8 @@ namespace Dice
 
         private int[] counter;
 
+        public int Count => counter.Length;
+
         public (int count, WhileState state) this[int index] => (this.counter[index], null!);
     }
 }

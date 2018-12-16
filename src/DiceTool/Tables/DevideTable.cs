@@ -1,24 +1,25 @@
 ﻿using Dice.States;
+using System;
 using System.Collections.Generic;
 
 namespace Dice.Tables
 {
     internal class DevideTable<T> : Table
     {
-        private readonly int index;
         private readonly T value;
-        private int[]? indexLookup;
-        private double partPropability = -1;
+        private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
+        //private int[]? indexLookup;
+        //private double partPropability = -1;
+
 
         public State State { get; }
         public P<T> ConditionVariable { get; }
 
-        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.State.Parent.GetTable(this.ConditionVariable, index, manager);
+        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.State.Parent.GetTable(this.ConditionVariable, manager);
 
-        public DevideTable(State state, int index, P<T> p, T value)
+        public DevideTable(State state, P<T> p, T value)
         {
             this.State = state;
-            this.index = index;
             this.ConditionVariable = p;
             this.value = value;
         }
@@ -30,28 +31,30 @@ namespace Dice.Tables
 
         public double GetPartPropability(in WhileManager manager)
         {
-            //if (this.partPropability >= 0)
-            //    return this.partPropability;
-            this.partPropability = 0;
+            return this.cache.GetOrCreate(nameof(GetPartPropability), manager, this.CalculatePropability);
+        }
+
+        private double CalculatePropability(in WhileManager manager)
+        {
+            var partPropability = 0.0;
             for (var i = 0; i < this.GetCount(manager); i++)
-                this.partPropability += this.GetOriginal(manager).GetValue(PropabilityKey, this.GetIndexLookup(manager)[i]);
-            return this.partPropability;
+                partPropability += this.GetOriginal(manager).GetValue(PropabilityKey, this.GetIndexLookup(manager)[i]);
+            return partPropability;
         }
 
         private int[] GetIndexLookup(in WhileManager manager)
         {
-            //if (this.indexLookup != null)
-            //    return this.indexLookup;
+            return this.cache.GetOrCreate(nameof(GetIndexLookup), manager, this.CalculateIndexLookup);
+        }
+
+        private int[] CalculateIndexLookup(in WhileManager manager)
+        {
             var list = new List<int>();
             for (var i = 0; i < this.GetOriginal(manager).GetCount(); i++)
-            {
                 if (Equals(this.GetOriginal(manager).GetValue(this.ConditionVariable, i), this.value))
-                {
                     list.Add(i);
-                }
-            }
-            this.indexLookup = list.ToArray();
-            return this.indexLookup;
+            var indexLookup = list.ToArray();
+            return indexLookup;
         }
 
         public override object GetValue(IP p, int index, in WhileManager manager)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Dice.Tables;
 
@@ -10,110 +11,91 @@ namespace Dice.States
 
         public DevideState<bool> EndState { get; }
 
-        public WhileState(State parent, P<bool> condition) : base(parent)
-        {
-            this.Condition = condition;
-            this.EndState = new DevideState<bool>(this, condition, false);
-            this.ContinueState = new DevideState<bool>(this, condition, true);
-        }
-
 
         public P<bool> Condition { get; }
+        public DoState DoState { get; }
         public DevideState<bool> ContinueState { get; }
 
-        public override int WhileCount => base.WhileCount + 1;
-        public override int LoopRecursion => base.LoopRecursion - 1;
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
+
+        public WhileState(State parent, P<bool> condition, DoState doState) : base(parent)
         {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            return base.GetTable(variable, index, newManager);
+            this.Condition = condition;
+            this.DoState = doState;
+            this.EndState = new DevideState<bool>(this, condition, false);
+            this.ContinueState = new DevideState<bool>(this, condition, true);
+            this.DoState.RegisterWhileState(this);
         }
 
-        public override double TablePropability(int index, in WhileManager manager)
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            return base.TablePropability(index, newManager);
+            return base.GetOptimizedVariablesForParent().Concat(Enumerable.Repeat<IP>(this.Condition, 1));
         }
 
-        public override double GetStatePropability(in WhileManager manager)
-        {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            return base.GetStatePropability(newManager);
-        }
 
-        internal override void Optimize(in WhileManager manager)
-        {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            base.Optimize(newManager);
-        }
 
-        public override void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
-        {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            base.PrepareOptimize(ps, newManager);
-        }
+        //public override int WhileCount => base.WhileCount + 1;
+        //public override int LoopRecursion => base.LoopRecursion - 1;
 
-        public override int TableCount(in WhileManager manager)
-        {
-            var newManager = new WhileManager(manager, this.WhileCount - 1, this, 0);
-            return base.TableCount(newManager);
-        }
+        //public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    return base.GetTable(variable, index, newManager);
+        //}
+
+        //public override double TablePropability(int index, in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    return base.TablePropability(index, newManager);
+        //}
+
+        //public override double GetStatePropability(in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    return base.GetStatePropability(newManager);
+        //}
+
+        //internal override void Optimize(in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    base.Optimize(newManager);
+        //}
+
+        //public override void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    base.PrepareOptimize(ps, newManager);
+        //}
+
+        //public override int TableCount(in WhileManager manager)
+        //{
+        //    var newManager = new WhileManager(manager);
+        //    return base.TableCount(newManager);
+        //}
 
     }
 
-    [System.Diagnostics.DebuggerDisplay("{this[1]}")]
-    internal readonly struct WhileManager : IWhileManager, IEquatable<WhileManager>
+    //[System.Diagnostics.DebuggerDisplay("{this[1]}")]
+    internal readonly struct WhileManager
     {
+        internal int Depth { get; }
+        private ChoiseManager Manager { get; }
 
-        private readonly int index;
-        private readonly WhileState state;
-        private readonly int countModifier;
-        private readonly IWhileManager Parent;
-        public (int count, WhileState state) this[int index]
+        public ChoiseManager.PathToGo CacheKey => this.Manager.CacheKey(this.Depth);
+
+        public WhileManager(ChoiseManager manager)
         {
-            get
-            {
-                if (index == this.index)
-                    return (this.Parent[index].count + this.countModifier, this.state);
-                return this.Parent[index];
-            }
+            this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            this.Depth = 0;
         }
 
-        public WhileManager(IWhileManager parent, int index, WhileState state, int countModifier)
+        public WhileManager(in WhileManager original)
         {
-            this.Parent = parent;
-            this.index = index;
-            this.state = state;
-            this.countModifier = countModifier;
+            this.Depth = original.Depth + 1;
+            this.Manager = original.Manager;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is WhileManager && this.Equals((WhileManager)obj);
-        }
+        internal int Choise => this.Manager.GetChoise(this.Depth);
 
-        public bool Equals(WhileManager other)
-        {
-            return this.index == other.index &&
-                   EqualityComparer<WhileState>.Default.Equals(this.state, other.state) &&
-                   this.countModifier == other.countModifier &&
-                   EqualityComparer<IWhileManager>.Default.Equals(this.Parent, other.Parent);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this.index, this.state, this.countModifier, this.Parent);
-        }
-
-        public static bool operator ==(WhileManager manager1, WhileManager manager2)
-        {
-            return manager1.Equals(manager2);
-        }
-
-        public static bool operator !=(WhileManager manager1, WhileManager manager2)
-        {
-            return !(manager1 == manager2);
-        }
     }
 }

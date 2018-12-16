@@ -21,6 +21,7 @@ namespace Dice
 
         public Executor(IEnumerable<(P<TResult> Variable, State lastState)> result)
         {
+            System.Diagnostics.Debug.Assert(result.Count() == 1);
             this.results = result;
         }
 
@@ -36,12 +37,12 @@ namespace Dice
         {
             // For perpartion we obly need to perform two loops. 
             // This steps only recordes which variables will be used from further down states. So running more then twice will not change the used variables.
-            foreach (var (p, state) in resultData)
-            {
-                IWhileManager initialState = new InitialWhileManager(1, state.WhileCount);
-                var manager = new WhileManager(initialState, -1, null!, 0);
-                state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>(), manager);
-            }
+            //foreach (var (p, state) in resultData)
+            //{
+            //    IWhileManager initialState = new InitialWhileManager(1, state.WhileCount);
+            //    var manager = new WhileManager(initialState, -1, null!, 0);
+            //    state.PrepareOptimize(Enumerable.Repeat(p, 1).Cast<IP>(), manager);
+            //}
 
 
         }
@@ -52,34 +53,48 @@ namespace Dice
         {
 
             var sum = new Dictionary<TResult, double>();
-            for (int whileIndex = 0; whileIndex < 4; whileIndex++)
+            //            Optimize(results);
+            //this.PrepareOptimize(results);
+
+            // prepeare Optimization
+            foreach (var item in results)
+                item.lastState.PrepareOptimize(Enumerable.Repeat(item.Variable as IP, 1));
+
+            foreach (var (variable, state) in this.results)
             {
-                System.Console.WriteLine($"BEGIN index {whileIndex}");
-                //            Optimize(results);
-                //this.PrepareOptimize(results);
-                foreach (var (variable, state) in this.results)
+                var choiseManager = new ChoiseManager();
+                var whileManager = new WhileManager(choiseManager);
+
+
+                int counter = 0;
+
+                while (!choiseManager.IsCompleted)
                 {
-                    IWhileManager initialState = new InitialWhileManager(whileIndex, state.WhileCount);
-                    var whileManager = new WhileManager(initialState, -1, null!, 0);
-                    state.Optimize(whileManager);
+                    using (choiseManager.EnableMutation())
+                        state.PreCalculatePath(whileManager);
 
-                    for (int j = 0; j < state.TableCount(whileManager); j++)
+                        state.Optimize(whileManager);
+                        
+
+                    var statePropability = state.GetStatePropability(whileManager);
+                    var table = state.GetTable(variable, whileManager);
+                    var currentSum = 0.0;
+                    for (int i = 0; i < table.GetCount(); i++)
                     {
-
-
-                        var table = state.GetTable(variable, j, whileManager);
-
-                        for (int i = 0; i < table.GetCount(); i++)
-                        {
-                            var value = table.GetValue(variable, i);
-                            var p = table.GetValue(Table.PropabilityKey, i);
-                            if (!sum.ContainsKey(value))
-                                sum.Add(value, 0.0);
-                            sum[value] += p * state.GetStatePropability(whileManager);
-                        }
+                        var value = table.GetValue(variable, i);
+                        var p = table.GetValue(Table.PropabilityKey, i);
+                        if (!sum.ContainsKey(value))
+                            sum.Add(value, 0.0);
+                        var propability = p * statePropability;
+                        currentSum += propability;
+                        sum[value] += propability;
                     }
+
+                    choiseManager.Terminate(currentSum);
+                    System.Console.WriteLine($"Terminated {++counter} run. Searched {choiseManager.SolvedPropability}");
+                    //if (counter++ > 3)
+                    //    break;
                 }
-                System.Console.WriteLine($"END  index {whileIndex}");
 
 
             }

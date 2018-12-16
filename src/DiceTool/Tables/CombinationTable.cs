@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dice.Caches;
 using Dice.States;
 
@@ -8,11 +9,12 @@ namespace Dice.Tables
     internal class CombinationTable<TIn1, TIn2, TOut> : Table
     {
         private readonly CombinationState<TIn1, TIn2, TOut> state;
-        private readonly int index;
         private readonly P<TOut> ownP;
         private readonly Func<TIn1, TIn2, TOut> func;
         private HashSet<IP>? variablesToKeep;
-        private OptimizedTableCache? cache;
+        //private OptimizedTableCache? cache;
+        private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
+
 
         public P<TIn1> FirstCalculationVariable { get; }
         public P<TIn2> SeccondCalculationVariable { get; }
@@ -20,19 +22,18 @@ namespace Dice.Tables
 
         public (WhileManager manager, Table table) GetFirst(in WhileManager manager)
         {
-            return this.state.Parent.GetTable(this.FirstCalculationVariable, index, manager);
+            return this.state.Parent.GetTable(this.FirstCalculationVariable, manager);
         }
 
 
         public (WhileManager manager, Table table) GetSeccond(in WhileManager manager)
         {
-            return this.state.Parent.GetTable(this.SeccondCalculationVariable, index, manager);
+            return this.state.Parent.GetTable(this.SeccondCalculationVariable, manager);
         }
 
-        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, int index, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
+        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func)
         {
             this.state = parent;
-            this.index = index;
             this.ownP = p;
             this.FirstCalculationVariable = firstCalculation;
             this.SeccondCalculationVariable = seccondCalculation;
@@ -41,9 +42,9 @@ namespace Dice.Tables
 
         public override int GetCount(in WhileManager manager)
         {
-
-            if (this.cache != null)
-                return this.cache.Count;
+            var cachedTable = this.CachedTable(manager);
+            if (cachedTable != null)
+                return cachedTable.Count;
 
             return this.GetParentTablesAreSame(manager)
                 ? this.GetFirst(manager).GetCount()
@@ -59,8 +60,9 @@ namespace Dice.Tables
 
         public override object GetValue(IP p, int index, in WhileManager manager)
         {
-            if (this.cache != null)
-                return this.cache[p, index];
+            var cachedTable = this.CachedTable(manager);
+            if (cachedTable != null)
+                return cachedTable[p, index];
 
 
             if (index >= this.GetCount(manager))
@@ -69,6 +71,9 @@ namespace Dice.Tables
             int firstIndex;
             int secconedIndex;
 
+            var firstTable = this.GetFirst(manager);
+            var seccondTable = this.GetSeccond(manager);
+
             if (this.GetParentTablesAreSame(manager))
             {
                 firstIndex = index;
@@ -76,48 +81,66 @@ namespace Dice.Tables
             }
             else
             {
-                firstIndex = index % this.GetFirst(manager).GetCount();
-                secconedIndex = index / this.GetFirst(manager).GetCount();
+                firstIndex = index % firstTable.GetCount();
+                secconedIndex = index / firstTable.GetCount();
             }
 
             if (p.Id == PropabilityKey.Id)
             {
                 if (this.GetParentTablesAreSame(manager))
-                    return this.GetFirst(manager).GetValue(p, index);
-                return this.GetFirst(manager).GetValue(PropabilityKey, firstIndex) * this.GetSeccond(manager).GetValue(PropabilityKey, secconedIndex);
+                    return firstTable.GetValue(p, index);
+                return firstTable.GetValue(PropabilityKey, firstIndex) * seccondTable.GetValue(PropabilityKey, secconedIndex);
             }
 
             if (p.Id == this.ownP.Id)
             {
-                var firstValue = this.GetFirst(manager).GetValue(this.FirstCalculationVariable, firstIndex);
-                var seccondValue = this.GetSeccond(manager).GetValue(this.SeccondCalculationVariable, secconedIndex);
+                var firstValue = firstTable.GetValue(this.FirstCalculationVariable, firstIndex);
+                var seccondValue = seccondTable.GetValue(this.SeccondCalculationVariable, secconedIndex);
                 return this.func(firstValue, seccondValue)!;
             }
 
-            if (this.GetFirst(manager).Contains(p))
-                return this.GetFirst(manager).GetValue(p, firstIndex);
-            if (this.GetSeccond(manager).Contains(p))
-                return this.GetSeccond(manager).GetValue(p, secconedIndex);
+            if (firstTable.Contains(p))
+                return firstTable.GetValue(p, firstIndex);
+            if (seccondTable.Contains(p))
+                return seccondTable.GetValue(p, secconedIndex);
 
             throw new KeyNotFoundException($"Key with id {p.Id} of type {typeof(TIn1)} not found.");
         }
 
         protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.ownP.Id ? true : this.GetFirst(manager).Contains(key) || this.GetSeccond(manager).Contains(key);
 
-        internal void Keep(IP nededVariable, in WhileManager manager)
+        internal void Keep(IP nededVariable)
         {
-            if (this.Contains(nededVariable, manager))
-            {
-                this.variablesToKeep ??= new HashSet<IP>();
-                this.variablesToKeep!.Add(nededVariable);
-            }
+            this.variablesToKeep ??= new HashSet<IP>();
+            this.variablesToKeep!.Add(nededVariable);
+        }
+
+        OptimizedTableCache? CachedTable(in WhileManager manager)
+        {
+            if (this.cache.TryGet<OptimizedTableCache>(nameof(Optimize), manager, out var result))
+                return result;
+            return null;
         }
 
         internal void Optimize(in WhileManager manager)
         {
             if (this.variablesToKeep != null)
-                this.cache ??= new OptimizedTableCache(this, this.variablesToKeep, manager);
+                this.cache.GetOrCreate(nameof(Optimize), manager, this.CreateOptimizedTable);
+            //this.cache ??= new OptimizedTableCache(this, this.variablesToKeep, manager);
 
+        }
+
+        private OptimizedTableCache CreateOptimizedTable(in WhileManager manager)
+        {
+            System.Diagnostics.Debug.Assert(this.variablesToKeep != null);
+            var list = new List<IP>();
+            foreach (var item in variablesToKeep)
+            {
+                //if (state.Contains(item, manager))
+                if (this.Contains(item, manager))
+                    list.Add(item);
+            }
+            return new OptimizedTableCache(this, list, manager);
         }
     }
 

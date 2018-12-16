@@ -15,7 +15,7 @@ namespace Dice
             //do
             //{
             var item = configurations(composer);
-            results.AddRange(composer.State.CollectResults().Select(x => (item, x)));
+            results.Add((item, composer.State.Current));
             //} while (composer.Reset());
 
 

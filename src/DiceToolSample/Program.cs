@@ -48,7 +48,8 @@ namespace SampleApp
             var simpleWhile2 = Calculator<int>.Configure(x =>
             {
                 x.AssignName("y", x.Const(0));
-                x.AssignName("x", x.Dice(4));
+                const int Faces = 4;
+                x.AssignName("x", x.Dice(Faces));
                 x.DoWhile(() =>
                 {
                     x.AssignName("x", x.GetNamed<int>("x").Add(x.Const(1)));
@@ -56,7 +57,7 @@ namespace SampleApp
                     {
                         x.AssignName("y", x.GetNamed<int>("y").Add(x.Const(1)));
                     });
-                    return x.GetNamed<int>("x").LessThen(x.Const(7));
+                    return x.GetNamed<int>("x").LessThen(x.Const(Faces + 1));
                 });
                 return x.GetNamed<int>("y");
             });

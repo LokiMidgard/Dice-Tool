@@ -10,52 +10,40 @@ namespace Dice.Caches
 {
     class WhilestateCache
     {
-        private readonly State state;
-        private readonly Dictionary<(string key, int[] array), object> lookup;
+        private readonly Dictionary<(string key, ChoiseManager.PathToGo array), object> lookup;
 
         //private readonly static ConditionalWeakTable<Table, WhilestateCache> store = new ConditionalWeakTable<Table, WhilestateCache>();
-        public WhilestateCache(State state)
+        public WhilestateCache()
         {
-            this.state = state;
-            this.lookup = new Dictionary<(string key, int[] array), object>(new Comparer());
+            this.lookup = new Dictionary<(string key, ChoiseManager.PathToGo array), object>();
         }
 
-        public bool TryGet<T>(string key, in WhileManager manager, out T result)
+        public delegate T CreateInstanceDelegate<T>(in WhileManager manager);
+
+        public T GetOrCreate<T>(string key, in WhileManager manager, CreateInstanceDelegate<T> createion)
         {
             //throw new NotImplementedException();
             var look = this.GetLookupKey(key, manager);
 
             if (this.lookup.ContainsKey(look))
             {
-                result = (T)this.lookup[look];
-                return true;
+                return (T)this.lookup[look];
             }
             else
             {
-                result = default!;
-                return false;
+                var toStore = createion(manager);
+                this.lookup.Add(look, toStore!);
+
+                return toStore;
             }
         }
 
-        private (string key, int[] array) GetLookupKey(string key, in WhileManager manager)
+        private (string key, ChoiseManager.PathToGo array) GetLookupKey(string key, in WhileManager manager)
         {
-            (string key, int[] array) look;
-            if (this.state.DoCount > 0)
-            {
-                var doState = DoState.AncestorDo(this.state, this.state.DoCount);
-                doState = DoState.CalculateOuterMostDoState(doState, manager);
-                var (count, whileState, index) = DoState.CalculateWhileState(doState, manager);
+            //(string key, int[] array) look;
 
-                look = (key, new int[index]);
-                for (int i = 0; i < look.array.Length; i++)
-                    look.array[i] = manager[i].count;
-            }
-            else
-            {
-                look = (key, new int[0]);
-            }
-
-            return look;
+            var cacheKey = manager.CacheKey;
+            return (key, cacheKey);
         }
 
         public void Create<T>(string key, in WhileManager manager, T toStore)
@@ -63,18 +51,39 @@ namespace Dice.Caches
             var look = this.GetLookupKey(key, manager);
 
             if (this.lookup.ContainsKey(look))
+            {
+                var debug = this.lookup[look];
                 throw new ArgumentException("already Added.");
+            }
 
             this.lookup.Add(look, toStore!);
         }
 
-        private class Comparer : IEqualityComparer<(string key, int[] array)>
+        public bool TryGet<T>(string key, in WhileManager manager, out T obj)
+        {
+            //throw new NotImplementedException();
+            var look = this.GetLookupKey(key, manager);
+
+            if (this.lookup.ContainsKey(look))
+            {
+                obj = (T)this.lookup[look];
+                return true;
+            }
+            else
+            {
+                obj = default!;
+                return false;
+            }
+        }
+
+
+        private class Comparer : IEqualityComparer<(string key, ChoiseManager.PathToGo array)>
         {
 
 
-            public bool Equals((string key, int[] array) x, (string key, int[] array) y)
+            public bool Equals((string key, ChoiseManager.PathToGo array) x, (string key, ChoiseManager.PathToGo array) y)
             {
-                if (x.array.Length != y.array.Length)
+                if (x.array.Count != y.array.Count)
                     return false;
                 if (x.key != y.key)
                     return false;
@@ -82,12 +91,12 @@ namespace Dice.Caches
             }
 
 
-            public int GetHashCode((string key, int[] array) obj)
+            public int GetHashCode((string key, ChoiseManager.PathToGo array) obj)
             {
                 var h = new HashCode();
-                h.Add(obj.array.Length);
+                h.Add(obj.array.Count);
                 h.Add(obj.key);
-                for (int i = 0; i < obj.array.Length; i++)
+                for (int i = 0; i < obj.array.Count; i++)
                     h.Add(obj.array[i]);
                 return h.ToHashCode();
             }

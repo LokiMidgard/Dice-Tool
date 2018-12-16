@@ -9,10 +9,10 @@ namespace Dice.States
     internal abstract class State
     {
         private readonly HashSet<IP> nededVariables = new HashSet<IP>();
-        public virtual int WhileCount => this.Parent.WhileCount;
-        public virtual int DoCount => this.Parent.DoCount;
+        //public virtual int WhileCount => this.Parent.WhileCount;
+        //public virtual int DoCount => this.Parent.DoCount;
 
-        public virtual int LoopRecursion => this.Parent.LoopRecursion;
+        //public virtual int LoopRecursion => this.Parent.LoopRecursion;
 
         public virtual double GetStatePropability(in WhileManager manager)
         {
@@ -20,7 +20,7 @@ namespace Dice.States
         }
 
         public virtual IComposer Composer => Parent!.Composer;
-        public virtual int Depth => this.Parent.Depth + 1;
+        //public virtual int Depth => this.Parent.Depth + 1;
 
         public State Parent { get; }
 
@@ -33,17 +33,26 @@ namespace Dice.States
             this.NededVariables = this.nededVariables.AsReadOnly();
         }
 
-        public virtual double TablePropability(int index, in WhileManager manager) => this.Parent.TablePropability(index, manager);
 
-        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager) => this.Parent.GetTable(variable, index, manager);
+        public virtual (WhileManager manager, Table table) GetTable<T>(P<T> variable, in WhileManager manager) => this.Parent.GetTable(variable, manager);
 
-        public virtual int TableCount(in WhileManager manager) => this.Parent.TableCount(manager);
+        public virtual bool Contains(IP variable, in WhileManager manager) => this.Parent.Contains(variable, manager);
 
-        public virtual void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
+
+        public virtual void PrepareOptimize(IEnumerable<IP> ps)
         {
+            // we only need to update again if something changed.
+            if (this.nededVariables.Count > 0)
+            {
+                var newPs = ps.Except(this.nededVariables);
+                if (!newPs.Any())
+                    return;
+             
+            }
+
             foreach (var p in ps)
                 this.nededVariables.Add(p);
-            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()), manager);
+            this.Parent.PrepareOptimize(ps.Concat(this.GetOptimizedVariablesForParent()));
         }
 
         protected internal virtual IEnumerable<IP> GetOptimizedVariablesForParent() => Enumerable.Empty<IP>();
@@ -65,7 +74,7 @@ namespace Dice.States
             }
         }
 
-
+        internal virtual void PreCalculatePath(in WhileManager manager) => this.Parent.PreCalculatePath(manager);
     }
 
 

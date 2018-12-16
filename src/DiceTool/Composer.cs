@@ -44,26 +44,23 @@ namespace Dice
 
         public void DoWhile(Func<P<bool>> @do)
         {
-            this.State.NextStates(currentState => new DoState(currentState));
+            var doState = new DoState(this.State.Current);
+            this.State.NextStates(doState);
             var condition = @do();
 
-            this.State.NextStates(currentState => new WhileState(currentState, condition).EndState);
+            this.State.NextStates(new WhileState(this.State.Current, condition, doState).EndState);
         }
 
         public void If(P<bool> condition, Action then, Action? @else = null)
         {
-            var states = this.State.NextStates(currentState =>
-            {
-                var trueState = new DevideState<bool>(currentState, condition, true);
-                var falseState = new DevideState<bool>(currentState, condition, false);
+            var trueState = new DevideState<bool>(this.State.Current, condition, true);
+            var falseState = new DevideState<bool>(this.State.Current, condition, false);
+            var states = this.State.NextStates(trueState, falseState);
 
-                return new[] { trueState, falseState };
-            });
-
-            //var states = this.State.NextStates(trueState, falseState);
-            foreach (var currentState in states.OfType<DevideState<bool>>())
+            foreach (var currentState in states)
             {
-                if (currentState.Value)
+
+                if (currentState == trueState)
                     then();
                 else
                     @else?.Invoke();
@@ -95,7 +92,7 @@ namespace Dice
         internal P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
         {
             var p = P.Create<TOut>(this, this.CreateId());
-            this.State.NextStates(currentState => new CombinationState<TIn1, TIn2, TOut>(currentState, p, e1, e2, func));
+            this.State.NextStates(new CombinationState<TIn1, TIn2, TOut>(this.State.Current, p, e1, e2, func));
             return p;
         }
 
@@ -115,21 +112,21 @@ namespace Dice
         internal P<T> CreateConstState<T>(T value)
         {
             var p = P.Create<T>(this, this.CreateId());
-            this.State.NextStates(currentState => new NewConstState<T>(currentState, p, value));
+            this.State.NextStates(new NewConstState<T>(this.State.Current, p, value));
             return p;
         }
 
         internal P<T> CreateVariableState<T>(params (T value, double propability)[] distribution)
         {
             var p = P.Create<T>(this, this.CreateId());
-            this.State.NextStates(currentState => new NewVariableState<T>(currentState, p, distribution));
+            this.State.NextStates(new NewVariableState<T>(this.State.Current, p, distribution));
             return p;
         }
 
         internal P<TOut> CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func)
         {
             var p = P.Create<TOut>(this, this.CreateId());
-            this.State.NextStates(currentState => new TransformState<TIn, TOut>(currentState, p, e, func));
+            this.State.NextStates(new TransformState<TIn, TOut>(this.State.Current, p, e, func));
             return p;
         }
 
@@ -146,7 +143,7 @@ namespace Dice
                 this.variableTypeMapping.Add(name, typeof(T));
             }
             var variable = P.Create<T>(this, name);
-            this.State.NextStates(currentState => AssignState.Create(currentState, variable, value));
+            this.State.NextStates(AssignState.Create(this.State.Current, variable, value));
             return variable;
         }
 

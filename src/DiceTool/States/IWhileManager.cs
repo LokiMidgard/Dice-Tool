@@ -3,5 +3,7 @@
     internal interface IWhileManager
     {
         (int count, WhileState state) this[int index] { get; }
+        int Count { get; }
+
     }
 }

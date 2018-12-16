@@ -15,21 +15,22 @@ namespace Dice.States
 
     }
 
-    class AssignState<T> : State
+    class AssignState<T> : TableState<AssignTable<T>>
 
     {
         private readonly P<T> value;
-        private readonly WhilestateCache cache;
+        //private readonly WhilestateCache cache;
         private readonly P<T> variable;
-        //private readonly AssignTable<T> table;
 
         private AssignState(State parent, P<T> variable, P<T> value) : base(parent)
         {
             this.variable = variable;
             this.value = value;
-            //this.table = new AssignTable<T>(this.variable, this.value, this);
-            this.cache = new Caches.WhilestateCache(this);
+            this.Table = new AssignTable<T>(this.variable, this.value, this);
+            //this.cache = new Caches.WhilestateCache(this);
         }
+
+        public override AssignTable<T> Table { get; }
 
         public static AssignState<T> Create(State parent, P<T> variable, P<T> value)
         {
@@ -37,24 +38,16 @@ namespace Dice.States
             return newState;
         }
 
-        public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
-        {
 
-            if (variable.Id == this.variable.Id
-                || this.Parent.GetTable(this.value, index, manager).Contains(variable))
-                return (manager, this.GetCachedTable(index, manager));
-            return base.GetTable(variable, index, manager);
-        }
+        //private AssignTable<T> GetCachedTable(int index, in WhileManager manager)
+        //{
+        //    if (this.cache.TryGet<AssignTable<T>>(index.ToString(), manager, out var cachedValue))
+        //        return cachedValue;
 
-        private AssignTable<T> GetCachedTable(int index, in WhileManager manager)
-        {
-            if (this.cache.TryGet<AssignTable<T>>(index.ToString(), manager, out var cachedValue))
-                return cachedValue;
-
-            cachedValue = new AssignTable<T>(this.variable, this.value, this, index);
-            this.cache.Create(index.ToString(), manager, cachedValue);
-            return cachedValue;
-        }
+        //    cachedValue = new AssignTable<T>(this.variable, this.value, this, index);
+        //    this.cache.Create(index.ToString(), manager, cachedValue);
+        //    return cachedValue;
+        //}
 
 
 
