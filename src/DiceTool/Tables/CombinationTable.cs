@@ -12,7 +12,6 @@ namespace Dice.Tables
         private readonly P<TOut> ownP;
         private readonly Func<TIn1, TIn2, TOut> func;
         private HashSet<IP>? variablesToKeep;
-        //private OptimizedTableCache? cache;
         private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
 
 
@@ -126,7 +125,6 @@ namespace Dice.Tables
         {
             if (this.variablesToKeep != null)
                 this.cache.GetOrCreate(nameof(Optimize), manager, this.CreateOptimizedTable);
-            //this.cache ??= new OptimizedTableCache(this, this.variablesToKeep, manager);
 
         }
 
@@ -134,9 +132,8 @@ namespace Dice.Tables
         {
             System.Diagnostics.Debug.Assert(this.variablesToKeep != null);
             var list = new List<IP>();
-            foreach (var item in variablesToKeep)
+            foreach (var item in this.variablesToKeep)
             {
-                //if (state.Contains(item, manager))
                 if (this.Contains(item, manager))
                     list.Add(item);
             }

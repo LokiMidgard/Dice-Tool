@@ -34,48 +34,8 @@ namespace Dice.States
 
 
 
-        //public override int WhileCount => base.WhileCount + 1;
-        //public override int LoopRecursion => base.LoopRecursion - 1;
-
-        //public override (WhileManager manager, Table table) GetTable<T>(P<T> variable, int index, in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    return base.GetTable(variable, index, newManager);
-        //}
-
-        //public override double TablePropability(int index, in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    return base.TablePropability(index, newManager);
-        //}
-
-        //public override double GetStatePropability(in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    return base.GetStatePropability(newManager);
-        //}
-
-        //internal override void Optimize(in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    base.Optimize(newManager);
-        //}
-
-        //public override void PrepareOptimize(IEnumerable<IP> ps, in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    base.PrepareOptimize(ps, newManager);
-        //}
-
-        //public override int TableCount(in WhileManager manager)
-        //{
-        //    var newManager = new WhileManager(manager);
-        //    return base.TableCount(newManager);
-        //}
-
     }
 
-    //[System.Diagnostics.DebuggerDisplay("{this[1]}")]
     internal readonly struct WhileManager
     {
         internal int Depth { get; }

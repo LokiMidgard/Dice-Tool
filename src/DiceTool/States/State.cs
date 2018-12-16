@@ -9,10 +9,6 @@ namespace Dice.States
     internal abstract class State
     {
         private readonly HashSet<IP> nededVariables = new HashSet<IP>();
-        //public virtual int WhileCount => this.Parent.WhileCount;
-        //public virtual int DoCount => this.Parent.DoCount;
-
-        //public virtual int LoopRecursion => this.Parent.LoopRecursion;
 
         public virtual double GetStatePropability(in WhileManager manager)
         {
@@ -20,7 +16,6 @@ namespace Dice.States
         }
 
         public virtual IComposer Composer => Parent!.Composer;
-        //public virtual int Depth => this.Parent.Depth + 1;
 
         public State Parent { get; }
 

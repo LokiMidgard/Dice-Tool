@@ -12,7 +12,6 @@ namespace Dice.States
 
         public override DevideTable<T> Table => table;
 
-        //private readonly WhilestateCache cache;
         private readonly P<T> condition;
         private readonly DevideTable<T> table;
 
@@ -21,7 +20,6 @@ namespace Dice.States
             this.condition = condition;
             this.table = new DevideTable<T>(this, condition, value);
             this.Value = value;
-            //this.cache = new Caches.WhilestateCache(this);
         }
 
         public override double GetStatePropability(in WhileManager manager)
@@ -30,10 +28,6 @@ namespace Dice.States
 
             return base.GetStatePropability(manager) * totoalPropability;
         }
-
-
-
-
 
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
         {

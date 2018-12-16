@@ -38,8 +38,6 @@ namespace Dice.States
 
         public override double GetStatePropability(in WhileManager manager)
         {
-            //var (count, whileState, index) = this.CalculateWhileState(manager);
-
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 
@@ -78,7 +76,6 @@ namespace Dice.States
 
         internal override void Optimize(in WhileManager manager)
         {
-            //var (count, whileState, index) = this.CalculateWhileState(manager);
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 

@@ -14,12 +14,6 @@ namespace Dice.States
         }
         public override IComposer Composer => this.composer;
 
-        //public override int DoCount => 0;
-        //public override int LoopRecursion => 0;
-        //public override int WhileCount => 0;
-
-        //public override int Depth => 0;
-
         public override void PrepareOptimize(IEnumerable<IP> ps) { }
 
         public override bool Contains(IP variable, in WhileManager manager) => false;

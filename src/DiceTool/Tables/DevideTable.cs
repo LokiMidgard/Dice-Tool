@@ -8,19 +8,15 @@ namespace Dice.Tables
     {
         private readonly T value;
         private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
-        //private int[]? indexLookup;
-        //private double partPropability = -1;
+        private readonly State state;
+        private readonly P<T> conditionVariable;
 
-
-        public State State { get; }
-        public P<T> ConditionVariable { get; }
-
-        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.State.Parent.GetTable(this.ConditionVariable, manager);
+        internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.state.Parent.GetTable(this.conditionVariable, manager);
 
         public DevideTable(State state, P<T> p, T value)
         {
-            this.State = state;
-            this.ConditionVariable = p;
+            this.state = state;
+            this.conditionVariable = p;
             this.value = value;
         }
 
@@ -51,7 +47,7 @@ namespace Dice.Tables
         {
             var list = new List<int>();
             for (var i = 0; i < this.GetOriginal(manager).GetCount(); i++)
-                if (Equals(this.GetOriginal(manager).GetValue(this.ConditionVariable, i), this.value))
+                if (Equals(this.GetOriginal(manager).GetValue(this.conditionVariable, i), this.value))
                     list.Add(i);
             var indexLookup = list.ToArray();
             return indexLookup;

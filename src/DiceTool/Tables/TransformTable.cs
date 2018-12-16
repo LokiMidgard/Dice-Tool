@@ -8,33 +8,33 @@ namespace Dice.Tables
         private readonly TransformState<TFrom, TTo> original;
         private readonly P<TTo> pTo;
         private readonly Func<TFrom, TTo> func;
-        public P<TFrom> PFrom { get; }
+        private readonly P<TFrom> pFrom;
 
         public TransformTable(TransformState<TFrom, TTo> original, P<TFrom> PFrom, P<TTo> newP, Func<TFrom, TTo> func)
         {
             this.original = original;
-            this.PFrom = PFrom;
+            this.pFrom = PFrom;
             this.pTo = newP;
             this.func = func;
         }
 
         public override int GetCount(in WhileManager manager)
         {
-            return this.original.GetTable(this.PFrom, manager).GetCount();
+            return this.original.GetTable(this.pFrom, manager).GetCount();
         }
 
         public override object GetValue(IP p, int index, in WhileManager manager)
         {
             if (p.Id == this.pTo.Id)
             {
-                var originalValue = this.original.GetTable(this.PFrom, manager).GetValue(this.PFrom, index);
+                var originalValue = this.original.GetTable(this.pFrom, manager).GetValue(this.pFrom, index);
                 return this.func(originalValue)!;
             }
 
-            return this.original.GetTable(this.PFrom, manager).GetValue(p, index);
+            return this.original.GetTable(this.pFrom, manager).GetValue(p, index);
         }
 
-        protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.pTo.Id ? true : this.original.GetTable(this.PFrom, manager).Contains(key);
+        protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.pTo.Id ? true : this.original.GetTable(this.pFrom, manager).Contains(key);
     }
 
 }
