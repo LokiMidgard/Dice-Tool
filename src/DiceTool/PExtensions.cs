@@ -62,6 +62,11 @@ namespace Dice
 
 
 
+        public static P<string> Add(this in P<string> e1, in P<string> e2)
+        {
+            var composer = e1.Composer;
+            return composer.CreateCombineState(e1, e2, (x1, x2) => x1 + x2);
+        }
         public static P<int> Add(this in P<int> e1, in P<int> e2)
         {
             var composer = e1.Composer;

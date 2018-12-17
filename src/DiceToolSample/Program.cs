@@ -1,6 +1,7 @@
 ﻿using Dice;
+using ExcelDataReader;
 using System;
-
+using System.IO;
 
 namespace SampleApp
 {
@@ -152,6 +153,58 @@ namespace SampleApp
                 return x.GetNamed<int>("taw");
             });
 
+            var notaMiasma = Calculator<int>.Configure(x =>
+            {
+                var table = T();
+                const string soule = "soule";
+                const string counter = "counter";
+                x.AssignName(counter, x.Const(0));
+                x.AssignName(soule, x.Const(100));
+
+                x.DoWhile(() =>
+                {
+                    const string coruption = "coruption";
+                    const string value = "value";
+                    const string role = "role";
+                    x.AssignName(counter, x.GetNamed<int>(counter).Add(x.Const(1)));
+                    x.AssignName(coruption, x.Const(100).Substract(x.GetNamed<int>(soule)));
+                    x.AssignName(value, x.Const(150).Add(x.Const(2).Multiply(x.GetNamed<int>(coruption))).Substract(x.GetNamed<int>(soule)));
+
+                    x.AssignName(role, x.Dice(6).Add(x.Dice(6)).Add(x.Dice(6)));
+
+                    x.AssignName(soule, x.GetNamed<int>(soule).Substract(x.Combine(x.GetNamed<int>(role), x.GetNamed<int>(value), (r, v) => table[r - 3, v])));
+
+
+                    return x.GetNamed<int>(soule).GreaterOrEqual(x.Const(50));
+                });
+
+                return x.GetNamed<int>(counter);
+
+                //int counter = 0;
+                //int soule = 100;
+                //while (true)
+                //{
+                //    counter++;
+
+                //    int coruption = 100 - soule;
+                //    var value = 150 + 2 * coruption - soule;
+
+
+                //    var results = Enumerable.Range(0, 18 - 2).Select(x => (x + 3, this.table[x, value])).ToArray();
+                //    var d = (3 * this.D6).Acumulate(results);
+                //    int malus = d;
+                //    //role -= 3; // 3 is minimum we need to access index 0:
+                //    soule -= malus;
+                //    //soule -= this.table[role, value];
+                //    if (soule < 50)
+                //        return counter;
+
+
+                //}
+            });
+
+            var parsedDiceRole = Dice.Parser.SimpleParser.ParseExpression();
+
             Console.WriteLine($"Configuration took {watch.Elapsed}");
 
             Console.WriteLine("simple Rolle");
@@ -177,6 +230,12 @@ namespace SampleApp
 
             Console.WriteLine("The Dark Eye role");
             PrintResults(theDarkEyeRole);
+
+            Console.WriteLine("Nota Miasma");
+            PrintResults(notaMiasma);
+
+            Console.WriteLine("Parsed");
+            PrintResults(parsedDiceRole);
 
 
             //await foreach (var item in asyncEnumerable)
@@ -206,11 +265,55 @@ namespace SampleApp
                 sum += item.Propability;
 
                 //Console.WriteLine($"GetElement took {watch.Elapsed}");
-                watch.Restart();
+                //watch.Restart();
             }
+            Console.WriteLine($"GetElement took {watch.Elapsed}");
+            watch.Restart();
             enumerator.DisposeAsync().AsTask().Wait();
             Console.WriteLine($"Sum {sum}");
             Console.ReadKey(true);
+        }
+
+        private static int[,] T()
+        {
+            const string Path = @"Table.xlsx";
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            using (var stream = File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+
+                // Auto-detect format, supports:
+                //  - Binary Excel files (2.0-2003 format; *.xls)
+                //  - OpenXml Excel files (2007 format; *.xlsx)
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                {
+
+                    // Choose one of either 1 or 2:
+
+                    // 2. Use the AsDataSet extension method
+                    using (var result = reader.AsDataSet())
+                    {
+
+
+                        result.Tables.ToString();
+
+                        var table = new int[result.Tables[0].Rows[0].ItemArray.Length - 1, result.Tables[0].Rows.Count - 1];
+
+                        for (int x = 0; x < table.GetLength(0); x++)
+                            for (int y = 0; y < table.GetLength(1); y++)
+                            {
+                                table[x, y] = (int)(double)result.Tables[0].Rows[y + 1].ItemArray[x + 1];
+                            }
+
+                        return table;
+                    }
+
+                    //Console.WriteLine("Pres ANY key to continue");
+                    //Console.ReadKey(true);
+
+                    // The result of each spreadsheet is in result.Tables
+                }
+            }
+
         }
     }
 }
