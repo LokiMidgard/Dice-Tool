@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool", "src\DiceTool\Di
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceToolSample", "src\DiceToolSample\DiceToolSample.csproj", "{2D767EAC-A60A-4F06-B6E5-4E5028C47DF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceTool.Parser", "DiceTool.Parser\DiceTool.Parser.csproj", "{84ED9A57-7911-45BE-ACE4-1DAACD000E8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Parser", "src\DiceTool.Parser\DiceTool.Parser.csproj", "{6194D7D2-8D83-45C3-9F26-BAAFAD3BCE42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +32,10 @@ Global
 		{2D767EAC-A60A-4F06-B6E5-4E5028C47DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D767EAC-A60A-4F06-B6E5-4E5028C47DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D767EAC-A60A-4F06-B6E5-4E5028C47DF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84ED9A57-7911-45BE-ACE4-1DAACD000E8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84ED9A57-7911-45BE-ACE4-1DAACD000E8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84ED9A57-7911-45BE-ACE4-1DAACD000E8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84ED9A57-7911-45BE-ACE4-1DAACD000E8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6194D7D2-8D83-45C3-9F26-BAAFAD3BCE42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6194D7D2-8D83-45C3-9F26-BAAFAD3BCE42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6194D7D2-8D83-45C3-9F26-BAAFAD3BCE42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6194D7D2-8D83-45C3-9F26-BAAFAD3BCE42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
