@@ -114,11 +114,11 @@ namespace Dice.Parser
                                 throw new Exception();
                             return (t1, default);
 
-                        case BinaryOperator.LogicAnd:
-                        case BinaryOperator.LogicOr:
-                            if (t1 != typeof(bool))
-                                throw new Exception();
-                            return (typeof(bool), default);
+                        //case BinaryOperator.LogicAnd:
+                        //case BinaryOperator.LogicOr:
+                        //    if (t1 != typeof(bool))
+                        //        throw new Exception();
+                        //    return (typeof(bool), default);
 
                         case BinaryOperator.LessThen:
                         case BinaryOperator.LessOrEquals:

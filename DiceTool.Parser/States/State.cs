@@ -188,9 +188,6 @@ namespace Dice.Parser.Syntax
         ShiftLeft,
         ShiftRight,
 
-        LogicAnd,
-        LogicOr,
-
         LessThen,
         LessOrEquals,
         GreaterThen,

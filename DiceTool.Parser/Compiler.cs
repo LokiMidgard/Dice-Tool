@@ -41,6 +41,10 @@ namespace Dice.Parser
             {
                 case VariableAssignmentSyntax assignmentSyntax:
                     var name = assignmentSyntax.Identifier.literal;
+                    if (this.variables[name] == typeof(string))
+                        x.AssignName(name, this.GenerateExpression<string>(assignmentSyntax.Expresion, x));
+                    if (this.variables[name] == typeof(bool))
+                        x.AssignName(name, this.GenerateExpression<bool>(assignmentSyntax.Expresion, x));
                     if (this.variables[name] == typeof(int))
                         x.AssignName(name, this.GenerateExpression<int>(assignmentSyntax.Expresion, x));
                     break;
@@ -82,7 +86,7 @@ namespace Dice.Parser
             switch (expresion)
             {
                 case ConstSyntax<T> constSyntax:
-                    return x.Const<T>(constSyntax.Value);
+                    return x.Const(constSyntax.Value);
 
                 case IdentifierSyntax identifierSyntax:
                     return x.GetNamed<T>(identifierSyntax.literal);
@@ -133,7 +137,7 @@ namespace Dice.Parser
                         return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).Modulo(this.GenerateExpression<int>(argument2, x)));
                     throw new NotSupportedException();
 
-                case BinaryOperator.LogicAnd:
+                //case BinaryOperator.LogicAnd:
                 case BinaryOperator.BitAnd:
                     if (typeof(TIn) == typeof(int))
                         return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).BitAnd(this.GenerateExpression<int>(argument2, x)));
@@ -142,7 +146,7 @@ namespace Dice.Parser
                     throw new NotSupportedException();
 
                 case BinaryOperator.BitOr:
-                case BinaryOperator.LogicOr:
+                //case BinaryOperator.LogicOr:
                     if (typeof(TIn) == typeof(int))
                         return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).BitOr(this.GenerateExpression<int>(argument2, x)));
                     if (typeof(TIn) == typeof(bool))

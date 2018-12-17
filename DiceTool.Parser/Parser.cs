@@ -15,13 +15,13 @@ namespace Dice.Parser
         {
             var p = Program.Parse(@"
 var result:int
-var r1:int =2D3
+var r1:int =2D6
 var r2:int =D6
 
-if r1 > r2
-result = 1
+if r1 >= r2
+result = r1
 else
-result =2
+result =r1
 return result
 ");
             var variables = Validator.Validate(p);
@@ -42,10 +42,6 @@ return result
         static readonly Parser<BinaryOperator> BitAnd = Operator("&", BinaryOperator.BitAnd);
         static readonly Parser<BinaryOperator> BitOr = Operator("|", BinaryOperator.BitOr);
         static readonly Parser<BinaryOperator> BitXor = Operator("^", BinaryOperator.BitXor);
-
-
-        static readonly Parser<BinaryOperator> LogicAnd = Operator("&&", BinaryOperator.LogicAnd);
-        static readonly Parser<BinaryOperator> LogicOr = Operator("||", BinaryOperator.LogicOr);
 
         static readonly Parser<BinaryOperator> ShiftLeft = Operator("<<", BinaryOperator.ShiftLeft);
         static readonly Parser<BinaryOperator> ShiftRight = Operator(">>", BinaryOperator.ShiftRight);
@@ -83,12 +79,18 @@ return result
         static readonly Parser<string> IfKeyword = Parse.String("if").Text().Token().Named("if");
         static readonly Parser<string> ElseKeyword = Parse.String("else").Text().Token().Named("else");
         static readonly Parser<string> ReturnKeyword = Parse.String("return").Text().Token().Named("return");
+        static readonly Parser<string> IntKeyword = Parse.String("int").Text().Token().Named("int");
+        static readonly Parser<string> BoolKeyword = Parse.String("bool").Text().Token().Named("bool");
+        static readonly Parser<string> StringKeyword = Parse.String("string").Text().Token().Named("string");
 
         static readonly Parser<string> Keyword = DoKeyword
                                                 .Or(WhileKeyword)
                                                 .Or(VarKeyword)
                                                 .Or(IfKeyword)
                                                 .Or(ReturnKeyword)
+                                                .Or(StringKeyword)
+                                                .Or(IntKeyword)
+                                                .Or(BoolKeyword)
                                                 .Or(ElseKeyword).Named("Keyword");
 
 
@@ -141,20 +143,20 @@ return result
         static readonly Parser<ExpresionSyntax> Term7 = Parse.ChainOperator(BitAnd, Term6, MakeOperation);
         static readonly Parser<ExpresionSyntax> Term8 = Parse.ChainOperator(BitXor, Term7, MakeOperation);
         static readonly Parser<ExpresionSyntax> Term9 = Parse.ChainOperator(BitOr, Term8, MakeOperation);
-        static readonly Parser<ExpresionSyntax> Term10 = Parse.ChainOperator(LogicAnd, Term9, MakeOperation);
-        static readonly Parser<ExpresionSyntax> Term11 = Parse.ChainOperator(LogicOr, Term10, MakeOperation);
 
 
-        static readonly Parser<ExpresionSyntax> Expr = Parse.ChainOperator(Add.Or(Subtract), Term11, MakeOperation);
+        static readonly Parser<ExpresionSyntax> Expr = Parse.ChainOperator(Add.Or(Subtract), Term9, MakeOperation);
 
 
 
 
 
-        static readonly Parser<Type> IntTypes = Parse.String("int").Select(x => typeof(int));
-        static readonly Parser<Type> Types = IntTypes;
+        static readonly Parser<Type> IntTypes = IntKeyword.Return(typeof(int));
+        static readonly Parser<Type> StringTypes = StringKeyword.Return(typeof(string));
+        static readonly Parser<Type> BoolTypes = BoolKeyword.Return(typeof(bool));
+        static readonly Parser<Type> Types = IntTypes.Or(StringTypes).Or(BoolTypes);
 
-        static readonly Parser<StatementSyntax> VariableDeclaration = from keyword in Parse.String("var").Token()
+        static readonly Parser<StatementSyntax> VariableDeclaration = from keyword in VarKeyword
                                                                       from identeifer in Identifier.Token()
                                                                       from colon in Parse.Char(':').Token()
                                                                       from type in Types.Token()
@@ -171,13 +173,13 @@ return result
                                                     from closing in Parse.Char('}')
                                                     select new BlockSyntax(list);
 
-        static readonly Parser<DoWhileSyntax> DoWhile = from @do in Parse.String("do").Token()
+        static readonly Parser<DoWhileSyntax> DoWhile = from @do in DoKeyword
                                                         from statement in Parse.Ref(() => Statement)
-                                                        from @while in Parse.String("while").Token()
+                                                        from @while in WhileKeyword
                                                         from condition in Expr
                                                         select new DoWhileSyntax(statement, condition);
 
-        static readonly Parser<ElseSyntax> Else = from @else in Parse.String("else").Token()
+        static readonly Parser<ElseSyntax> Else = from @else in ElseKeyword
                                                   from then in Parse.Ref(() => Statement)
                                                   select new ElseSyntax(then);
 
