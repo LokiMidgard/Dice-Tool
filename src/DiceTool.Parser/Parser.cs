@@ -11,23 +11,13 @@ namespace Dice.Parser
 {
     public class SimpleParser
     {
-        public static IExecutor<int, int> ParseExpression()
+        public static IExecutor<TReturn, int> ParseExpression<TReturn>(string program)
         {
-            var p = Program.Parse(@"
-var result:int
-var r1:int =2D6
-var r2:int =D6
-
-if r1 >= r2
-result = r1
-else
-result =r1
-return result
-");
+            var p = Program.Parse(program);
             var variables = Validator.Validate(p);
 
             var c = new Compiler(variables);
-            return c.Compile<int>(p);
+            return c.Compile<TReturn>(p);
 
         }
 

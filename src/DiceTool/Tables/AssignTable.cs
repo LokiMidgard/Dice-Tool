@@ -30,10 +30,7 @@ namespace Dice.Tables
             return this.state.Parent.GetTable(this.newContent, manager).GetValue(p, index);
         }
 
-        protected override bool InternalContains(IP key, in WhileManager manager)
-        {
-            return key.Id == this.variable.Id || this.state.Parent.GetTable(this.newContent, manager).Contains(key);
-        }
+        protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.variable.Id || this.state.Parent.GetTable(this.newContent, manager).Contains(key);
 
     }
 }

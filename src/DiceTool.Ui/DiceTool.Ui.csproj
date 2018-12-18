@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>8.0</LangVersion>
+    <RootNamespace>Dice.Ui</RootNamespace>
+    <AssemblyName>DiceToolUI</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
+    <ProjectReference Include="..\DiceTool\DiceTool.csproj" />
+  </ItemGroup>
+
+</Project>

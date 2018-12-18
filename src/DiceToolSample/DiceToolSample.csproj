@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DiceTool.Parser\DiceTool.Parser.csproj" />
+    <ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
     <ProjectReference Include="..\DiceTool\DiceTool.csproj" />
   </ItemGroup>
 

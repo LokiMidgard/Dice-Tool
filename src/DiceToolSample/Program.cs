@@ -203,7 +203,7 @@ namespace SampleApp
                 //}
             });
 
-            var parsedDiceRole = Dice.Parser.SimpleParser.ParseExpression();
+            var parsedDiceRole = Dice.Parser.SimpleParser.ParseExpression<int>("return 3d3");
 
             Console.WriteLine($"Configuration took {watch.Elapsed}");
 
