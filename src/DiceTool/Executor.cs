@@ -13,6 +13,7 @@ namespace Dice
     {
 
         IAsyncEnumerable<ResultEntry<TResult>> Calculate(Tin input);
+        double Epsylon { get; set; }
 
     }
 
@@ -54,7 +55,7 @@ namespace Dice
 
 
                 //int counter = 0;
-                double completePropability=0;
+                double completePropability = 0;
                 while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability - 1) > this.Epsylon)
                 {
                     using (choiseManager.EnableMutation())
