@@ -25,6 +25,7 @@
 Reimplemented version, which is much faster. But loops do not work currently.
 ]]>
     </PackageReleaseNotes>
+    <AssemblyName>Dice.core</AssemblyName>
   </PropertyGroup>
 
 

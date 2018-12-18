@@ -158,9 +158,9 @@ namespace Dice.Parser
                                                                      select assignedTo is IdentifierSyntax ? new VariableAssignmentSyntax(assignedTo as IdentifierSyntax, exp) : new VariableAssignmentSyntax(assignedTo as VariableDeclarationSyntax, exp);
 
 
-        static readonly Parser<BlockSyntax> Block = from opening in Parse.Char('{')
+        static readonly Parser<BlockSyntax> Block = from opening in Parse.Char('{').Token()
                                                     from list in Parse.Ref(() => StatementList)
-                                                    from closing in Parse.Char('}')
+                                                    from closing in Parse.Char('}').Token()
                                                     select new BlockSyntax(list);
 
         static readonly Parser<DoWhileSyntax> DoWhile = from @do in DoKeyword

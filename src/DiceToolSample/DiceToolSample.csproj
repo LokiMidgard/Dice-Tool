@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <NullableReferenceTypes>True</NullableReferenceTypes>
     <LangVersion>8.0</LangVersion>
+    <AssemblyName>Dice.Sample</AssemblyName>
+    <RootNamespace>DiceTool.Sample</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

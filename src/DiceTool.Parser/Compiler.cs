@@ -20,7 +20,7 @@ namespace Dice.Parser
             var returnType = Validator.GetType(p.Return, this.variables);
             if (returnType == typeof(T))
                 return this.Configure<T>(p);
-            throw new NotSupportedException();
+            throw new NotSupportedException($"Returntype must be {typeof(T)} but was {returnType}.");
         }
 
         private IExecutor<T, int> Configure<T>(ProgramSyntax p)
@@ -146,7 +146,7 @@ namespace Dice.Parser
                     throw new NotSupportedException();
 
                 case BinaryOperator.BitOr:
-                //case BinaryOperator.LogicOr:
+                    //case BinaryOperator.LogicOr:
                     if (typeof(TIn) == typeof(int))
                         return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).BitOr(this.GenerateExpression<int>(argument2, x)));
                     if (typeof(TIn) == typeof(bool))

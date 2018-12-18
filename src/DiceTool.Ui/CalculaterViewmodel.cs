@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,16 @@ namespace Dice.Ui
     class CalculaterViewmodel : DependencyObject
     {
 
+        public CalculaterViewmodel()
+        {
+            var file = GetCodeFile();
+
+            if (file.Exists)
+                this.Code = File.ReadAllText(file.FullName, Encoding.UTF8);
+
+            this.calculateCommand = new Command(this);
+
+        }
 
 
         public string Code
@@ -21,9 +32,23 @@ namespace Dice.Ui
 
         // Using a DependencyProperty as the backing store for Code.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CodeProperty =
-            DependencyProperty.Register("Code", typeof(string), typeof(CalculaterViewmodel), new PropertyMetadata(""));
+            DependencyProperty.Register("Code", typeof(string), typeof(CalculaterViewmodel), new PropertyMetadata("", PropertyChagned));
 
+        private static void PropertyChagned(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var codeFile = GetCodeFile();
+            File.WriteAllText(codeFile.FullName, (string)e.NewValue, Encoding.UTF8);
+        }
 
+        private static FileInfo GetCodeFile()
+        {
+            var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
+            var appFolder = new DirectoryInfo(Path.Combine(appDataFolder, ".DiceTool"));
+            if (!appFolder.Exists)
+                appFolder.Create();
+            var codeFile = new FileInfo(Path.Combine(appFolder.FullName, "code"));
+            return codeFile;
+        }
 
         public double Percentage
         {
@@ -83,22 +108,22 @@ namespace Dice.Ui
         }
 
 
-        public async Task StartCalculation()
+        private async Task StartCalculation<T>()
         {
             try
             {
                 this.IsBuisy = true;
                 this.calculateCommand.FireCanExecuteChange();
-                var executor = Dice.Parser.SimpleParser.ParseExpression<int>(this.Code);
+                var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
                 this.Percentage = 0;
                 this.Results.Clear();
-                indexLookup.Clear();
+                this.indexLookup.Clear();
 
                 var cal = executor.Calculate(0);
                 await foreach (var t in cal)
                 {
                     this.Percentage = t.CompletePercentage;
-                    this.AddResult(t.Result, t.Propability*100);
+                    this.AddResult(t.Result, t.Propability * 100);
                 }
 
                 this.Percentage = 1;
@@ -116,11 +141,7 @@ namespace Dice.Ui
         }
 
         public ICommand CalculateCommand => this.calculateCommand;
-        public CalculaterViewmodel()
-        {
-            this.calculateCommand = new Command(this);
-        }
-
+      
         private class Command : ICommand
         {
             private CalculaterViewmodel calculaterViewmodel;
@@ -139,8 +160,20 @@ namespace Dice.Ui
 
             public async void Execute(object parameter)
             {
-
-                await this.calculaterViewmodel.StartCalculation();
+                switch (this.calculaterViewmodel.ReturnType)
+                {
+                    case ReturnType.Integer:
+                        await this.calculaterViewmodel.StartCalculation<int>();
+                        break;
+                    case ReturnType.String:
+                        await this.calculaterViewmodel.StartCalculation<string>();
+                        break;
+                    case ReturnType.Boolean:
+                        await this.calculaterViewmodel.StartCalculation<bool>();
+                        break;
+                    default:
+                        break;
+                }
 
 
             }

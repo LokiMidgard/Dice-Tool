@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
+    <AssemblyName>Dice.Parser</AssemblyName>
+    <RootNamespace>Dice.Parser</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
