@@ -179,31 +179,9 @@ namespace SampleApp
                 });
 
                 return x.GetNamed<int>(counter);
-
-                //int counter = 0;
-                //int soule = 100;
-                //while (true)
-                //{
-                //    counter++;
-
-                //    int coruption = 100 - soule;
-                //    var value = 150 + 2 * coruption - soule;
-
-
-                //    var results = Enumerable.Range(0, 18 - 2).Select(x => (x + 3, this.table[x, value])).ToArray();
-                //    var d = (3 * this.D6).Acumulate(results);
-                //    int malus = d;
-                //    //role -= 3; // 3 is minimum we need to access index 0:
-                //    soule -= malus;
-                //    //soule -= this.table[role, value];
-                //    if (soule < 50)
-                //        return counter;
-
-
-                //}
             });
 
-            var parsedDiceRole = Dice.Parser.SimpleParser.ParseExpression<int>("return 3d3");
+            var parsedDiceRole = Dice.Parser.SimpleParser.ParseExpression<int>("return 3D3");
 
             Console.WriteLine($"Configuration took {watch.Elapsed}");
 
