@@ -54,7 +54,7 @@ namespace Dice
 
 
                 //int counter = 0;
-
+                double completePropability=0;
                 while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability - 1) > this.Epsylon)
                 {
                     using (choiseManager.EnableMutation())
@@ -63,9 +63,9 @@ namespace Dice
                     state.Optimize(whileManager);
 
 
+                    var currentSum = 0.0;
                     var statePropability = state.GetStatePropability(whileManager);
                     var table = state.GetTable(variable, whileManager);
-                    var currentSum = 0.0;
                     var tableCount = table.GetCount();
                     for (int i = 0; i < tableCount; i++)
                     {
@@ -75,11 +75,12 @@ namespace Dice
                             sum.Add(value, 0.0);
                         var propability = p * statePropability;
                         currentSum += propability;
+                        completePropability += propability;
                         sum[value] += propability;
                     }
                     foreach (var item in sum.OrderBy(x => x.Value))
                     {
-                        yield return new ResultEntry<TResult>(item.Key, item.Value, currentSum);
+                        yield return new ResultEntry<TResult>(item.Key, item.Value, completePropability);
                     }
                     sum.Clear();
                     choiseManager.Terminate(currentSum);
@@ -125,8 +126,7 @@ namespace Dice
 
                 public ValueTask<bool> MoveNextAsync()
                 {
-                    var result = this.original.MoveNext();
-                    return new ValueTask<bool>(result);
+                    return new ValueTask<bool>(Task.Run(() => this.original.MoveNext()));
                 }
             }
         }
