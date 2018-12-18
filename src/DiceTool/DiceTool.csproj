@@ -22,7 +22,7 @@
     <Copyright>Patrick Kranz</Copyright>
     <PackageReleaseNotes>
       <![CDATA[
-Reimplemented version, which is much faster. But loops do not work currently.
+Reimplemented version, which is much faster.
 ]]>
     </PackageReleaseNotes>
     <AssemblyName>Dice.core</AssemblyName>
