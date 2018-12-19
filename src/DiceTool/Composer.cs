@@ -23,6 +23,7 @@ namespace Dice
 
         //P<T> AssigneNameState<T>(string name, P<T> value);
         P<T> GetNamed<T>(string name);
+        IP GetInput();
 
 
     }
@@ -30,6 +31,8 @@ namespace Dice
     public partial class Composer<TInput> : IComposer
     {
         private readonly RootState root;
+        private readonly Dictionary<string, Type> variableTypeMapping = new Dictionary<string, Type>();
+        private readonly P<TInput> input;
 
         internal StateAdministrator State { get; }
 
@@ -37,6 +40,7 @@ namespace Dice
 
         public Composer()
         {
+            this.input = new P<TInput>(this, "!");
             this.root = new RootState(this);
             this.State = new StateAdministrator(this.root);
         }
@@ -50,6 +54,8 @@ namespace Dice
 
             this.State.NextStates(new WhileState(this.State.Current, condition, doState).EndState);
         }
+
+        internal void Setinput<TIn>(IEnumerable<TIn> input) => this.root.SetInput(input);
 
         public void If(P<bool> condition, Action then, Action? @else = null)
         {
@@ -66,6 +72,8 @@ namespace Dice
                     @else?.Invoke();
             }
         }
+
+        public P<TInput> GetInput() => this.input;
 
         public P<T> Const<T>(T constant) => this.CreateConstState(constant);
         public P<int> Dice(int faces) => this.Distribution(Enumerable.Range(1, faces).Select(i => (i, 1.0 / faces)).ToArray());
@@ -88,18 +96,6 @@ namespace Dice
             return p;
         }
 
-
-        ///// <summary>
-        ///// Creates a devine state and returns which path was taken.
-        ///// </summary>
-        ///// <param name="p"></param>
-        ///// <returns></returns>
-        //internal bool CreateDevideState(P<bool> p)
-        //{
-        //    var trueState = new DevideState<bool>(this.State.CurrentState, p, true);
-        //    var falseState = new DevideState<bool>(this.State.CurrentState, p, false);
-        //    return trueState == this.State.NextStates(trueState, falseState);
-        //}
 
         internal P<T> CreateConstState<T>(T value)
         {
@@ -139,7 +135,6 @@ namespace Dice
             return variable;
         }
 
-        private readonly Dictionary<string, Type> variableTypeMapping = new Dictionary<string, Type>();
 
         public P<T> GetNamed<T>(string name)
         {
@@ -163,13 +158,11 @@ namespace Dice
 
         P<T> IComposer.CreateConstState<T>(T value) => this.CreateConstState(value!);
 
-        //bool IComposer.CreateDevideState(P<bool> p) => this.CreateDevideState(p);
-
         P<TOut> IComposer.CreateTransformState<TIn, TOut>(P<TIn> e, Func<TIn, TOut> func) => this.CreateTransformState(e, func);
 
         P<T> IComposer.CreateVariableState<T>(params (T value, double propability)[] distribution) => this.CreateVariableState(distribution);
 
-
+        IP IComposer.GetInput() => this.GetInput();
 
     }
 

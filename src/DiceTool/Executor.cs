@@ -12,112 +12,115 @@ namespace Dice
     public interface IExecutor<TResult, Tin>
     {
 
-        IAsyncEnumerable<ResultEntry<TResult>> Calculate(Tin input);
+        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(IEnumerable<Tin> input);
+        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(params Tin[] input);
         double Epsylon { get; set; }
 
     }
 
     internal class Executor<TResult, TIn> : IExecutor<TResult, TIn>
     {
-        private readonly IEnumerable<(P<TResult> Variable, State lastState)> results;
+        private readonly P<TResult> resultVariable;
+        private readonly P<TIn> inputVariable;
+        private readonly State lastState;
+        private readonly Composer<TIn> composer;
 
-        public Executor(IEnumerable<(P<TResult> Variable, State lastState)> result)
+        public Executor(P<TResult> variable, Composer<TIn> composer)
         {
-            System.Diagnostics.Debug.Assert(result.Count() == 1);
-            this.results = result;
+            this.composer = composer;
+            this.resultVariable = variable;
+            this.inputVariable = composer.GetInput();
+            this.lastState = new States.CombinationState<TResult, TIn, int>(composer.State.Current, new P<int>(composer, ""), variable, this.inputVariable, (x1, x2) => 0);
+
+
+            //this.lastState = composer.State.Current;
         }
 
-        public IAsyncEnumerable<ResultEntry<TResult>> Calculate(TIn input)
-        {
-            //throw new System.Exception();
-
-            return new Wraper(this.CalculateInternal(input));
-
-        }
+        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(IEnumerable<TIn> input) => new Wraper(this.CalculateInternal(input));
+        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(params TIn[] input) => this.Calculate(input as IEnumerable<TIn>);
 
 
         public double Epsylon { get; set; } = 0.000000001;
 
 
-        private IEnumerable<ResultEntry<TResult>> CalculateInternal(TIn input)
+
+        private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input)
         {
 
             var sum = new Dictionary<TResult, double>();
+            if (!input.Any())
+                input = new TIn[1];
+            this.composer.Setinput(input);
 
             // prepeare Optimization
-            foreach (var (Variable, lastState) in this.results)
-                lastState.PrepareOptimize(Enumerable.Repeat(Variable as IP, 1));
+            this.lastState.PrepareOptimize(new IP[] { this.resultVariable, this.inputVariable });
 
-            foreach (var (variable, state) in this.results)
+
+            var choiseManager = new ChoiseManager();
+            var whileManager = new WhileManager(choiseManager);
+
+
+            //int counter = 0;
+            double completePropability = 0;
+            var inputCount = input.Count();
+            while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsylon)
             {
-                var choiseManager = new ChoiseManager();
-                var whileManager = new WhileManager(choiseManager);
+                using (choiseManager.EnableMutation())
+                    this.lastState.PreCalculatePath(whileManager);
+
+                this.lastState.Optimize(whileManager);
 
 
-                //int counter = 0;
-                double completePropability = 0;
-                while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability - 1) > this.Epsylon)
+                var currentSum = 0.0;
+                var statePropability = this.lastState.GetStatePropability(whileManager);
+                var table = this.lastState.GetTable(this.resultVariable, whileManager);
+                var tableCount = table.GetCount();
+                for (int i = 0; i < tableCount; i++)
                 {
-                    using (choiseManager.EnableMutation())
-                        state.PreCalculatePath(whileManager);
-
-                    state.Optimize(whileManager);
-
-
-                    var currentSum = 0.0;
-                    var statePropability = state.GetStatePropability(whileManager);
-                    var table = state.GetTable(variable, whileManager);
-                    var tableCount = table.GetCount();
-                    for (int i = 0; i < tableCount; i++)
-                    {
-                        var value = table.GetValue(variable, i);
-                        var p = table.GetValue(Table.PropabilityKey, i);
-                        if (!sum.ContainsKey(value))
-                            sum.Add(value, 0.0);
-                        var propability = p * statePropability;
-                        currentSum += propability;
-                        completePropability += propability;
-                        sum[value] += propability;
-                    }
-                    foreach (var item in sum.OrderBy(x => x.Value))
-                    {
-                        yield return new ResultEntry<TResult>(item.Key, item.Value, completePropability);
-                    }
-                    sum.Clear();
-                    choiseManager.Terminate(currentSum);
-                    //System.Console.WriteLine($"Terminated {++counter} run. Searched {choiseManager.SolvedPropability}");
-                    //if (counter++ > 3)
-                    //    break;
+                    var value = table.GetValue(this.resultVariable, i);
+                    var @in = table.GetValue(this.inputVariable, i);
+                    var p = table.GetValue(Table.PropabilityKey, i);
+                    if (!sum.ContainsKey(value))
+                        sum.Add(value, 0.0);
+                    var propability = p * statePropability;
+                    currentSum += propability;
+                    completePropability += propability / inputCount;
+                    yield return new ResultEntry<TResult, TIn>(value, @in, propability, completePropability);
+                    //sum[value] += propability;
                 }
-
-
+                //foreach (var item in sum.OrderBy(x => x.Value))
+                //{
+                //    yield return new ResultEntry<TResult, TIn>(item.Key, item.Value, completePropability);
+                //}
+                sum.Clear();
+                choiseManager.Terminate(currentSum);
             }
         }
 
-        private class Wraper : IAsyncEnumerable<ResultEntry<TResult>>
+        private class Wraper : IAsyncEnumerable<ResultEntry<TResult, TIn>>
         {
-            private readonly IEnumerable<ResultEntry<TResult>> enumerable;
+            private readonly IEnumerable<ResultEntry<TResult, TIn>> enumerable;
 
-            public Wraper(IEnumerable<ResultEntry<TResult>> enumerable)
+            public Wraper(IEnumerable<ResultEntry<TResult, TIn>> enumerable)
             {
                 this.enumerable = enumerable;
             }
 
-            public IAsyncEnumerator<ResultEntry<TResult>> GetAsyncEnumerator()
+            public IAsyncEnumerator<ResultEntry<TResult, TIn>> GetAsyncEnumerator()
             {
                 return new Enumerator(this);
             }
 
-            private class Enumerator : IAsyncEnumerator<ResultEntry<TResult>>
+            private class Enumerator : IAsyncEnumerator<ResultEntry<TResult, TIn>>
             {
-                private readonly IEnumerator<ResultEntry<TResult>> original;
+                private readonly IEnumerator<ResultEntry<TResult, TIn>> original;
 
                 public Enumerator(Wraper wraper)
                 {
                     this.original = wraper.enumerable.GetEnumerator();
                 }
 
-                public ResultEntry<TResult> Current => this.original.Current;
+                public ResultEntry<TResult, TIn> Current => this.original.Current;
 
                 public ValueTask DisposeAsync()
                 {

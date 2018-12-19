@@ -14,10 +14,6 @@ namespace Dice
 
     internal static class P
     {
-        public static IP FromIdentifier(string identifier)
-        {
-            throw new NotImplementedException();
-        }
         internal static P<T> Create<T>(IComposer composer, string id) => new P<T>(composer, id);
     }
 
