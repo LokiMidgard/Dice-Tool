@@ -1,5 +1,6 @@
 ﻿using Dice.States;
 using Dice.Tables;
+using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace Dice
         private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input)
         {
 
-            var sum = new Dictionary<TResult, double>();
+            //var sum = new Dictionary<TResult, double>();
             if (!input.Any())
                 input = new TIn[1];
             this.composer.Setinput(input);
@@ -63,8 +64,22 @@ namespace Dice
             //int counter = 0;
             double completePropability = 0;
             var inputCount = input.Count();
+
+
+#if DEBUG
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var outputWatch = System.Diagnostics.Stopwatch.StartNew();
+            var statistics = new RunningStatistics();
+            uint count=0;
+#endif
+
             while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsylon)
             {
+#if DEBUG
+                watch.Restart();
+                count++;
+#endif
+
                 using (choiseManager.EnableMutation())
                     this.lastState.PreCalculatePath(whileManager);
 
@@ -80,8 +95,8 @@ namespace Dice
                     var value = table.GetValue(this.resultVariable, i);
                     var @in = table.GetValue(this.inputVariable, i);
                     var p = table.GetValue(Table.PropabilityKey, i);
-                    if (!sum.ContainsKey(value))
-                        sum.Add(value, 0.0);
+                    //if (!sum.ContainsKey(value))
+                    //sum.Add(value, 0.0);
                     var propability = p * statePropability;
                     currentSum += propability;
                     completePropability += propability / inputCount;
@@ -92,8 +107,16 @@ namespace Dice
                 //{
                 //    yield return new ResultEntry<TResult, TIn>(item.Key, item.Value, completePropability);
                 //}
-                sum.Clear();
+                //sum.Clear();
                 choiseManager.Terminate(currentSum);
+#if DEBUG
+                statistics.Push(watch.Elapsed.TotalSeconds);
+                if (outputWatch.Elapsed > TimeSpan.FromSeconds(10))
+                {
+                    outputWatch.Restart();
+                    System.Diagnostics.Debug.WriteLine($"AVG Took {TimeSpan.FromSeconds(statistics.Mean)} Max {TimeSpan.FromSeconds(statistics.Maximum)} Dev {statistics.StandardDeviation} Count {count}");
+                }
+#endif
             }
         }
 
@@ -131,6 +154,7 @@ namespace Dice
                 public ValueTask<bool> MoveNextAsync()
                 {
                     return new ValueTask<bool>(Task.Run(() => this.original.MoveNext()));
+                    //return new ValueTask<bool>(this.original.MoveNext());
                 }
             }
         }

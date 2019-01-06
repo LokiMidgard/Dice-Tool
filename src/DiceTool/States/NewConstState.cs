@@ -14,7 +14,7 @@ namespace Dice.States
 
         public NewConstState(State parent, P<T> variable, T value) : base(parent)
         {
-            this.table = new ConstTable<T>(variable, value);
+            this.table = new ConstTable<T>(this, variable, value);
             this.variable = variable;
         }
 

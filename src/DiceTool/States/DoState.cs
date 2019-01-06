@@ -50,6 +50,13 @@ namespace Dice.States
 
         public override double GetStatePropability(in WhileManager manager)
         {
+            return this.cache.GetOrCreate(nameof(GetStatePropability), manager, this.CreateStatePropability);
+
+        }
+
+        private double CreateStatePropability(in WhileManager manager)
+        {
+
             var choise = manager.Choise;
             var newManager = new WhileManager(manager);
 
@@ -58,9 +65,8 @@ namespace Dice.States
                 return base.GetStatePropability(newManager);
             else
                 return this.WhileState.ContinueState.GetStatePropability(newManager);
+
         }
-
-
         public override bool Contains(IP variable, in WhileManager manager)
         {
             var mergeTable = this.GetTable(manager);
@@ -77,16 +83,16 @@ namespace Dice.States
                 return this.WhileState.ContinueState.Contains(variable, newManager);
         }
 
-        internal override void PreCalculatePath(in WhileManager manager)
+        internal override State? UpdateWhileManager(ref WhileManager manager)
         {
             var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
+            manager = new WhileManager(manager);
 
 
             if (choise == 0)
-                base.PreCalculatePath(newManager);
+                return this.Parent;
             else
-                this.WhileState.ContinueState.PreCalculatePath(newManager);
+                return this.WhileState.ContinueState;
 
         }
 

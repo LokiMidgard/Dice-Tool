@@ -51,6 +51,49 @@ namespace Dice.States
             if (this.cache.TryGet(nameof(Optimize), manager, out bool b))
                 return;
             base.Optimize(manager);
+            // If the table has more variables then we need to keep we optimize the table otherwise it will result in no compression.
+            if (Table.GetVariables(manager).Except(this.NededVariables).Any())
+                this.Table.Optimize(manager);
+            this.cache.Create(nameof(Optimize), manager, true);
+        }
+    }
+
+    internal class CombinationState<T> : TableState<CombinationTable<T>>
+    {
+        private readonly P<T[]> p;
+        private readonly P<T>[] input;
+        private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
+
+        public CombinationState(State current, P<T[]> p, P<T>[] input) : base(current)
+        {
+            this.Table = new CombinationTable<T>(this, p, input);
+
+            this.p = p;
+            this.input = input;
+        }
+
+        public override CombinationTable<T> Table { get; }
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        {
+            return base.GetOptimizedVariablesForParent().Concat(this.input.Cast<IP>());
+        }
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        {
+            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.p });
+        }
+
+        public override void PrepareOptimize(IEnumerable<IP> p)
+        {
+            base.PrepareOptimize(p);
+
+            foreach (var item in p)
+                this.Table.Keep(item);
+        }
+        internal override void Optimize(in WhileManager manager)
+        {
+            if (this.cache.TryGet(nameof(Optimize), manager, out bool b))
+                return;
+            base.Optimize(manager);
             this.Table.Optimize(manager);
             this.cache.Create(nameof(Optimize), manager, true);
         }

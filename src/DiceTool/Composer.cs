@@ -118,6 +118,13 @@ namespace Dice
             return p;
         }
 
+        public P<T[]> Combine<T>(P<T>[] input)
+        {
+            var p = P.Create<T[]>(this, this.CreateId());
+            this.State.NextStates(new CombinationState<T>(this.State.Current, p, input));
+            return p;
+        }
+
         public P<T> AssignName<T>(string name, P<T> value)
         {
             if (this.variableTypeMapping.ContainsKey(name))

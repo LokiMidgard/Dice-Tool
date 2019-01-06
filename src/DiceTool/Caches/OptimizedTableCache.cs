@@ -49,7 +49,17 @@ namespace Dice.Caches
 
                 for (var i = 0; i < this.columns.Length; i++)
                 {
-                    if (!this.columns[i].Equals(other.columns[i]))
+                    if (this.columns[i] is object[] selfArray && other.columns[i] is object[] otherArray)
+                    {
+                        if (selfArray.Length != otherArray.Length)
+                            return false;
+                        for (int j = 0; j < selfArray.Length; j++)
+                        {
+                            if (!Equals(selfArray[j], otherArray[j]))
+                                return false;
+                        }
+                    }
+                    else if (!this.columns[i].Equals(other.columns[i]))
                         return false;
                 }
                 return true;
@@ -60,7 +70,16 @@ namespace Dice.Caches
                 var hash = new HashCode();
                 foreach (var item in this.columns)
                 {
-                    hash.Add(item);
+                    if (item is object[] selfArray)
+                    {
+                        for (int j = 0; j < selfArray.Length; j++)
+                            hash.Add(selfArray[j]);
+                    }
+                    else
+                    {
+                        hash.Add(item);
+                    }
+
                 }
                 hash.Add(this.parent);
                 return hash.ToHashCode();
@@ -105,7 +124,8 @@ namespace Dice.Caches
 
             var rows = new List<CacheRow>();
 
-            for (var i = 0; i < t.GetCount(manager); i++)
+            var counter = t.GetCount(manager);
+            for (var i = 0; i < counter; i++)
             {
                 var r = new CacheRow(this.indexLookup.Count, this, t.GetValue(Table.PropabilityKey, i, manager));
 

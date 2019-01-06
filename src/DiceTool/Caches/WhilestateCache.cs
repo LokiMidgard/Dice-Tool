@@ -58,6 +58,15 @@ namespace Dice.Caches
 
             this.lookup.Add(look, toStore!);
         }
+        public void Update<T>(string key, in WhileManager manager, T toStore)
+        {
+            var look = this.GetLookupKey(key, manager);
+
+            if (!this.lookup.ContainsKey(look))
+                throw new ArgumentException("Not yet Added.");
+
+            this.lookup[look] = toStore!;
+        }
 
         public bool TryGet<T>(string key, in WhileManager manager, out T obj)
         {

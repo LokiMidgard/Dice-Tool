@@ -7,7 +7,7 @@ namespace Dice
     {
         private readonly TResult result;
         private readonly Exception? exception;
-        public readonly TIn input;
+        private readonly TIn input;
 
         public TResult Result
         {

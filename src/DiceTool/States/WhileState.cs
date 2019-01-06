@@ -55,6 +55,7 @@ namespace Dice.States
             this.Manager = original.Manager;
         }
 
+        [System.Diagnostics.DebuggerHidden]
         internal int Choise => this.Manager.GetChoise(this.Depth);
 
     }

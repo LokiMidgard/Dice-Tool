@@ -1,5 +1,7 @@
 ﻿using Dice.States;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dice.Tables
 {
@@ -10,12 +12,17 @@ namespace Dice.Tables
         private readonly Func<TFrom, TTo> func;
         private readonly P<TFrom> pFrom;
 
-        public TransformTable(TransformState<TFrom, TTo> original, P<TFrom> PFrom, P<TTo> newP, Func<TFrom, TTo> func)
+        public TransformTable(TransformState<TFrom, TTo> original, P<TFrom> PFrom, P<TTo> newP, Func<TFrom, TTo> func) : base(original)
         {
             this.state = original;
             this.pFrom = PFrom;
             this.pTo = newP;
             this.func = func;
+        }
+
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        {
+            return this.state.Parent.GetTable(this.pFrom, manager).GetVariables().Concat(Enumerable.Repeat(this.pTo as IP, 1));
         }
 
         public override int GetCount(in WhileManager manager)

@@ -1,0 +1,23 @@
+﻿<Window x:Class="Dice.Ui.InputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Dice.Ui"
+        Title="Dice Tool"
+        x:Name="root"
+        mc:Ignorable="d"
+         Height="450" Width="800" MinWidth="605" MinHeight="300">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBox Margin="3" Text="{Binding ElementName=root, Path=Input}" ></TextBox>
+
+        <Button Margin="3" Click="ButtonExit_Click" Grid.Row="1" >Ok</Button>
+
+    </Grid>
+</Window>

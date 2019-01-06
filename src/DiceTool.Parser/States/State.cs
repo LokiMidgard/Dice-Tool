@@ -31,6 +31,37 @@ namespace Dice.Parser.Syntax
 
     }
 
+    class SwitchSyntax : StatementSyntax
+    {
+
+        public SwitchSyntax(IdentifierSyntax target, ExpresionSyntax input, ExpresionSyntax defaultResult, CaseSyntax[] cases)
+        {
+            this.Target = target;
+            this.Input = input;
+            this.DefaultResult = defaultResult;
+            this.Cases = cases;
+        }
+
+        public IdentifierSyntax Target { get; }
+        public ExpresionSyntax Input { get; }
+        public ExpresionSyntax DefaultResult { get; }
+        public CaseSyntax[] Cases { get; }
+    }
+    class CaseSyntax
+    {
+
+
+        public CaseSyntax(ExpresionSyntax input, BinaryOperator op, ExpresionSyntax result)
+        {
+            this.Input = input;
+            this.Op = op;
+            this.Result = result;
+        }
+
+        public ExpresionSyntax Input { get; }
+        public BinaryOperator Op { get; }
+        public ExpresionSyntax Result { get; }
+    }
 
     abstract class ConstSyntax : ExpresionSyntax
     {

@@ -40,7 +40,7 @@ namespace Dice.States
         public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
             var mergeTable = this.GetTable(manager);
-            if (mergeTable != null)
+            if (mergeTable?.Contains(variable, manager) ?? false)
                 return (manager, mergeTable);
 
             var choise = manager.Choise;
@@ -80,15 +80,15 @@ namespace Dice.States
             this.parent2.PrepareOptimize(ps);
         }
 
-        internal override void PreCalculatePath(in WhileManager manager)
+        internal override State? UpdateWhileManager(ref WhileManager manager)
         {
             var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
+            manager = new WhileManager(manager);
 
             if (choise == 0)
-                this.parent1.PreCalculatePath(newManager);
+                return this.parent1;
             else
-                this.parent2.PreCalculatePath(newManager);
+                return this.parent2;
         }
 
         public override bool Contains(IP variable, in WhileManager manager)

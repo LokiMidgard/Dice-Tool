@@ -13,7 +13,7 @@ namespace Dice.States
 
         public NewVariableState(State parent, P<T> variable, params (T value, double propability)[] distribution) : base(parent)
         {
-            table = new SingelVariableTable<T>(variable, distribution);
+            table = new SingelVariableTable<T>(this, variable, distribution);
             this.variable = variable;
         }
 

@@ -10,8 +10,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="InputDialog.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
     <ProjectReference Include="..\DiceTool\DiceTool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="InputDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>

@@ -19,6 +19,7 @@ namespace Dice.States
 
         public State Parent { get; }
 
+
         protected ISet<IP> NededVariables { get; }
 
 
@@ -61,19 +62,23 @@ namespace Dice.States
             this.Parent.Optimize(manager);
         }
 
-        public IEnumerable<State> Ancestors()
-        {
-            var current = this;
-            while (true)
-            {
-                yield return current;
-                if (current.Parent is null)
-                    yield break;
-                current = current.Parent;
-            }
-        }
+        internal int Depth { get; private set; }
 
-        internal virtual void PreCalculatePath(in WhileManager manager) => this.Parent.PreCalculatePath(manager);
+        internal void PreCalculatePath(in WhileManager manager)
+        {
+            var currentWhileManager = manager;
+            State? currentState = this;
+            int dept = 0;
+            do
+            {
+                currentState.Depth = dept;
+                dept--;
+                currentState = currentState.UpdateWhileManager(ref currentWhileManager);
+            }
+            while (currentState != null);
+
+        }
+        internal virtual State? UpdateWhileManager(ref WhileManager manager) => this.Parent;
     }
 
 

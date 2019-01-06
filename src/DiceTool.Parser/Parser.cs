@@ -21,6 +21,16 @@ namespace Dice.Parser
 
         }
 
+        public static Type GetReturnType(string program)
+        {
+            var p = Program.Parse(program);
+            var variables = Validator.Validate(p);
+            var c = new Compiler(variables);
+            return c.GetReturnType(p);
+
+        }
+
+
         static Parser<BinaryOperator> Operator(string op, BinaryOperator opType) => Parse.String(op).Token().Return(opType).Named(op);
 
         static readonly Parser<BinaryOperator> Add = Operator("+", BinaryOperator.Addition);
@@ -43,6 +53,12 @@ namespace Dice.Parser
         static readonly Parser<BinaryOperator> AreEqual = Operator("==", BinaryOperator.Equals);
         static readonly Parser<BinaryOperator> NotEquals = Operator("!=", BinaryOperator.NotEquals);
 
+        static readonly Parser<BinaryOperator> CompareOperators = LessOrEqual
+                                                                    .Or(GreaterOrEqual)
+                                                                    .Or(LessThen)
+                                                                    .Or(GreaterThen)
+                                                                    .Or(AreEqual)
+                                                                    .Or(NotEquals);
 
 
 
@@ -72,6 +88,10 @@ namespace Dice.Parser
         static readonly Parser<string> IntKeyword = Parse.String("int").Text().Token().Named("int");
         static readonly Parser<string> BoolKeyword = Parse.String("bool").Text().Token().Named("bool");
         static readonly Parser<string> StringKeyword = Parse.String("string").Text().Token().Named("string");
+        static readonly Parser<string> TrueKeyword = Parse.String("true").Text().Token().Named("true");
+        static readonly Parser<string> FalseKeyword = Parse.String("false").Text().Token().Named("false");
+        static readonly Parser<string> SwitchKeyword = Parse.String("switch").Text().Token().Named("switch");
+        static readonly Parser<string> DefaultKeyword = Parse.String("default").Text().Token().Named("default");
 
         static readonly Parser<string> Keyword = DoKeyword
                                                 .Or(WhileKeyword)
@@ -81,6 +101,10 @@ namespace Dice.Parser
                                                 .Or(StringKeyword)
                                                 .Or(IntKeyword)
                                                 .Or(BoolKeyword)
+                                                .Or(TrueKeyword)
+                                                .Or(FalseKeyword)
+                                                .Or(SwitchKeyword)
+                                                .Or(DefaultKeyword)
                                                 .Or(ElseKeyword).Named("Keyword");
 
 
@@ -101,9 +125,62 @@ namespace Dice.Parser
                                                                select new IdentifierSyntax(new string(firstChar.Concat(rest).ToArray())))
                                                                 .Except(Keyword).Named("Identifier");
 
-        static readonly Parser<ConstSyntax<int>> Constant =
+
+        static class StringParser
+        {
+            private static Parser<IEnumerable<char>> Escape = Parse.Char('\\').Once();
+            private static Parser<IEnumerable<char>> Quote = Parse.Char('"').Once();
+            private static Parser<IEnumerable<char>> EscapedCharacter = from escape in Escape
+                                                                        from c in Parse.Chars('\\', '"').Once()
+                                                                        select c;
+
+
+            private static Parser<IEnumerable<char>> EscapelessLiteral = Parse.AnyChar.Except(Quote).Except(Escape).Many();
+
+            public static Parser<string> StringLiteral = from start in Quote
+                                                         from content in EscapelessLiteral.Or(EscapedCharacter).Many()
+                                                         from end in Quote
+                                                         select new string(content.SelectMany(x => x).ToArray());
+
+        }
+
+
+        private static Parser<ConstSyntax<string>> StringConstant = from literal in StringParser.StringLiteral
+                                                                    select new ConstSyntax<string>(literal);
+
+        static readonly Parser<ConstSyntax<int>> ConstantNumber =
              Number
              .Select(x => new ConstSyntax<int>(x)).Named("Const");
+
+
+        static readonly Parser<ConstSyntax<bool>> ConstantTrue = FalseKeyword.Return(new ConstSyntax<bool>(false));
+        static readonly Parser<ConstSyntax<bool>> ConstantFalse = TrueKeyword.Return(new ConstSyntax<bool>(true));
+        static readonly Parser<ConstSyntax<bool>> ConstantBool = ConstantTrue.XOr(ConstantFalse);
+
+        static readonly Parser<CaseSyntax> Case = from op in CompareOperators
+                                                  from input in Parse.Ref(() => Expr)
+                                                  from collon in Parse.Char(':').Token()
+                                                  from result in Parse.Ref(() => Expr)
+                                                  from seperator in Parse.Char(';').Token()
+                                                  select new CaseSyntax(input, op, result);
+
+        static readonly Parser<CaseSyntax[]> CaseList = from c in Case.XMany()
+                                                        select c.ToArray();
+
+
+        static readonly Parser<SwitchSyntax> Switch = from target in Identifier
+                                                      from keyword in SwitchKeyword
+                                                      from input in Parse.Ref(() => Expr)
+                                                      from collon in Parse.Char(':').Token()
+                                                      from cases in CaseList
+                                                      from defaultKeyword in DefaultKeyword
+                                                      from collon2 in Parse.Char(':').Token()
+                                                      from defaultResult in Parse.Ref(() => Expr)
+                                                      from seperator in Parse.Char(';').Token()
+
+                                                      select new SwitchSyntax(target, input, defaultResult, cases);
+
+
 
         static readonly Parser<ExpresionSyntax> Factor =
             (from lparen in Parse.Char('(')
@@ -111,8 +188,10 @@ namespace Dice.Parser
              from rparen in Parse.Char(')')
              select expr).Named("expression")
              .Or(Dice)
-             .Or(Constant)
+             .Or(ConstantNumber)
+             .Or(ConstantBool)
              .Or(Identifier)
+             .Or(StringConstant)
             //.XOr(Function)
             ;
 
@@ -136,7 +215,6 @@ namespace Dice.Parser
 
 
         static readonly Parser<ExpresionSyntax> Expr = Parse.ChainOperator(Add.Or(Subtract), Term9, MakeOperation);
-
 
 
 
@@ -187,6 +265,7 @@ namespace Dice.Parser
                                                                 .Or(VariableDeclaration)
                                                                 .Or(Block)
                                                                 .Or(DoWhile)
+                                                                .Or(Switch)
                                                                 ;
 
 

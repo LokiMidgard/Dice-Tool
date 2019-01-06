@@ -13,11 +13,16 @@ namespace Dice.Tables
 
         internal (WhileManager manager, Table table) GetOriginal(in WhileManager manager) => this.state.Parent.GetTable(this.conditionVariable, manager);
 
-        public DevideTable(State state, P<T> p, T value)
+        public DevideTable(State state, P<T> p, T value) : base(state)
         {
             this.state = state;
             this.conditionVariable = p;
             this.value = value;
+        }
+
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        {
+            return this.GetOriginal(manager).GetVariables();
         }
 
         public override int GetCount(in WhileManager manager)
@@ -35,6 +40,9 @@ namespace Dice.Tables
             var partPropability = 0.0;
             for (var i = 0; i < this.GetCount(manager); i++)
                 partPropability += this.GetOriginal(manager).GetValue(PropabilityKey, this.GetIndexLookup(manager)[i]);
+
+            if (partPropability == 0)
+                this.cache.Update(nameof(GetIndexLookup), manager, new int[0]);
             return partPropability;
         }
 
@@ -46,8 +54,11 @@ namespace Dice.Tables
         private int[] CalculateIndexLookup(in WhileManager manager)
         {
             var list = new List<int>();
-            for (var i = 0; i < this.GetOriginal(manager).GetCount(); i++)
-                if (Equals(this.GetOriginal(manager).GetValue(this.conditionVariable, i), this.value))
+
+            var table = this.GetOriginal(manager);
+            var rowCount = table.GetCount();
+            for (var i = 0; i < rowCount; i++)
+                if (Equals(table.GetValue(this.conditionVariable, i), this.value))
                     list.Add(i);
             var indexLookup = list.ToArray();
             return indexLookup;

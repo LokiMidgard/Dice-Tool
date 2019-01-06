@@ -1,5 +1,6 @@
 ﻿using Dice.States;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Dice.Tables
 {
@@ -8,7 +9,7 @@ namespace Dice.Tables
         private readonly P<T> variable;
         private readonly (T value, double propability)[] distribution;
 
-        public SingelVariableTable(P<T> variable, (T value, double propability)[] distribution)
+        public SingelVariableTable(State state, P<T> variable, (T value, double propability)[] distribution) : base(state)
         {
             this.variable = variable;
             this.distribution = distribution;
@@ -32,6 +33,11 @@ namespace Dice.Tables
                 default:
                     throw new KeyNotFoundException($"Key with id {p.Id}.");
             }
+        }
+
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        {
+            return Enumerable.Repeat(this.variable as IP, 1);
         }
     }
 

@@ -102,10 +102,41 @@ namespace Dice.States
 
             public IEnumerator<int> GetEnumerator()
             {
-                for (int i = 0; i < this.Count; i++)
-                    yield return this[i];
+                return new Enumerator(this);
             }
 
+            private struct Enumerator : IEnumerator<int>
+            {
+                private readonly PathToGo parent;
+                private readonly int count;
+                private int current;
+
+                public Enumerator(PathToGo parent)
+                {
+                    this.parent = parent;
+                    this.count = parent.Count;
+                    this.current = -1;
+                }
+
+                public int Current => parent[current];
+
+                object IEnumerator.Current => Current;
+
+                public void Dispose()
+                {
+                }
+
+                public bool MoveNext()
+                {
+                    current++;
+                    return current < count;
+                }
+
+                public void Reset()
+                {
+                    throw new NotImplementedException();
+                }
+            }
 
             int IList<int>.IndexOf(int item)
             {

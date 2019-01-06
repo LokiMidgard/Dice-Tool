@@ -57,6 +57,19 @@ namespace Dice.Parser
                     else if (actualType != typeof(bool))
                         yield return $"Condition must be bool ({actualType})";
                     break;
+                case SwitchSyntax switchSyntax:
+                    targetType = typeLookup[switchSyntax.Target.literal];
+
+                    foreach (var c in switchSyntax.Cases)
+                    {
+                        (actualType, error) = GetTypeOrError(c.Result, typeLookup);
+                        if (error != null)
+                            yield return error;
+                        else if (targetType != actualType)
+                            yield return $"Value {actualType} cannot be assigned to {targetType}";
+                    }
+
+                    break;
                 default:
                     yield break;
             }
@@ -84,34 +97,35 @@ namespace Dice.Parser
                     if (error2 != null)
                         return (default, error2);
 
-                    if (t1 != t2)
-                        return (default, $"{t1} and {t2}");
 
                     switch (binaryOpereratorSyntax.Operator)
                     {
                         case BinaryOperator.Addition:
-                            if (t1 != typeof(string) && t1 != typeof(int))
-                                throw new Exception();
+                            if (t1 != typeof(string) && t1 != typeof(int)
+                                || t2 != typeof(string) && t2 != typeof(int))
+                                return (default, $"Operator {binaryOpereratorSyntax.Operator} does not support {t1} and {t2}");
+                            if (t1 == typeof(string) || t2 == typeof(string))
+                                return (typeof(string), default);
                             return (t1, default);
                         case BinaryOperator.Substraction:
                         case BinaryOperator.Multiplication:
                         case BinaryOperator.Division:
                         case BinaryOperator.Modulo:
-                            if (t1 != typeof(int))
-                                throw new Exception();
+                            if (t1 != t2 || t1 != typeof(int))
+                                return (default, $"Operator {binaryOpereratorSyntax.Operator} does not support {t1} and {t2}");
                             return (t1, default);
 
                         case BinaryOperator.BitAnd:
                         case BinaryOperator.BitOr:
                         case BinaryOperator.BitXor:
-                            if (t1 != typeof(bool) && t1 != typeof(int))
-                                throw new Exception();
+                            if (t1 != t2 || (t1 != typeof(bool) && t1 != typeof(int)))
+                                return (default, $"Operator {binaryOpereratorSyntax.Operator} does not support {t1} and {t2}");
                             return (t1, default);
 
                         case BinaryOperator.ShiftLeft:
                         case BinaryOperator.ShiftRight:
-                            if (t1 != typeof(int))
-                                throw new Exception();
+                            if (t1 != t2 || t1 != typeof(int))
+                                return (default, $"Operator {binaryOpereratorSyntax.Operator} does not support {t1} and {t2}");
                             return (t1, default);
 
                         //case BinaryOperator.LogicAnd:
@@ -124,8 +138,8 @@ namespace Dice.Parser
                         case BinaryOperator.LessOrEquals:
                         case BinaryOperator.GreaterThen:
                         case BinaryOperator.GreaterOrEquals:
-                            if (t1 != typeof(int))
-                                throw new Exception();
+                            if (t1 != t2 || t1 != typeof(int))
+                                return (default, $"Operator {binaryOpereratorSyntax.Operator} does not support {t1} and {t2}");
                             return (typeof(bool), default);
 
                         case BinaryOperator.Equals:

@@ -2,26 +2,53 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Xml.Linq;
 
 namespace Dice.Ui
 {
     class CalculaterViewmodel : DependencyObject
     {
 
-        public CalculaterViewmodel()
-        {
-            var file = GetCodeFile();
+        public DirectoryInfo DataFolder { get; }
+        public string Name => this.DataFolder.Name;
 
-            if (file.Exists)
-                this.Code = File.ReadAllText(file.FullName, Encoding.UTF8);
+
+
+        public CalculaterViewmodel(DirectoryInfo dataFolder)
+        {
+            this.DataFolder = dataFolder;
+            var codeFile = this.GetCodeFile();
+
+            if (codeFile.Exists)
+                this.Code = File.ReadAllText(codeFile.FullName, Encoding.UTF8);
+
+            var resultFile = this.GetResultFile();
+            if (resultFile.Exists)
+                this.LoadResult(resultFile);
+
+
 
             this.calculateCommand = new Command(this);
 
         }
+
+
+        public TimeSpan CalculationTime
+        {
+            get { return (TimeSpan)this.GetValue(CalculationTimeProperty); }
+            set { this.SetValue(CalculationTimePropertyKey, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CalculationTime.  This enables animation, styling, binding, etc...
+        public static readonly DependencyPropertyKey CalculationTimePropertyKey =
+            DependencyProperty.RegisterReadOnly("CalculationTime", typeof(TimeSpan), typeof(CalculaterViewmodel), new PropertyMetadata(default(TimeSpan)));
+        public static readonly DependencyProperty CalculationTimeProperty = CalculationTimePropertyKey.DependencyProperty;
+
 
 
         public string Code
@@ -30,23 +57,30 @@ namespace Dice.Ui
             set { this.SetValue(CodeProperty, value); }
         }
 
+        private const string Prefix = "ns";
+        private const string Namespace = "http://DiceTool/Result";
+        private const string PropabilityAttribute = "propability";
+        private const string TimeAttribute = "time";
+
         // Using a DependencyProperty as the backing store for Code.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CodeProperty =
             DependencyProperty.Register("Code", typeof(string), typeof(CalculaterViewmodel), new PropertyMetadata("", PropertyChagned));
 
         private static void PropertyChagned(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var codeFile = GetCodeFile();
+            var me = d as CalculaterViewmodel;
+            var codeFile = me.GetCodeFile();
             File.WriteAllText(codeFile.FullName, (string)e.NewValue, Encoding.UTF8);
         }
 
-        private static FileInfo GetCodeFile()
+        private FileInfo GetCodeFile()
         {
-            var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
-            var appFolder = new DirectoryInfo(Path.Combine(appDataFolder, ".DiceTool"));
-            if (!appFolder.Exists)
-                appFolder.Create();
-            var codeFile = new FileInfo(Path.Combine(appFolder.FullName, "code"));
+            var codeFile = new FileInfo(Path.Combine(this.DataFolder.FullName, "code"));
+            return codeFile;
+        }
+        private FileInfo GetResultFile()
+        {
+            var codeFile = new FileInfo(Path.Combine(this.DataFolder.FullName, "result"));
             return codeFile;
         }
 
@@ -62,6 +96,21 @@ namespace Dice.Ui
 
 
 
+
+        public bool IsReady
+        {
+            get { return (bool)this.GetValue(IsReadyProperty); }
+            private set { this.SetValue(IsReadyPropertyKey, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsReady.  This enables animation, styling, binding, etc...
+        public static readonly DependencyPropertyKey IsReadyPropertyKey =
+            DependencyProperty.RegisterReadOnly("IsReady", typeof(bool), typeof(CalculaterViewmodel), new PropertyMetadata(true));
+        public static readonly DependencyProperty IsReadyProperty = IsReadyPropertyKey.DependencyProperty;
+
+
+
+
         public bool IsBuisy
         {
             get { return (bool)this.GetValue(IsBuisyProperty); }
@@ -70,20 +119,18 @@ namespace Dice.Ui
 
         // Using a DependencyProperty as the backing store for IsBuisy.  This enables animation, styling, binding, etc...
         public static readonly DependencyPropertyKey IsBuisyPropertyKey =
-            DependencyProperty.RegisterReadOnly("IsBuisy", typeof(bool), typeof(CalculaterViewmodel), new PropertyMetadata(false));
+            DependencyProperty.RegisterReadOnly("IsBuisy", typeof(bool), typeof(CalculaterViewmodel), new PropertyMetadata(false, IsBusyChanging));
+
+        private static void IsBusyChanging(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var me = d as CalculaterViewmodel;
+            me.IsReady = !(bool)e.NewValue;
+        }
+
         public static readonly DependencyProperty IsBuisyProperty = IsBuisyPropertyKey.DependencyProperty;
 
 
 
-        public ReturnType ReturnType
-        {
-            get { return (ReturnType)this.GetValue(ReturnTypeProperty); }
-            set { this.SetValue(ReturnTypeProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ReturnType.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ReturnTypeProperty =
-            DependencyProperty.Register("ReturnType", typeof(ReturnType), typeof(CalculaterViewmodel), new PropertyMetadata(ReturnType.Integer));
 
 
         public ObservableCollection<ResultViewmodel> Results { get; } = new ObservableCollection<ResultViewmodel>();
@@ -108,25 +155,66 @@ namespace Dice.Ui
         }
 
 
-        private async Task StartCalculation<T>()
+        private async Task StartCalculation()
         {
+            var stopWatch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
                 this.IsBuisy = true;
-                this.calculateCommand.FireCanExecuteChange();
-                var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
-                this.Percentage = 0;
-                this.Results.Clear();
-                this.indexLookup.Clear();
+                var returnType = Parser.SimpleParser.GetReturnType(this.Code);
+                Task calculateTask;
 
-                var cal = executor.Calculate(0);
-                await foreach (var t in cal)
+                if (returnType == typeof(int))
+                    calculateTask = Calculate<int>();
+                else if (returnType == typeof(string))
+                    calculateTask = Calculate<string>();
+                else if (returnType == typeof(bool))
+                    calculateTask = Calculate<bool>();
+                else
+                    throw new NotSupportedException($"Type {returnType} is not supported");
+
+                var updateTask = UpdateTimer();
+
+                await calculateTask;
+                await updateTask;
+
+
+                async Task UpdateTimer()
                 {
-                    this.Percentage = t.CompletePercentage;
-                    this.AddResult(t.Result, t.Propability * 100);
+                    while (this.IsBuisy)
+                    {
+                        await Task.Delay(200);
+                        this.CalculationTime = stopWatch.Elapsed;
+                    }
                 }
 
-                this.Percentage = 1;
+
+                async Task Calculate<T>()
+                {
+                    try
+                    {
+                        this.calculateCommand.FireCanExecuteChange();
+                        var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
+                        this.Percentage = 0;
+                        this.Results.Clear();
+                        this.indexLookup.Clear();
+                        executor.Epsylon = 0.0001;
+                        var cal = executor.Calculate(0);
+                        await foreach (var t in cal)
+                        {
+                            this.Percentage = t.CompletePercentage;
+                            this.AddResult(t.Result, t.Propability * 100);
+                        }
+
+                        this.Percentage = 1;
+                        await this.PersistResult();
+
+                    }
+                    finally
+                    {
+                        stopWatch.Stop();
+                    }
+                }
 
             }
             catch (Exception e)
@@ -140,8 +228,59 @@ namespace Dice.Ui
             }
         }
 
+        private async Task PersistResult()
+        {
+            using (var stream = this.GetResultFile().Open(FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var writer = System.Xml.XmlWriter.Create(stream, new System.Xml.XmlWriterSettings()
+            {
+                Async = true,
+                Encoding = Encoding.UTF8,
+                Indent = true,
+                NamespaceHandling = System.Xml.NamespaceHandling.OmitDuplicates,
+                CheckCharacters = true,
+                ConformanceLevel = System.Xml.ConformanceLevel.Document
+            }))
+            {
+                await writer.WriteStartDocumentAsync();
+
+                await writer.WriteStartElementAsync(Prefix, "Results", Namespace);
+                await writer.WriteAttributeStringAsync(Prefix, TimeAttribute, Namespace, this.CalculationTime.ToString("c", System.Globalization.CultureInfo.InvariantCulture));
+                foreach (var item in this.Results)
+                {
+                    await writer.WriteStartElementAsync(Prefix, "Result", Namespace);
+                    var value = item.Value?.ToString() ?? "<NULL>";
+                    var propability = item.Propability;
+                    await writer.WriteAttributeStringAsync(Prefix, PropabilityAttribute, Namespace, propability.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    await writer.WriteStringAsync(value);
+                    await writer.WriteEndElementAsync();
+                }
+                await writer.WriteEndDocumentAsync();
+            }
+        }
+
+        private void LoadResult(FileInfo resultFile)
+        {
+            using (var stream = resultFile.OpenRead())
+            {
+                var doc = XDocument.Load(stream);
+                var results = doc.Root;
+                this.CalculationTime = TimeSpan.Parse(results.Attribute(XName.Get(TimeAttribute, Namespace)).Value, System.Globalization.CultureInfo.InvariantCulture);
+
+                foreach (var item in results.Nodes().OfType<XElement>())
+                {
+                    var propability = double.Parse(item.Attribute(XName.Get(PropabilityAttribute, Namespace)).Value, System.Globalization.CultureInfo.InvariantCulture);
+                    var value = item.Value;
+                    this.Results.Add(new ResultViewmodel() { Value = value, Propability = propability });
+                }
+
+            }
+
+        }
+
+
         public ICommand CalculateCommand => this.calculateCommand;
-      
+
+
         private class Command : ICommand
         {
             private CalculaterViewmodel calculaterViewmodel;
@@ -160,22 +299,7 @@ namespace Dice.Ui
 
             public async void Execute(object parameter)
             {
-                switch (this.calculaterViewmodel.ReturnType)
-                {
-                    case ReturnType.Integer:
-                        await this.calculaterViewmodel.StartCalculation<int>();
-                        break;
-                    case ReturnType.String:
-                        await this.calculaterViewmodel.StartCalculation<string>();
-                        break;
-                    case ReturnType.Boolean:
-                        await this.calculaterViewmodel.StartCalculation<bool>();
-                        break;
-                    default:
-                        break;
-                }
-
-
+                await this.calculaterViewmodel.StartCalculation();
             }
 
             internal void FireCanExecuteChange()

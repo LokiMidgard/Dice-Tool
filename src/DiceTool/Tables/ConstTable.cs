@@ -1,5 +1,6 @@
 ﻿using Dice.States;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Dice.Tables
 {
@@ -7,14 +8,14 @@ namespace Dice.Tables
     {
         private readonly P<T> variable;
 
-        public override int GetCount( in WhileManager manager)
+        public override int GetCount(in WhileManager manager)
         {
             return 1;
         }
 
         public T Value { get; }
 
-        public ConstTable(P<T> variable, T value)
+        public ConstTable(State state, P<T> variable, T value) : base(state)
         {
             this.variable = variable;
             this.Value = value;
@@ -33,6 +34,11 @@ namespace Dice.Tables
                     throw new KeyNotFoundException($"Key with id {p.Id}");
             }
         }
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        {
+            return Enumerable.Repeat(this.variable as IP, 1);
+        }
+
 
         protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.variable.Id;
     }

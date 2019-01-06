@@ -35,7 +35,5 @@ namespace Dice.States
         {
             return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
         }
-
-
     }
 }

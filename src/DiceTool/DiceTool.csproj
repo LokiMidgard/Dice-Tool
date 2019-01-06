@@ -34,4 +34,9 @@ Reimplemented version, which is much faster.
   </PropertyGroup>
 
 
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.7.0" />
+  </ItemGroup>
+
+
 </Project>
