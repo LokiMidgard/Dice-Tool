@@ -6,8 +6,15 @@ using Dice.States;
 
 namespace Dice.Tables
 {
+    public enum OptimisationStrategy
+    {
+        Guess,
+        NoOptimisation,
+        Optimize
+    }
     internal class CombinationTable<TIn1, TIn2, TOut> : Table
     {
+        private OptimisationStrategy OptimisationStrategy { get; }
         private readonly CombinationState<TIn1, TIn2, TOut> state;
         private readonly P<TOut> ownP;
         private readonly Func<TIn1, TIn2, TOut> func;
@@ -30,8 +37,9 @@ namespace Dice.Tables
             return this.state.Parent.GetTable(this.SeccondCalculationVariable, manager);
         }
 
-        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func) : base(parent)
+        public CombinationTable(CombinationState<TIn1, TIn2, TOut> parent, P<TOut> p, P<TIn1> firstCalculation, P<TIn2> seccondCalculation, Func<TIn1, TIn2, TOut> func, OptimisationStrategy optimisationStrategy) : base(parent)
         {
+            this.OptimisationStrategy = optimisationStrategy;
             this.state = parent;
             this.ownP = p;
             this.FirstCalculationVariable = firstCalculation;
@@ -143,7 +151,8 @@ namespace Dice.Tables
         {
             if (this.variablesToKeep != null)
             {
-                if (this.GetFirst(manager).GetCount() == 1 || this.GetSeccond(manager).GetCount() == 1)
+                // if one of both table has size one, we ommit optimizing sometimes this is good sometimes bad.
+                if (this.OptimisationStrategy == OptimisationStrategy.NoOptimisation || (OptimisationStrategy == OptimisationStrategy.Guess && (this.GetFirst(manager).GetCount() == 1 || this.GetSeccond(manager).GetCount() == 1)))
                     return;
 
                 this.cache.GetOrCreate(nameof(Optimize), manager, this.CreateOptimizedTable);

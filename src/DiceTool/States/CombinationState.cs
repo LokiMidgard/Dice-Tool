@@ -19,9 +19,9 @@ namespace Dice.States
         public override CombinationTable<TIn1, TIn2, TOut> Table { get; }
         private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
 
-        public CombinationState(State parent, P<TOut> variable, P<TIn1> in1, P<TIn2> in2, Func<TIn1, TIn2, TOut> func) : base(parent)
+        public CombinationState(State parent, P<TOut> variable, P<TIn1> in1, P<TIn2> in2, Func<TIn1, TIn2, TOut> func, OptimisationStrategy optimisationStrategy) : base(parent)
         {
-            this.Table = new CombinationTable<TIn1, TIn2, TOut>(this, variable, in1, in2, func);
+            this.Table = new CombinationTable<TIn1, TIn2, TOut>(this, variable, in1, in2, func, optimisationStrategy);
             this.variable = variable;
             this.in1 = in1;
             this.in2 = in2;
@@ -52,7 +52,7 @@ namespace Dice.States
                 return;
             base.Optimize(manager);
             // If the table has more variables then we need to keep we optimize the table otherwise it will result in no compression.
-            if (Table.GetVariables(manager).Except(this.NededVariables).Any())
+            if (this.Table.GetVariables(manager).Except(this.NededVariables).Any())
                 this.Table.Optimize(manager);
             this.cache.Create(nameof(Optimize), manager, true);
         }

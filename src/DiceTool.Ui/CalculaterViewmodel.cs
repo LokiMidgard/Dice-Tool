@@ -161,21 +161,31 @@ namespace Dice.Ui
             try
             {
                 this.IsBuisy = true;
-                var returnType = Parser.SimpleParser.GetReturnType(this.Code);
-                Task calculateTask;
-
-                if (returnType == typeof(int))
-                    calculateTask = Calculate<int>();
-                else if (returnType == typeof(string))
-                    calculateTask = Calculate<string>();
-                else if (returnType == typeof(bool))
-                    calculateTask = Calculate<bool>();
-                else
-                    throw new NotSupportedException($"Type {returnType} is not supported");
-
                 var updateTask = UpdateTimer();
+                try
+                {
+                    var returnType = Parser.SimpleParser.GetReturnType(this.Code);
+                    Task calculateTask;
 
-                await calculateTask;
+                    if (returnType == typeof(int))
+                        calculateTask = Calculate<int>();
+                    else if (returnType == typeof(string))
+                        calculateTask = Calculate<string>();
+                    else if (returnType == typeof(bool))
+                        calculateTask = Calculate<bool>();
+                    else
+                        throw new NotSupportedException($"Type {returnType} is not supported");
+
+
+                    await calculateTask;
+
+                }
+                finally
+                {
+                    this.IsBuisy = false;
+                    stopWatch.Stop();
+                }
+
                 await updateTask;
 
 
@@ -191,29 +201,21 @@ namespace Dice.Ui
 
                 async Task Calculate<T>()
                 {
-                    try
+                    this.calculateCommand.FireCanExecuteChange();
+                    var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
+                    this.Percentage = 0;
+                    this.Results.Clear();
+                    this.indexLookup.Clear();
+                    executor.Epsylon = 0.0001;
+                    var cal = executor.Calculate(0);
+                    await foreach (var t in cal)
                     {
-                        this.calculateCommand.FireCanExecuteChange();
-                        var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
-                        this.Percentage = 0;
-                        this.Results.Clear();
-                        this.indexLookup.Clear();
-                        executor.Epsylon = 0.0001;
-                        var cal = executor.Calculate(0);
-                        await foreach (var t in cal)
-                        {
-                            this.Percentage = t.CompletePercentage;
-                            this.AddResult(t.Result, t.Propability * 100);
-                        }
-
-                        this.Percentage = 1;
-                        await this.PersistResult();
-
+                        this.Percentage = t.CompletePercentage;
+                        this.AddResult(t.Result, t.Propability * 100);
                     }
-                    finally
-                    {
-                        stopWatch.Stop();
-                    }
+
+                    this.Percentage = 1;
+                    await this.PersistResult();
                 }
 
             }
@@ -223,7 +225,6 @@ namespace Dice.Ui
             }
             finally
             {
-                this.IsBuisy = false;
                 this.calculateCommand.FireCanExecuteChange();
             }
         }

@@ -8,7 +8,7 @@ namespace Dice
 
     internal interface IComposer
     {
-        P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func);
+        P<TOut> CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func, Tables.OptimisationStrategy optimisationStrategy = Tables.OptimisationStrategy.Guess);
         P<T> CreateConstState<T>(T value);
 
         /// <summary>
@@ -89,10 +89,10 @@ namespace Dice
 
 
 
-        public P<TOut> Combine<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func)
+        public P<TOut> Combine<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func, Tables.OptimisationStrategy optimisationStrategy = Tables.OptimisationStrategy.Guess)
         {
             var p = P.Create<TOut>(this, this.CreateId());
-            this.State.NextStates(new CombinationState<TIn1, TIn2, TOut>(this.State.Current, p, e1, e2, func));
+            this.State.NextStates(new CombinationState<TIn1, TIn2, TOut>(this.State.Current, p, e1, e2, func, optimisationStrategy));
             return p;
         }
 
@@ -161,7 +161,7 @@ namespace Dice
         }
 
 
-        P<TOut> IComposer.CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func) => this.Combine(e1, e2, func);
+        P<TOut> IComposer.CreateCombineState<TIn1, TIn2, TOut>(P<TIn1> e1, P<TIn2> e2, Func<TIn1, TIn2, TOut> func, Tables.OptimisationStrategy optimisationStrategy) => this.Combine(e1, e2, func, optimisationStrategy);
 
         P<T> IComposer.CreateConstState<T>(T value) => this.CreateConstState(value!);
 

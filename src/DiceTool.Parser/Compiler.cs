@@ -126,7 +126,7 @@ namespace Dice.Parser
                         var variables = new[] { this.GenerateExpression<TOut>(switchSyntax.DefaultResult, x) }.Concat(switchSyntax.Cases.Select(c => this.GenerateExpression<TOut>(c.Result, x))).ToArray();
                         var combinedVariables = x.Combine(variables);
 
-                        var result = x.Combine(index, combinedVariables, (i, v) => v[i + 1 /*Added default expression as first result in array*/]);
+                        var result = x.Combine(index, combinedVariables, (i, v) => v[i + 1 /*Added default expression as first result in array*/], Tables.OptimisationStrategy.Optimize);
                         x.AssignName(switchSyntax.Target.literal, result);
                     }
 
@@ -202,14 +202,14 @@ namespace Dice.Parser
                     {
                         var p1 = this.GenerateExpression<int>(argument1, x);
                         var p2 = this.GenerateExpression<string>(argument2, x);
-                        var result = x.Combine(p1, p2, (v1, v2) => v1 + v2);
+                        var result = x.Combine(p1, p2, (v1, v2) => v1 + v2, Tables.OptimisationStrategy.NoOptimisation);
                         return (P<TOut>)(object)result;
                     }
                     if (typeof(TIn1) == typeof(string) && typeof(TIn2) == typeof(int))
                     {
                         var p1 = this.GenerateExpression<string>(argument1, x);
                         var p2 = this.GenerateExpression<int>(argument2, x);
-                        var result = x.Combine(p1, p2, (v1, v2) => v1 + v2);
+                        var result = x.Combine(p1, p2, (v1, v2) => v1 + v2, Tables.OptimisationStrategy.NoOptimisation);
                         return (P<TOut>)(object)result;
                     }
 
@@ -299,7 +299,11 @@ namespace Dice.Parser
 
                 case BinaryOperator.NotEquals:
                     if (typeof(TIn1) == typeof(int))
-                        return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).AreEqual(this.GenerateExpression<int>(argument2, x)).Not());
+                        return (P<TOut>)(object)(this.GenerateExpression<int>(argument1, x).AreEqual(this.GenerateExpression<int>(argument2, x))).Not();
+                    if (typeof(TIn1) == typeof(bool))
+                        return (P<TOut>)(object)(this.GenerateExpression<bool>(argument1, x).AreEqual(this.GenerateExpression<bool>(argument2, x))).Not();
+                    if (typeof(TIn1) == typeof(string))
+                        return (P<TOut>)(object)(this.GenerateExpression<string>(argument1, x).AreEqual(this.GenerateExpression<string>(argument2, x))).Not();
                     throw new NotSupportedException();
 
                 default:

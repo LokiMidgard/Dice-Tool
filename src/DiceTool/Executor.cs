@@ -4,6 +4,7 @@ using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dice
@@ -31,9 +32,7 @@ namespace Dice
             this.composer = composer;
             this.resultVariable = variable;
             this.inputVariable = composer.GetInput();
-            this.lastState = new States.CombinationState<TResult, TIn, int>(composer.State.Current, new P<int>(composer, ""), variable, this.inputVariable, (x1, x2) => 0);
-
-
+            this.lastState = new States.CombinationState<TResult, TIn, int>(composer.State.Current, new P<int>(composer, ""), variable, this.inputVariable, (x1, x2) => 0, OptimisationStrategy.NoOptimisation);
             //this.lastState = composer.State.Current;
         }
 
@@ -70,7 +69,7 @@ namespace Dice
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var outputWatch = System.Diagnostics.Stopwatch.StartNew();
             var statistics = new RunningStatistics();
-            uint count=0;
+            uint count = 0;
 #endif
 
             while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsylon)
@@ -129,18 +128,21 @@ namespace Dice
                 this.enumerable = enumerable;
             }
 
-            public IAsyncEnumerator<ResultEntry<TResult, TIn>> GetAsyncEnumerator()
+
+            public IAsyncEnumerator<ResultEntry<TResult, TIn>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             {
-                return new Enumerator(this);
+                return new Enumerator(this, cancellationToken);
             }
 
             private class Enumerator : IAsyncEnumerator<ResultEntry<TResult, TIn>>
             {
                 private readonly IEnumerator<ResultEntry<TResult, TIn>> original;
+                private readonly CancellationToken cancellationToken;
 
-                public Enumerator(Wraper wraper)
+                public Enumerator(Wraper wraper, CancellationToken cancellationToken)
                 {
                     this.original = wraper.enumerable.GetEnumerator();
+                    this.cancellationToken = cancellationToken;
                 }
 
                 public ResultEntry<TResult, TIn> Current => this.original.Current;
@@ -153,7 +155,10 @@ namespace Dice
 
                 public ValueTask<bool> MoveNextAsync()
                 {
-                    return new ValueTask<bool>(Task.Run(() => this.original.MoveNext()));
+                    if (this.cancellationToken.IsCancellationRequested)
+                        return default; // will return the default wich is false.
+
+                    return new ValueTask<bool>(Task.Run(() => this.original.MoveNext(), this.cancellationToken));
                     //return new ValueTask<bool>(this.original.MoveNext());
                 }
             }
