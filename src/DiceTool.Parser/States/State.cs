@@ -16,6 +16,27 @@ namespace Dice.Parser.Syntax
         internal abstract void ToString(IndentionWriter writer);
 
     }
+    class CommentSyntax : StatementSyntax
+    {
+        public CommentSyntax(IEnumerable<string> comment)
+        {
+            this.Comment = comment.Select(x => x.Trim()).ToArray();
+        }
+
+        public string[] Comment { get; }
+
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine();
+
+            foreach (var line in this.Comment)
+            {
+                writer.WriteLine($"# {line}");
+            }
+        }
+
+    }
 
     abstract class ExpresionSyntax : Syntax
     {

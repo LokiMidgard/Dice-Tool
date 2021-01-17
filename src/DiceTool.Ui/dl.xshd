@@ -1,8 +1,8 @@
 ﻿
 <SyntaxDefinition name="Dice Language" extensions=".dl"
         xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-	<!--<Color name="Comment" foreground="Green" />
-	<Color name="String" foreground="Blue" />-->
+	<Color name="Comment" foreground="Green" />
+	<!--<Color name="String" foreground="Blue" />-->
 	
 	<Color name="Const" foreground="Blue" />
 	<Color name="Keywords" foreground="Maroon" fontWeight="bold" />
@@ -14,7 +14,9 @@
 		<!--<Span color="Comment" begin="//" />
 		<Span color="Comment" multiline="true" begin="/\*" end="\*/" />-->
 
-
+		<Rule color="Comment">
+			^\#.*$
+		</Rule>
 		<Keywords  color="Types">
 			<Word>string</Word>
 			<Word>bool</Word>

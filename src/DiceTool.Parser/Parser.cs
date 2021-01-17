@@ -238,8 +238,8 @@ namespace Dice.Parser
         static readonly Parser<StatementSyntax> VariableAssignment = from assignedTo in VariableDeclaration.Or<object>(Identifier)
                                                                      from assigneOperator in Parse.Char('=').Token()
                                                                      from exp in Expr
-                                                                     select assignedTo is IdentifierSyntax 
-                                                                        ? new VariableAssignmentSyntax((IdentifierSyntax)assignedTo, exp) 
+                                                                     select assignedTo is IdentifierSyntax
+                                                                        ? new VariableAssignmentSyntax((IdentifierSyntax)assignedTo, exp)
                                                                         : new VariableAssignmentSyntax((VariableDeclarationSyntax)assignedTo, exp);
 
 
@@ -266,8 +266,15 @@ namespace Dice.Parser
 
 
 
+        static readonly Parser<string> CommentLine = Parse.Char('#').Then(x => Parse.AnyChar.Until(Parse.LineEnd)).Token().Text();
+        static readonly Parser<StatementSyntax> Comment = from c in CommentLine.XMany()
+                                                          select new CommentSyntax(c);
+
+
+
         static readonly Parser<StatementSyntax> Statement =
                                                                 If
+                                                                .Or(Comment)
                                                                 .Or(VariableAssignment)
                                                                 .Or(VariableDeclaration)
                                                                 .Or(Block)

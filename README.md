@@ -323,7 +323,10 @@ return result
 
 </details>
 
+## Comments
 
+You comment a line if you prepend it with an `#`. The `#` must not be in an statement.
+E.g the switch statement normaly spans multiple lines. You must not write a comment in that.
 
 # UI
 
