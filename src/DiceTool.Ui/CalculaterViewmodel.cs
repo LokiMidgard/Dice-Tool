@@ -27,12 +27,14 @@ namespace Dice.Ui
 
         static CalculaterViewmodel()
         {
-            var allContent = typeof(CalculaterViewmodel).Assembly.GetManifestResourceNames();
             using var stream = typeof(CalculaterViewmodel).Assembly.GetManifestResourceStream("Dice.Ui.dl.xshd");
-            using var reader = XmlReader.Create(stream);
-            var definition = HighlightingLoader.LoadXshd(reader);
-            var highlightDefinition = HighlightingLoader.Load(definition, HighlightingManager.Instance);
-            HighlightingManager.Instance.RegisterHighlighting("Dice Language", new[] { ".dl" }, highlightDefinition);
+            if (stream is not null)
+            {
+                using var reader = XmlReader.Create(stream);
+                var definition = HighlightingLoader.LoadXshd(reader);
+                var highlightDefinition = HighlightingLoader.Load(definition, HighlightingManager.Instance);
+                HighlightingManager.Instance.RegisterHighlighting("Dice Language", new[] { ".dl" }, highlightDefinition);
+            }
         }
 
 
