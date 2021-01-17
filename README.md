@@ -4,167 +4,339 @@
 
 # Dice-Tool
 
-This library will help you calculating provability's of dice rolls.
+This library will help you calculating provability's of dice rolls. Version 2 is a complete rewrite and not compatible to earlier versions.
+It is no longer possible to just implement a class in C# and use normal local variables.
+Instead you need to call and chain some library methods to represent your logic. This allows for higher performance since we have a greater
+understanding of the shape of your code.
 
-# Sample
+To make it easier to simulate your dices a DSL was also added.
 
-To use this toolkit you have to implement your dice logic in a class derived from the abstract
-```DiceCalculator<T>```. This class provide Properties for the different dices called ```D2```
-to ```D100```. The following simple implementation simulates a single role with a D6, it is a
-success if the rolled number is greater or equal to 5.
+# The Dice Language
 
-```c#
-    class SimpleDiceRole : Dice.DiceCalculator<bool>
-    {
-        protected override int RoleCalculation()
-        {
-            return D6 >= 5;
-        }
-    }
+## The binary operators
+
+The langue uses [Infix notation](https://en.wikipedia.org/wiki/Infix_notation).
+
+| operator | meaning |
++----------+---------+
+|Add|`+`|
+|Substract|`-`|
+|Multiply| `*`|
+| Divide| `/`|
+| Modulo| `%`|
+| (Bit)And| `&`|
+| (Bit)Or| `|`|
+| (Bit)XOr| `^`|
+| Shift left| `<<`|
+| Shift right| `>>`|
+| Less or Equals| `<=`|
+| Greater or Equals| `>=`|
+| Less then | `<`|
+| Greater then | `>`|
+| Equality | `==`|
+| Inequality | `!=`|
+
+
+## Keywords
+
+Following keywords are reserved and should not be used as variable names.
+
+* `do`
+* `while`
+* `var`
+* `if`
+* `else`
+* `return`
+* `int`
+* `bool`
+* `string`
+* `true`
+* `false`
+* `switch`
+* `default`
+
+## Constant Literals
+
+You can write Integer (ℤ) and "Quoted strings" with backslash (`\`) as escape character and `ture` and `false`like in most languages.
+In Addition you can also use a literal for dices. The literal is constructed as following: `D|W\d+` e.g. `D6` for a 6 sided dice or `W20` for a 20 sided dice.
+It does not matter if you use `D` or `W`. `D` stands for dice and `W` for Werfel the German word for dice.
+
+
+## retrun
+
+To actually get some output you need to return a value. A return statement looks like following:
+```
+return {expression}
+```
+E.g `return D6` which is a complete valid programm.
+
+## Variables
+
+Before you can assign a value to a variable you need to define it.
+```
+var {name} : {type} [= {expression}]
 ```
 
-To use the just implemented class we call the ```DoIt()```-Methode on ```SimpleDiceRole``` which returns a
-list of all possible results together with the probability.
+`name` must be a valid identifier, meaning an alpha numeric word that does start with an character and is not a keyword and nor a dice.
+`type` must be one of `int`, `bool` or `string`.
+You may optionally assign a value at declaration time.
 
-```c#
-	var simpleDiceGenerator = new SimpleDiceRole();
-	var results = await simpleDiceGenerator.DoIt();
-	foreach (var r in results)
-		Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
+To assign a new value use `=`
 ```
-The result should be following:
+{name} = {expression}
 ```
-True: 33,33%
-False: 66,67%
-```
+E.g to increment the variable `foo` you can write `foo = foo + 1`
 
-## Exploding Dices
-A more complicated version is the next sample. First instead of a simple success or failure we return the
-rolled number. Second if we role a three we will role again and add this role with all previous rolls.
+## Loops
 
-```c#
-    class RepeatingDiceRole : Dice.DiceCalculator<int>
-    {
-        protected override int RoleCalculation()
-        {
-            int result = 0;
-            int role;
-            do
-            {
-                role = D6;
-                result += role;
-            } while (role == 3);
-            return result;
-        }
-    }
-```
-
-Unlike the first sample this has an infinite number of possibility's. If we would role only threes we would never
-stop. In order to get our results we need to abort the calculation after some time.
-```c#
-	var repeatingDiceGenerator = new RepeatingDiceRole();
-	var tokenSource = new System.Threading.CancellationTokenSource();
-	tokenSource.CancelAfter(500); // should be enough time to get the lowest 19 results.
-	var results = await repeatingDiceGenerator.DoIt(tokenSource.Token);
-    foreach (var r in results.OrderBy(x=>x.Result).Take(19))
-		Console.WriteLine($"{r.Result}: {(r.Propability * 100):f2}%");
-```
-Every time a dice object stored in the Properties D2 to D100 is cast to an int, it is consider as a role.
-So it is **important** that you **don't** use the ```var``` keyword.
-The library determines the next role randomly but never creates a two identical combinations of rolls. 
-
-This should prevent missing important possibility's. For example if we would calculate all dice beginning
-with 1 and going up to the highest number, we would never get any result where we had rolled a 4 or up.
-This would mean missing the 16,66% chance for rolling the 6.
-
-If all possible combinations have been found, the ```Task``` returned by ```DoIt()``` is finished.
+A Loop starts with the keyword `do` followed by a block that is marked with `{` and `}` and ends with a `while` followed by an condition, an expression that evaluates to a Boolean.
 
 ```
-1: 16,67%
-2: 16,67%
-4: 19,44%
-5: 19,44%
-6: 16,67%
-7: 3,24%
-8: 3,24%
-9: 2,78%
-10: 0,54%
-11: 0,54%
-12: 0,46%
-13: 0,09%
-14: 0,09%
-15: 0,08%
-16: 0,02%
-17: 0,02%
-18: 0,01%
-19: 0,00%
-20: 0,00%
+var sum :int = 0
+do {
+    sum = sum +1
+} while sum < 10
 ```
+This will increment sum until it reaches 10.
 
-## More Parameters
+## Branches
 
-You can also have multiple parameter to test against. Thes toolkit supports up to 5 parameters defined as
-generic type arguments.
-```c#
-    class MultiDiceRole : Dice.DiceCalculator<int, int>
-    {
-        protected override int RoleCalculation(int numberOfDices)
-        {
-            return numberOfDices * W6;
-        }
-    }
+> For performance reasons you should preferer the switch statement over the if statement. If possible.
+
+A branch is created using the `if` keyword followed by an expression that evaluate to a `boolean`. After the expression comes the one statement.
+A statement may be a block of statements surrounded by `{` and `}`. Optionally the  `else` keyword with another statement may end the branch.
 
 ```
-This sample have an additional parameter of the type int. The concrete value will be provided as methode parameter.
-Also note that multipling an int with a die means rolling that many dices. 
-
-```c#
-	var multiDiceGenerator = new MultiDiceRole();
-	var results = await multiDiceGenerator.DoIt(new int[] { 1, 2, 3 });
-	foreach (var f in results.GroupBy(x => x.Item1).OrderBy(x=>x.Key))
-	{
-		Console.WriteLine($"# of dice: {f.Key}");
-		foreach (var r in f.OrderBy(x=>x.Result))
-			Console.WriteLine($"\t{r.Result}: {(r.Propability * 100):f2}%");
-	}
+var sum: int = W6
+if W6 > 4 
+  sum = sum + 7
 ```
-When we call ```DoIt()``` we need to provide all values that will be used.
+
+
+## Switch
+
+The switch statement evaluates an expression and compares it to several
+conditions. For the first condition that was true it then evaluates this
+conditions expression and assigns it to the variable of the switch statement.
 
 ```
-# of dice: 1
-        1: 16,67%
-        2: 16,67%
-        3: 16,67%
-        4: 16,67%
-        5: 16,67%
-        6: 16,67%
-# of dice: 2
-        2: 2,78%
-        3: 5,56%
-        4: 8,33%
-        5: 11,11%
-        6: 13,89%
-        7: 16,67%
-        8: 13,89%
-        9: 11,11%
-        10: 8,33%
-        11: 5,56%
-        12: 2,78%
-# of dice: 3
-        3: 0,46%
-        4: 1,39%
-        5: 2,78%
-        6: 4,63%
-        7: 6,94%
-        8: 9,72%
-        9: 11,57%
-        10: 12,50%
-        11: 12,50%
-        12: 11,57%
-        13: 9,72%
-        14: 6,94%
-        15: 4,63%
-        16: 2,78%
-        17: 1,39%
-        18: 0,46%
+{variable} switch {expresion}:
+[{operator} {case expression}: {result expression};]+
+default: {default expression};
 ```
+
+`variable` is an already defined variable. `expression` is the input against
+which the cases get evaluated. Each case has a `operator` which is a compare
+operator like `==` or `<` followed by `case expression` against the comparison
+is performed. You can have one or more cases.
+
+After the cases you need a default that is used if no case did match.
+
+You must not forget the `;` at the end of each case and the default. 
+
+You should also preferer the switch statement over an if statement if possible.
+It is more limited then an if/else. But many if statements can still be written
+as a switch. These limitations allow for better optimsations that can cut
+computation time in half.
+
+As an example we simulate an attack, if we hit we role damage. The intuitive approach would probably be following:
+
+```
+var attackValue : int = 14
+var damage: int = 0
+if D20 <= attackValue
+    damage = D6 + 4
+```
+
+But you can also write it with a switch instead
+```
+var attackValue : int = 14
+var damage: int = 0
+damage switch D20:
+    <= attackValue: D6 + 4;
+    default: 0;
+```
+
+The later one can be better optimized so it will not increase number of possible
+results as much as the first. If you only have this one if statement it should
+not be a problem. But if you have loops in your program this will get out of hand quickly.
+
+I compared two sample codes that simulate a battle similar to TDE (The Dark
+Eye). Two characters fight each other both have an attack a defense and life
+points. If a character hits (rolling under its attack) and the other does not
+defend (rolling over his defend) damage is substracted from the opponents life
+points.
+
+Both characters try to damage each other alternating until one characters life points reach 0.
+
+The code returns the winner.
+
+| style  | computation time      |
++--------+-----------------------+
+| switch | 1 min 18 s            |
+| if     | 30 min ~ 23% computed |
+
+I stopped the if statement code after 45 min. It did not improved in the last 15
+min. (not visibly)
+
+<details>
+
+ <summary>Code with switch statements</summary>
+
+```
+var attackeA :int = 13
+var attackeB :int = 12
+var verteidigungA :int = 13
+var verteidigungB :int = 12
+
+var lebenA:int = 10
+var lebenB:int = 10
+
+do{
+var hit:bool = false
+var d:int = D20
+hit switch d:
+>= attackeA : false;
+default:true;
+
+var defend:bool = false
+d = D20
+defend switch d:
+>= verteidigungB: false;
+default:true;
+
+var damage:int=0
+damage switch hit & (hit != defend):
+==true: D6+4;
+default: 0;
+
+lebenB = lebenB-damage
+
+var alive:bool
+alive switch lebenB:
+>0:true;
+default:false;
+
+d = D20
+hit switch d:
+>= attackeB : false;
+default:true;
+
+d = D20
+defend switch d:
+>= verteidigungA: false;
+default:true;
+
+damage switch hit & alive & (hit != defend):
+==true: D6+4;
+default: 0;
+
+lebenA = lebenA-damage
+
+
+} while (lebenA>0 & lebenB>0)
+
+var result :string= "NIX"
+result switch lebenA -lebenB:
+<0:"B Gewinnt";
+>0:"A Gewinnt";
+default: "unentschieden";
+
+return result
+
+```
+
+</details>
+
+<details>
+
+ <summary>Code with if statements</summary>
+
+```
+var attackeA :int = 13
+var attackeB :int = 12
+var verteidigungA :int = 13
+var verteidigungB :int = 12
+
+var lebenA:int = 10
+var lebenB:int = 10
+
+do{
+var hit:bool = false
+var d:int = D20
+
+if d < attackeA 
+hit = true
+
+var defend:bool = false
+d = D20
+if d < verteidigungB 
+defend = true
+
+var damage:int=0
+
+if hit & (hit != defend) 
+damage = D6+4
+
+
+lebenB = lebenB-damage
+
+var alive:bool
+if lebenB > 0 
+alive = true
+else
+alive = false
+
+d = D20
+if d < attackeB 
+hit = true
+else
+hit = false
+
+d = D20
+if d < verteidigungA 
+defend = true
+else
+defend = false
+
+if hit & alive & (hit != defend) 
+damage = D6+4
+else 
+damage = 0
+
+lebenA = lebenA-damage
+
+
+} while (lebenA>0 & lebenB>0)
+
+var result :string= "NIX"
+result switch lebenA -lebenB:
+<0:"B Gewinnt";
+>0:"A Gewinnt";
+default: "unentschieden";
+
+return result
+
+```
+
+</details>
+
+
+
+# UI
+
+There is a Windows Desktop application that allows "fast" testing. You can add
+multiple dice programs and it will save the results if they where already
+calculated.
+
+You can write the code on the left side and the results will appear on the
+right. There you also find a progress bar that shows the overall progress. It
+shows how much of the probability space you have already visited.
+
+But be aware that this is not an linear search. The first results found will
+have a much higher probability to occur then the later ones. So the progress
+will slow down.
+
+The tool will also not search the completed probability space since like with
+exploding dices there will be an infinite number of results. It will stop if it
+has found more then 99.99% of the probability space.
