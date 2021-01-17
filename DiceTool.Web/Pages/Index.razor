@@ -1,0 +1,276 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+
+
+@if (this.Results.Count == 0 && IsBuisy)
+{
+    <p><em>Loading...</em></p>
+}
+else if (this.Results.Count == 0)
+{
+    <p><em>Ready To Start Calculation</em></p>
+    <button class="btn btn-primary" @onclick="IncrementCount">Calculate</button>
+
+}
+else
+{
+    <progress value="@(this.Percentage.ToString(System.Globalization.CultureInfo.InvariantCulture))" max="1"></progress>
+
+    @if (this.cancel is not null)
+    {
+        <button class="btn btn-primary" @onclick="CancelCalculation">Stop Calculating</button>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="IncrementCount">Calculate</button>
+    }
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Value</th>
+                <th>Propability</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in Results.OrderByDescending(x => x.Propability))
+            {
+                <tr>
+                    <td>@forecast.Value</td>
+                    <td>@($"{forecast.Propability*100:f2}%" )</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<textarea @bind="Code">
+
+</textarea>
+
+
+
+
+@code {
+    private bool IsBuisy = false;
+    private string Code = @"
+
+var attackeA :int = 13
+var attackeB :int = 12
+var verteidigungA :int = 13
+var verteidigungB :int = 12
+
+var lebenA:int = 10
+var lebenB:int = 10
+
+do{
+var hit:bool = false
+var d:int = D20
+hit switch d:
+>= attackeA : false;
+default:true;
+
+var defend:bool = false
+d = D20
+defend switch d:
+>= verteidigungB: false;
+default:true;
+
+var damage:int=0
+damage switch hit & (hit != defend):
+==true: D6+4;
+default: 0;
+
+lebenB = lebenB-damage
+
+var alive:bool
+alive switch lebenB:
+>0:true;
+default:false;
+
+d = D20
+hit switch d:
+>= attackeB : false;
+default:true;
+
+d = D20
+defend switch d:
+>= verteidigungA: false;
+default:true;
+
+damage switch hit & alive & (hit != defend):
+==true: D6+4;
+default: 0;
+
+lebenA = lebenA-damage
+
+
+} while (lebenA>0 & lebenB>0)
+
+var result :string= ""NIX""
+result switch lebenA -lebenB:
+<0:""B Gewinnt"";
+>0:""A Gewinnt"";
+default: ""unentschieden"";
+
+return result
+";
+
+    private TimeSpan CalculationTime;
+
+    private System.Threading.CancellationTokenSource? cancel;
+    private readonly Dictionary<object, int> indexLookup = new Dictionary<object, int>();
+    public List<ResultViewmodel> Results { get; } = new List<ResultViewmodel>();
+
+    public double Percentage;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+
+
+
+    }
+
+    private void CancelCalculation()
+    {
+        this.cancel?.Cancel();
+    }
+    private async Task IncrementCount()
+    {
+        if (IsBuisy)
+            return;
+        await StartCalculation();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    private void AddResult(object result, double propability)
+    {
+        int index;
+        if (this.indexLookup.ContainsKey(result))
+            index = this.indexLookup[result];
+        else
+        {
+            index = this.Results.Count;
+            this.indexLookup.Add(result, index);
+            this.Results.Add(new ResultViewmodel() { Value = result });
+        }
+
+        var vm = this.Results[index];
+        vm.Propability += propability;
+    }
+
+
+    private async Task StartCalculation()
+    {
+        var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            this.IsBuisy = true;
+            var updateTask = UpdateTimer();
+            try
+            {
+                var returnType = Parser.SimpleParser.GetReturnType(this.Code) ?? throw new FormatException("Was unable to determan the return type.");
+                Task calculateTask;
+
+                if (returnType == typeof(int))
+                    calculateTask = Calculate<int>();
+                else if (returnType == typeof(string))
+                    calculateTask = Calculate<string>();
+                else if (returnType == typeof(bool))
+                    calculateTask = Calculate<bool>();
+                else
+                    throw new NotSupportedException($"Type {returnType} is not supported");
+
+
+                await calculateTask;
+
+            }
+            finally
+            {
+                this.IsBuisy = false;
+                stopWatch.Stop();
+            }
+
+            await updateTask;
+
+
+            async Task UpdateTimer()
+            {
+                while (this.IsBuisy)
+                {
+                    await Task.Delay(500);
+                    this.CalculationTime = stopWatch.Elapsed;
+                    this.StateHasChanged();
+                }
+            }
+
+
+            async Task Calculate<T>()
+                where T : notnull
+            {
+                this.cancel = new System.Threading.CancellationTokenSource();
+                try
+                {
+                    var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
+                    this.Percentage = 0;
+                    this.Results.Clear();
+                    this.indexLookup.Clear();
+                    executor.Epsylon = 0.0001;
+                    executor.YieldStep = 1;
+                    executor.YieldTimeout = TimeSpan.FromMilliseconds(2000);
+                    var cal = executor.Calculate(0);
+
+                    await foreach (var t in cal.WithCancellation(this.cancel.Token))
+                    {
+                        this.Percentage = t.CompletePercentage;
+                        this.AddResult(t.Result, t.Propability);
+                    }
+
+                    this.Percentage = 1;
+                }
+                finally
+                {
+                    this.cancel.Dispose();
+                    this.cancel = null;
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            throw; // todo handle error
+        }
+    }
+
+    public class ResultViewmodel
+    {
+
+
+
+        public double Propability { get; set; }
+
+
+
+        public object Value { get; set; }
+
+
+
+    }
+
+}

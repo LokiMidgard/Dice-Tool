@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-	  <Nullable>enable</Nullable>
-	  <AssemblyName>Dice.Parser</AssemblyName>
-    <RootNamespace>Dice.Parser</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+		<LangVersion>9.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<AssemblyName>Dice.Parser</AssemblyName>
+		<RootNamespace>Dice.Parser</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Sprache" Version="2.2.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Sprache" Version="2.2.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DiceTool\DiceTool.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\DiceTool\DiceTool.csproj" />
+	</ItemGroup>
 
 
 </Project>
