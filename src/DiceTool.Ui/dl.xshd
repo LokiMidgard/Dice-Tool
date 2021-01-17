@@ -1,0 +1,71 @@
+﻿
+<SyntaxDefinition name="Dice Language" extensions=".dl"
+        xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<!--<Color name="Comment" foreground="Green" />
+	<Color name="String" foreground="Blue" />-->
+	
+	<Color name="Const" foreground="Blue" />
+	<Color name="Keywords" foreground="Maroon" fontWeight="bold" />
+	<Color name="Types" foreground="LightGray"  />
+	<Color name="CompareOperators" foreground="Olive" fontWeight="bold" />
+
+	<!-- This is the main ruleset. -->
+	<RuleSet>
+		<!--<Span color="Comment" begin="//" />
+		<Span color="Comment" multiline="true" begin="/\*" end="\*/" />-->
+
+
+		<Keywords  color="Types">
+			<Word>string</Word>
+			<Word>bool</Word>
+			<Word>int</Word>
+		</Keywords>
+
+
+		<Keywords color="CompareOperators">
+			<Word>==</Word>
+			<Word>&gt;=</Word>
+			<Word>&lt;=</Word>
+			<Word>&gt;</Word>
+			<Word>&lt;</Word>
+		</Keywords>
+
+
+		<Keywords color="Keywords" >
+			<Word>do</Word>
+			<Word>while</Word>
+			<Word>var</Word>
+			<Word>return</Word>
+			<Word>switch</Word>
+			<Word>default</Word>
+			<Word>if</Word>
+			<Word>else</Word>
+		</Keywords>
+		
+		
+		<Keywords color="Const">
+			<Word>true</Word>
+			<Word>false</Word>
+		</Keywords>
+
+		<!-- Digits -->
+		<Rule color="Const">
+			\d+
+		</Rule>
+
+		<Rule color="Const">
+			[WD]\d+
+		</Rule>
+
+		<Span color="Const">
+			<Begin>"</Begin>
+			<End>"</End>
+			<RuleSet>
+				<!-- nested span for escape sequences -->
+				<Span begin="\\" end="." />
+			</RuleSet>
+		</Span>
+
+
+	</RuleSet>
+</SyntaxDefinition>

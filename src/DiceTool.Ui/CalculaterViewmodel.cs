@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -8,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Dice.Ui
@@ -18,6 +22,18 @@ namespace Dice.Ui
         public DirectoryInfo DataFolder { get; }
         public string Name => this.DataFolder.Name;
 
+        public IHighlightingDefinition HighlightingDefinition => HighlightingManager.Instance.GetDefinition("Dice Language");
+
+
+        static CalculaterViewmodel()
+        {
+            var allContent = typeof(CalculaterViewmodel).Assembly.GetManifestResourceNames();
+            using var stream = typeof(CalculaterViewmodel).Assembly.GetManifestResourceStream("Dice.Ui.dl.xshd");
+            using var reader = XmlReader.Create(stream);
+            var definition = HighlightingLoader.LoadXshd(reader);
+            var highlightDefinition = HighlightingLoader.Load(definition, HighlightingManager.Instance);
+            HighlightingManager.Instance.RegisterHighlighting("Dice Language", new[] { ".dl" }, highlightDefinition);
+        }
 
 
         public CalculaterViewmodel(DirectoryInfo dataFolder)
@@ -26,13 +42,21 @@ namespace Dice.Ui
             var codeFile = this.GetCodeFile();
 
             if (codeFile.Exists)
-                this.Code = File.ReadAllText(codeFile.FullName, Encoding.UTF8);
+                this.Code = new TextDocument(File.ReadAllText(codeFile.FullName, Encoding.UTF8));
+            else
+                this.Code = new TextDocument();
+            this.Code.Changed += async (sender, e) =>
+            {
+                var codeFile = this.GetCodeFile();
+                await File.WriteAllTextAsync(codeFile.FullName, this.Code.Text, Encoding.UTF8);
+            };
+
 
             var resultFile = this.GetResultFile();
             if (resultFile.Exists)
                 this.LoadResult(resultFile);
 
-
+            //System.Drawing.Color.LimeGreen
 
             this.calculateCommand = new CalculateCommandImplementation(this);
             this.cancelCommand = new CancelCommandImplementation(this);
@@ -40,10 +64,10 @@ namespace Dice.Ui
         }
 
 
-        public TimeSpan CalculationTime
+        public TimeSpan CalculationTime 
         {
             get { return (TimeSpan)this.GetValue(CalculationTimeProperty); }
-            set { this.SetValue(CalculationTimePropertyKey, value); }
+            private set { this.SetValue(CalculationTimePropertyKey, value); }
         }
 
         // Using a DependencyProperty as the backing store for CalculationTime.  This enables animation, styling, binding, etc...
@@ -53,10 +77,10 @@ namespace Dice.Ui
 
 
 
-        public string Code
+        public TextDocument Code
         {
-            get { return (string)this.GetValue(CodeProperty); }
-            set { this.SetValue(CodeProperty, value); }
+            get { return (TextDocument)this.GetValue(CodeProperty); }
+            private set { this.SetValue(CodePropertyKey, value); }
         }
 
         private const string Prefix = "ns";
@@ -65,15 +89,10 @@ namespace Dice.Ui
         private const string TimeAttribute = "time";
 
         // Using a DependencyProperty as the backing store for Code.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty CodeProperty =
-            DependencyProperty.Register("Code", typeof(string), typeof(CalculaterViewmodel), new PropertyMetadata("", PropertyChagned));
+        public static readonly DependencyPropertyKey CodePropertyKey =
+            DependencyProperty.RegisterReadOnly("Code", typeof(TextDocument), typeof(CalculaterViewmodel), new PropertyMetadata(null));
+        public static readonly DependencyProperty CodeProperty = CodePropertyKey.DependencyProperty;
 
-        private static void PropertyChagned(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var me = (CalculaterViewmodel)d;
-            var codeFile = me.GetCodeFile();
-            File.WriteAllText(codeFile.FullName, (string)e.NewValue, Encoding.UTF8);
-        }
 
         private FileInfo GetCodeFile()
         {
@@ -168,7 +187,7 @@ namespace Dice.Ui
                 var updateTask = UpdateTimer();
                 try
                 {
-                    var returnType = Parser.SimpleParser.GetReturnType(this.Code) ?? throw new FormatException("Was unable to determan the return type.");
+                    var returnType = Parser.SimpleParser.GetReturnType(this.Code.Text) ?? throw new FormatException("Was unable to determan the return type.");
                     Task calculateTask;
 
                     if (returnType == typeof(int))
@@ -211,12 +230,12 @@ namespace Dice.Ui
                     {
                         this.calculateCommand.FireCanExecuteChange();
                         this.cancelCommand.FireCanExecuteChange();
-                        var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
+                        var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code.Text);
                         this.Percentage = 0;
                         this.Results.Clear();
                         this.indexLookup.Clear();
                         executor.Epsylon = 0.0001;
-                        var cal = executor.Calculate(this.cancel.Token,0);
+                        var cal = executor.Calculate(this.cancel.Token, 0);
 
                         await foreach (var t in cal.WithCancellation(this.cancel.Token))
                         {

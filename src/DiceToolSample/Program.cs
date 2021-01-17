@@ -229,7 +229,7 @@ namespace SampleApp
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            var asyncEnumerable = executor.Calculate(2);
+            var asyncEnumerable = executor.Calculate(default, 2);
             double sum = 0;
 
             var enumerator = asyncEnumerable.GetAsyncEnumerator();
