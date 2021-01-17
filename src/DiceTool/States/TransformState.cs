@@ -23,7 +23,7 @@ namespace Dice.States
             this.table = new TransformTable<TIn, TOut>(this, input, variable, func);
         }
 
-        public override TransformTable<TIn, TOut> Table => table;
+        public override TransformTable<TIn, TOut> Table => this.table;
 
 
         protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()

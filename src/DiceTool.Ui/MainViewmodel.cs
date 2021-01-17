@@ -23,7 +23,7 @@ namespace Dice.Ui
             foreach (var item in appFolder.GetDirectories())
                 this.Data.Add(new CalculaterViewmodel(item));
 
-            AddCommand = new Command(this);
+            this.AddCommand = new Command(this);
 
         }
 
@@ -66,7 +66,7 @@ namespace Dice.Ui
                 var dialog = new InputDialog();
                 if (dialog.ShowDialog() ?? false)
                 {
-                    mainViewmodel.AddNewModel(dialog.Input);
+                    this.mainViewmodel.AddNewModel(dialog.Input);
                 }
             }
         }

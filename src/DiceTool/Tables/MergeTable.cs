@@ -33,23 +33,23 @@ namespace Dice.Tables
 
         internal override IEnumerable<IP> GetVariables(in WhileManager manager)
         {
-            return table.GetVariables(manager);
+            return this.table.GetVariables(manager);
         }
 
 
         public override int GetCount(in WhileManager manager)
         {
-            return table.GetCount(manager);
+            return this.table.GetCount(manager);
         }
 
         public override object GetValue(IP p, int index, in WhileManager manager)
         {
-            return table.GetValue(p, index, manager);
+            return this.table.GetValue(p, index, manager);
         }
 
         protected override bool InternalContains(IP key, in WhileManager manager)
         {
-            return table.Contains(key, manager);
+            return this.table.Contains(key, manager);
         }
     }
 }

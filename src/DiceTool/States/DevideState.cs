@@ -10,7 +10,7 @@ namespace Dice.States
     {
         public T Value { get; }
 
-        public override DevideTable<T> Table => table;
+        public override DevideTable<T> Table => this.table;
 
         private readonly P<T> condition;
         private readonly DevideTable<T> table;
@@ -47,7 +47,7 @@ namespace Dice.States
         {
             if (this.GetStatePropability(manager) == 0.0)
             {
-                return (manager, emptyTable);
+                return (manager, this.emptyTable);
             }
             return base.GetTable(variable, manager);
         }

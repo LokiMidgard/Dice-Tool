@@ -22,7 +22,7 @@ namespace Dice.Ui
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

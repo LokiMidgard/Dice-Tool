@@ -152,7 +152,7 @@ namespace Dice.Tables
             if (this.variablesToKeep != null)
             {
                 // if one of both table has size one, we ommit optimizing sometimes this is good sometimes bad.
-                if (this.OptimisationStrategy == OptimisationStrategy.NoOptimisation || (OptimisationStrategy == OptimisationStrategy.Guess && (this.GetFirst(manager).GetCount() == 1 || this.GetSeccond(manager).GetCount() == 1)))
+                if (this.OptimisationStrategy == OptimisationStrategy.NoOptimisation || (this.OptimisationStrategy == OptimisationStrategy.Guess && (this.GetFirst(manager).GetCount() == 1 || this.GetSeccond(manager).GetCount() == 1)))
                     return;
 
                 this.cache.GetOrCreate(nameof(Optimize), manager, this.CreateOptimizedTable);

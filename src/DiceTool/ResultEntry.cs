@@ -13,14 +13,14 @@ namespace Dice
         {
             get => this.State != ResultState.Completed
                 ? throw new InvalidOperationException()
-                : result!;
+                : this.result!;
         }
 
         public Exception Exception
         {
             get => this.State != ResultState.Faulted
                 ? throw new InvalidOperationException()
-                : exception!;
+                : this.exception!;
         }
 
         public ResultState State { get; }
@@ -29,7 +29,7 @@ namespace Dice
         {
             get => this.State == ResultState.Canceld
                      ? throw new InvalidOperationException()
-                     : input!;
+                     : this.input!;
         }
 
         public double Propability { get; }

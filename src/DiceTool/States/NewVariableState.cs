@@ -13,11 +13,11 @@ namespace Dice.States
 
         public NewVariableState(State parent, P<T> variable, params (T value, double propability)[] distribution) : base(parent)
         {
-            table = new SingelVariableTable<T>(this, variable, distribution);
+            this.table = new SingelVariableTable<T>(this, variable, distribution);
             this.variable = variable;
         }
 
-        public override SingelVariableTable<T> Table => table;
+        public override SingelVariableTable<T> Table => this.table;
 
         protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
         {

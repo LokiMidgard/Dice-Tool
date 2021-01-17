@@ -24,8 +24,8 @@ namespace Dice.Ui
 
         public string Input
         {
-            get { return (string)GetValue(InputProperty); }
-            set { SetValue(InputProperty, value); }
+            get { return (string)this.GetValue(InputProperty); }
+            set { this.SetValue(InputProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for Input.  This enables animation, styling, binding, etc...
@@ -38,7 +38,7 @@ namespace Dice.Ui
 
         public InputDialog()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         private void ButtonExit_Click(object sender, RoutedEventArgs e)

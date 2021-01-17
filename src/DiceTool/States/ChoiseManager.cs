@@ -118,9 +118,9 @@ namespace Dice.States
                     this.current = -1;
                 }
 
-                public int Current => parent[current];
+                public int Current => this.parent[this.current];
 
-                object IEnumerator.Current => Current;
+                object IEnumerator.Current => this.Current;
 
                 public void Dispose()
                 {
@@ -128,8 +128,8 @@ namespace Dice.States
 
                 public bool MoveNext()
                 {
-                    current++;
-                    return current < count;
+                    this.current++;
+                    return this.current < this.count;
                 }
 
                 public void Reset()

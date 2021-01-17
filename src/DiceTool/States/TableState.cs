@@ -14,14 +14,14 @@ namespace Dice.States
 
         public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
-            if (Table.Contains(variable, manager))
+            if (this.Table.Contains(variable, manager))
                 return (manager, this.Table);
             return base.GetTable(variable, manager);
         }
 
         public override bool Contains(IP variable, in WhileManager manager)
         {
-            if (Table.Contains(variable, manager))
+            if (this.Table.Contains(variable, manager))
                 return true;
             return base.Contains(variable, manager);
         }

@@ -15,7 +15,7 @@ namespace Dice.States
             return this.Parent.GetStatePropability(manager);
         }
 
-        public virtual IComposer Composer => Parent!.Composer;
+        public virtual IComposer Composer => this.Parent!.Composer;
 
         public State Parent { get; }
 

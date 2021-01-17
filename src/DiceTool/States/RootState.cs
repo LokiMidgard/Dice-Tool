@@ -18,7 +18,7 @@ namespace Dice.States
 
         public override void PrepareOptimize(IEnumerable<IP> ps) { }
 
-        public override bool Contains(IP variable, in WhileManager manager) => table?.Contains(variable, manager) ?? false;
+        public override bool Contains(IP variable, in WhileManager manager) => this.table?.Contains(variable, manager) ?? false;
         internal override void Optimize(in WhileManager manager) { }
 
         public override double GetStatePropability(in WhileManager manager) => 1.0;

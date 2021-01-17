@@ -10,7 +10,7 @@ namespace Dice.States
         private readonly ConstTable<T> table;
         private readonly P<T> variable;
 
-        public override ConstTable<T> Table => table;
+        public override ConstTable<T> Table => this.table;
 
         public NewConstState(State parent, P<T> variable, T value) : base(parent)
         {
