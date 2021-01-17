@@ -216,7 +216,7 @@ namespace Dice.Ui
                         this.Results.Clear();
                         this.indexLookup.Clear();
                         executor.Epsylon = 0.0001;
-                        var cal = executor.Calculate(0);
+                        var cal = executor.Calculate(this.cancel.Token,0);
 
                         await foreach (var t in cal.WithCancellation(this.cancel.Token))
                         {
