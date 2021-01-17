@@ -11,14 +11,19 @@ namespace Dice.Parser.Syntax
     {
     }
 
-    class StatementSyntax : Syntax
+    abstract class StatementSyntax : Syntax
     {
+        internal abstract void ToString(IndentionWriter writer);
 
     }
 
-    class ExpresionSyntax : Syntax
+    abstract class ExpresionSyntax : Syntax
     {
-
+        internal abstract string DisplayString();
+        public override string ToString()
+        {
+            return this.DisplayString();
+        }
     }
 
     class IdentifierSyntax : ExpresionSyntax
@@ -30,6 +35,7 @@ namespace Dice.Parser.Syntax
 
         public string literal { get; }
 
+        internal override string DisplayString() => this.literal;
     }
 
     class SwitchSyntax : StatementSyntax
@@ -47,6 +53,17 @@ namespace Dice.Parser.Syntax
         public ExpresionSyntax Input { get; }
         public ExpresionSyntax DefaultResult { get; }
         public CaseSyntax[] Cases { get; }
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine($"{this.Target.literal} switch {this.Input}:");
+            using (writer.Indent)
+            {
+                foreach (var @case in this.Cases)
+                    writer.WriteLine(@case.ToString());
+                writer.WriteLine($"default: {this.DefaultResult}:");
+            }
+        }
     }
     class CaseSyntax
     {
@@ -62,6 +79,11 @@ namespace Dice.Parser.Syntax
         public ExpresionSyntax Input { get; }
         public BinaryOperator Op { get; }
         public ExpresionSyntax Result { get; }
+        public override string ToString()
+        {
+            return $"{this.Op} {this.Input}: {this.Result}:";
+
+        }
     }
 
     abstract class ConstSyntax : ExpresionSyntax
@@ -73,10 +95,11 @@ namespace Dice.Parser.Syntax
 
         public abstract Type Type { get; }
         public object Value { get; }
+
     }
     class ConstSyntax<T> : ConstSyntax
     {
-        public ConstSyntax([DisallowNull]T value) : base(value)
+        public ConstSyntax([DisallowNull] T value) : base(value)
         {
             this.Value = value;
         }
@@ -85,6 +108,13 @@ namespace Dice.Parser.Syntax
         public new T Value { get; }
 
         public override Type Type => typeof(T);
+
+        internal override string DisplayString()
+        {
+            if (typeof(T) == typeof(string))
+                return $"\"{this.Value}\"";
+            return this.Value.ToString()!;
+        }
     }
 
     class DiceSyntax : ExpresionSyntax
@@ -97,6 +127,13 @@ namespace Dice.Parser.Syntax
 
         public int Faces { get; }
         public int Count { get; }
+
+        internal override string DisplayString()
+        {
+            if (this.Count > 1)
+                return $"{this.Count}W{this.Faces}";
+            return $"W{this.Faces}";
+        }
     }
 
     class BinaryOpereratorSyntax : ExpresionSyntax
@@ -111,6 +148,31 @@ namespace Dice.Parser.Syntax
         public BinaryOperator Operator { get; }
         public ExpresionSyntax Argument1 { get; }
         public ExpresionSyntax Argument2 { get; }
+
+        internal override string DisplayString()
+        {
+            var @operator = this.Operator switch
+            {
+                BinaryOperator.Addition => "+",
+                BinaryOperator.BitAnd => "&",
+                BinaryOperator.BitOr => "|",
+                BinaryOperator.BitXor => "^",
+                BinaryOperator.Division => "/",
+                BinaryOperator.Equals => "==",
+                BinaryOperator.GreaterOrEquals => ">=",
+                BinaryOperator.GreaterThen => ">",
+                BinaryOperator.LessThen => "<",
+                BinaryOperator.LessOrEquals => "<=",
+                BinaryOperator.Modulo => "%",
+                BinaryOperator.Multiplication => "*",
+                BinaryOperator.NotEquals => "!=",
+                BinaryOperator.ShiftLeft => "<<",
+                BinaryOperator.ShiftRight => ">>",
+                BinaryOperator.Substraction => "-",
+                _ => this.Operator.ToString()
+            };
+            return $"{this.Argument1} {@operator} {this.Argument2}";
+        }
     }
 
     class VariableDeclarationSyntax : StatementSyntax
@@ -123,6 +185,22 @@ namespace Dice.Parser.Syntax
 
         public Type Type { get; }
         public IdentifierSyntax Identifier { get; }
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            string type;
+
+            if (this.Type == typeof(int))
+                type = "int";
+            else if (this.Type == typeof(bool))
+                type = "bool";
+            else if (this.Type == typeof(string))
+                type = "string";
+            else
+                throw new NotSupportedException();
+
+            writer.WriteLine($"var {this.Identifier}: {type}");
+        }
     }
 
     class VariableAssignmentSyntax : StatementSyntax
@@ -144,6 +222,30 @@ namespace Dice.Parser.Syntax
         public IdentifierSyntax Identifier { get; }
         public ExpresionSyntax Expresion { get; }
         public VariableDeclarationSyntax? VariableDeclarationSyntax { get; }
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            if (this.VariableDeclarationSyntax != null)
+            {
+                string type;
+
+                if (this.VariableDeclarationSyntax.Type == typeof(int))
+                    type = "int";
+                else if (this.VariableDeclarationSyntax.Type == typeof(bool))
+                    type = "bool";
+                else if (this.VariableDeclarationSyntax.Type == typeof(string))
+                    type = "string";
+                else
+                    throw new NotSupportedException();
+
+                writer.WriteLine($"var {this.Identifier}: {type} = {this.Expresion}");
+
+            }
+            else
+            {
+                writer.WriteLine($"{this.Identifier} = {this.Expresion}");
+            }
+        }
     }
 
     class BlockSyntax : StatementSyntax
@@ -154,6 +256,16 @@ namespace Dice.Parser.Syntax
         }
 
         public StatementSyntax[] Statements { get; }
+
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine("{");
+            using (writer.Indent)
+                foreach (var statement in this.Statements)
+                    statement.ToString(writer);
+            writer.WriteLine("}");
+        }
     }
 
     class DoWhileSyntax : StatementSyntax
@@ -166,11 +278,27 @@ namespace Dice.Parser.Syntax
 
         public StatementSyntax Statement { get; }
         public ExpresionSyntax Condition { get; }
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine("do");
+            if (this.Statement is not BlockSyntax)
+            {
+                using (writer.Indent)
+                    this.Statement.ToString(writer);
+            }
+            else
+            {
+                this.Statement.ToString(writer);
+            }
+            writer.WriteLine($"while {this.Condition}");
+        }
+
     }
 
     class IfSyntax : StatementSyntax
     {
-        public IfSyntax(ExpresionSyntax condition, StatementSyntax then, ElseSyntax @else)
+        public IfSyntax(ExpresionSyntax condition, StatementSyntax then, ElseSyntax? @else)
         {
             this.Condition = condition ?? throw new ArgumentNullException(nameof(condition));
             this.Then = then ?? throw new ArgumentNullException(nameof(then));
@@ -179,7 +307,23 @@ namespace Dice.Parser.Syntax
 
         public ExpresionSyntax Condition { get; }
         public StatementSyntax Then { get; }
-        public ElseSyntax Else { get; }
+        public ElseSyntax? Else { get; }
+
+        internal override void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine($"if {this.Condition}");
+            if (this.Then is not BlockSyntax)
+            {
+                using (writer.Indent)
+                    this.Then.ToString(writer);
+            }
+            else
+            {
+                this.Then.ToString(writer);
+            }
+            this.Else?.ToString(writer);
+        }
+
     }
 
 
@@ -192,6 +336,19 @@ namespace Dice.Parser.Syntax
 
         public StatementSyntax Then { get; }
 
+        internal void ToString(IndentionWriter writer)
+        {
+            writer.WriteLine($"else");
+            if (this.Then is not BlockSyntax)
+            {
+                using (writer.Indent)
+                    this.Then.ToString(writer);
+            }
+            else
+            {
+                this.Then.ToString(writer);
+            }
+        }
     }
 
     class ProgramSyntax
@@ -204,8 +361,21 @@ namespace Dice.Parser.Syntax
 
         public StatementSyntax[] Statements { get; }
         public ExpresionSyntax Return { get; }
-    }
 
+
+        public override string ToString()
+        {
+            var writer = new IndentionWriter() { IndentionDepth = 2 };
+            foreach (var statement in this.Statements)
+            {
+                statement.ToString(writer);
+            }
+            writer.WriteLine();
+            writer.WriteLine($"return {this.Return}");
+
+            return writer.ToString();
+        }
+    }
     enum BinaryOperator
     {
         Addition,
@@ -227,9 +397,7 @@ namespace Dice.Parser.Syntax
         GreaterOrEquals,
         Equals,
         NotEquals
-
-
     }
 
-
 }
+

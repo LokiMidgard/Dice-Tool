@@ -11,6 +11,11 @@ namespace Dice.Parser
 {
     public class SimpleParser
     {
+        public static string Format(string program)
+        {
+            var p = Program.Parse(program);
+            return p.ToString();
+        }
         public static IExecutor<TReturn, int> ParseExpression<TReturn>(string program)
         {
             var p = Program.Parse(program);

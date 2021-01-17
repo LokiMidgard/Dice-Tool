@@ -60,11 +60,12 @@ namespace Dice.Ui
 
             this.calculateCommand = new CalculateCommandImplementation(this);
             this.cancelCommand = new CancelCommandImplementation(this);
+            this.formatCodeCommand = new FormatCommandImplementation(this);
 
         }
 
 
-        public TimeSpan CalculationTime 
+        public TimeSpan CalculationTime
         {
             get { return (TimeSpan)this.GetValue(CalculationTimeProperty); }
             private set { this.SetValue(CalculationTimePropertyKey, value); }
@@ -159,6 +160,7 @@ namespace Dice.Ui
         private readonly Dictionary<object, int> indexLookup = new Dictionary<object, int>();
         private readonly CalculateCommandImplementation calculateCommand;
         private readonly CancelCommandImplementation cancelCommand;
+        private readonly FormatCommandImplementation formatCodeCommand;
         private CancellationTokenSource? cancel;
 
         private void AddResult(object result, double propability)
@@ -319,6 +321,7 @@ namespace Dice.Ui
 
         public ICommand CalculateCommand => this.calculateCommand;
         public ICommand CancelCommand => this.cancelCommand;
+        public ICommand FormatCodeCommand => this.formatCodeCommand;
 
 
         private class CalculateCommandImplementation : ICommand
@@ -372,6 +375,33 @@ namespace Dice.Ui
             internal void FireCanExecuteChange()
             {
                 this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        private class FormatCommandImplementation : ICommand
+        {
+            private CalculaterViewmodel calculaterViewmodel;
+
+            public FormatCommandImplementation(CalculaterViewmodel calculaterViewmodel)
+            {
+                this.calculaterViewmodel = calculaterViewmodel;
+            }
+
+            public event EventHandler? CanExecuteChanged
+            {
+                add { }
+                remove { }
+            }
+
+            public bool CanExecute(object? parameter)
+            {
+                return true;
+            }
+
+            public void Execute(object? parameter)
+            {
+                var code = this.calculaterViewmodel.Code.Text;
+                code = Parser.SimpleParser.Format(code);
+                this.calculaterViewmodel.Code.Text = code;
             }
         }
     }

@@ -87,9 +87,12 @@
                             Grid.Column="2"
                             Width="5"
                             HorizontalAlignment="Stretch" />
-
+                        <ToolBar Grid.ColumnSpan="2">
+                            <Button Command="{Binding FormatCodeCommand}" Content="Format Code" />
+                        </ToolBar>
                         <avalonedit:TextEditor
-                            Grid.RowSpan="3"
+                            Grid.Row="1"
+                            Grid.RowSpan="2"
                             Grid.ColumnSpan="2"
                             Margin="3"
                             Document="{Binding Code, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
