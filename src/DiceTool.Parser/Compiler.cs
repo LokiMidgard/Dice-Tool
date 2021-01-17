@@ -132,6 +132,8 @@ namespace Dice.Parser
 
 
                     break;
+                case CommentSyntax commentSyntax:
+                    break;
 
                 default:
                     throw new NotSupportedException();
@@ -145,6 +147,8 @@ namespace Dice.Parser
 
             switch (expresion)
             {
+                case ParentisedSyntax parentised:
+                    return GenerateExpression<T>(parentised.Expression, x);
                 case ConstSyntax<T> constSyntax:
                     return x.Const(constSyntax.Value);
 
@@ -183,7 +187,7 @@ namespace Dice.Parser
 
 
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"{expresion}");
             }
 
         }

@@ -82,6 +82,8 @@ namespace Dice.Parser
         {
             switch (expresion)
             {
+                case ParentisedSyntax parentised:
+                    return GetTypeOrError(parentised.Expression, typeLookup);
                 case ConstSyntax constSyntax:
                     return (constSyntax.Type, default);
                 case IdentifierSyntax identifierSyntax:
@@ -150,7 +152,7 @@ namespace Dice.Parser
                             throw new NotSupportedException();
                     }
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"{expresion}");
             }
         }
 

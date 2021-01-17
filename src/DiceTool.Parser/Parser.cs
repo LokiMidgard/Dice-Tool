@@ -191,7 +191,7 @@ namespace Dice.Parser
             (from lparen in Parse.Char('(')
              from expr in Parse.Ref(() => Expr)
              from rparen in Parse.Char(')')
-             select expr).Named("expression")
+             select new ParentisedSyntax(expr) as ExpresionSyntax).Named("expression")
              .Or(Dice)
              .Or(ConstantNumber)
              .Or(ConstantBool)
@@ -283,7 +283,7 @@ namespace Dice.Parser
                                                                 ;
 
 
-        static readonly Parser<StatementSyntax[]> StatementList = from s in Statement.XMany()
+        static readonly Parser<StatementSyntax[]> StatementList = from s in Statement.Many()
                                                                   select s.ToArray();
 
         static readonly Parser<ProgramSyntax> Program = from s in StatementList

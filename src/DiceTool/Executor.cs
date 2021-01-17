@@ -79,11 +79,13 @@ namespace Dice
                 watch.Restart();
                 count++;
 #endif
+                await Task.Run(() =>
+                {
+                    using (choiseManager.EnableMutation())
+                        this.lastState.PreCalculatePath(whileManager);
 
-                using (choiseManager.EnableMutation())
-                    this.lastState.PreCalculatePath(whileManager);
-
-                this.lastState.Optimize(whileManager);
+                    this.lastState.Optimize(whileManager);
+                }, cancel);
 
                 var currentSum = 0.0;
                 var statePropability = this.lastState.GetStatePropability(whileManager);
