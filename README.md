@@ -18,7 +18,7 @@ To make it easier to simulate your dices a DSL was also added.
 The langue uses [Infix notation](https://en.wikipedia.org/wiki/Infix_notation).
 
 | operator | meaning |
-+----------+---------+
+|----------|---------|
 |Add|`+`|
 |Substract|`-`|
 |Multiply| `*`|
@@ -174,7 +174,7 @@ Both characters try to damage each other alternating until one characters life p
 The code returns the winner.
 
 | style  | computation time      |
-+--------+-----------------------+
+|--------|-----------------------|
 | switch | 1 min 18 s            |
 | if     | 30 min ~ 23% computed |
 
