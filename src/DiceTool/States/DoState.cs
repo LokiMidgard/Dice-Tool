@@ -23,7 +23,7 @@ namespace Dice.States
 
 
 
-        public WhileState WhileState { get; private set; }
+        public WhileState? WhileState { get; private set; }
 
         public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
@@ -36,8 +36,10 @@ namespace Dice.States
 
             if (choise == 0)
                 return base.GetTable(variable, newManager);
-            else
+            else if (this.WhileState is not null)
                 return this.WhileState.ContinueState.GetTable(variable, newManager);
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
         }
 
         internal void RegisterWhileState(WhileState whileState)
@@ -63,8 +65,10 @@ namespace Dice.States
 
             if (choise == 0)
                 return base.GetStatePropability(newManager);
-            else
+            else if (this.WhileState is not null)
                 return this.WhileState.ContinueState.GetStatePropability(newManager);
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
 
         }
         public override bool Contains(IP variable, in WhileManager manager)
@@ -79,8 +83,10 @@ namespace Dice.States
 
             if (choise == 0)
                 return base.Contains(variable, newManager);
-            else
+            else if (this.WhileState is not null)
                 return this.WhileState.ContinueState.Contains(variable, newManager);
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
         }
 
         internal override State? UpdateWhileManager(ref WhileManager manager)
@@ -91,8 +97,10 @@ namespace Dice.States
 
             if (choise == 0)
                 return this.Parent;
-            else
+            else if (this.WhileState is not null)
                 return this.WhileState.ContinueState;
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
 
         }
 
@@ -107,22 +115,22 @@ namespace Dice.States
 
             if (choise == 0)
                 base.Optimize(newManager);
-            else
+            else if (this.WhileState is not null)
                 this.WhileState.ContinueState.Optimize(newManager);
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
 
             this.cache.Create(nameof(GetTable), manager, new MergeTable(this, this.NededVariables, manager));
-
         }
-
 
         public override void PrepareOptimize(IEnumerable<IP> ps)
         {
             base.PrepareOptimize(ps);
-            this.WhileState.ContinueState.PrepareOptimize(ps);
+            if (this.WhileState is not null)
+                this.WhileState.ContinueState.PrepareOptimize(ps);
+            else
+                throw new InvalidOperationException("WhileState on DoState was not initilized.");
         }
-
-
-
 
     }
 }

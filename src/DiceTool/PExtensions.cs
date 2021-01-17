@@ -18,9 +18,9 @@ namespace Dice
             return composer.CreateCombineState(e1, e2, (x1, x2) => x1 && x2, Tables.OptimisationStrategy.Optimize);
         }
 
-        public static P<bool> And(this in P<bool> e1, in P<bool> e2, params P<bool>[] e)
+        public static P<bool> And(this in P<bool> e1, in P<bool> e2, params P<bool>[]? e)
         {
-            if ((e?.Length ?? 0) > 0)
+            if (e is not null && e.Length > 0)
                 return e.Aggregate((x1, x2) => x1.And(x2)).And(e1).And(e2);
             return And(e1, e2);
         }
@@ -30,9 +30,9 @@ namespace Dice
             return composer.CreateCombineState(e1, e2, (x1, x2) => x1 || x2, Tables.OptimisationStrategy.Optimize);
         }
 
-        public static P<bool> Or(this in P<bool> e1, in P<bool> e2, params P<bool>[] e)
+        public static P<bool> Or(this in P<bool> e1, in P<bool> e2, params P<bool>[]? e)
         {
-            if ((e?.Length ?? 0) > 0)
+            if (e is not null && e.Length > 0)
                 return e.Aggregate((x1, x2) => x1.Or(x2)).Or(e1).Or(e2);
             return Or(e1, e2);
         }

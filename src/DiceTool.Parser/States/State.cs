@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dice.Tables;
 using System.Collections.ObjectModel;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Dice.Parser.Syntax
 {
@@ -75,11 +76,12 @@ namespace Dice.Parser.Syntax
     }
     class ConstSyntax<T> : ConstSyntax
     {
-        public ConstSyntax(T value) : base(value)
+        public ConstSyntax([DisallowNull]T value) : base(value)
         {
             this.Value = value;
         }
 
+        [NotNull]
         public new T Value { get; }
 
         public override Type Type => typeof(T);
@@ -141,7 +143,7 @@ namespace Dice.Parser.Syntax
 
         public IdentifierSyntax Identifier { get; }
         public ExpresionSyntax Expresion { get; }
-        public VariableDeclarationSyntax VariableDeclarationSyntax { get; }
+        public VariableDeclarationSyntax? VariableDeclarationSyntax { get; }
     }
 
     class BlockSyntax : StatementSyntax

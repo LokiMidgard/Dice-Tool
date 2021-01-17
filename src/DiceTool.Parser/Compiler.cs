@@ -14,7 +14,7 @@ namespace Dice.Parser
             this.variables = variables;
         }
 
-        internal Type GetReturnType(ProgramSyntax p)
+        internal Type? GetReturnType(ProgramSyntax p)
         {
             var returnType = Validator.GetType(p.Return, this.variables);
             return returnType;
@@ -69,7 +69,7 @@ namespace Dice.Parser
                     break;
                 case IfSyntax ifSyntax:
 
-                    Action @else = null;
+                    Action? @else = null;
                     if (ifSyntax.Else != null)
                         @else = () => this.GenerateStatement(ifSyntax.Else.Then, x);
 

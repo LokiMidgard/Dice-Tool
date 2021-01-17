@@ -170,9 +170,9 @@ namespace Dice.States
 
             IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                return obj is PathToGo && this.Equals((PathToGo)obj);
+                return obj is PathToGo go && this.Equals(go);
             }
 
             public bool Equals(PathToGo other)
@@ -240,9 +240,9 @@ namespace Dice.States
             this.propability = propability;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return obj is Choise && this.Equals((Choise)obj);
+            return obj is Choise choise && this.Equals(choise);
         }
 
         public bool Equals(Choise other)

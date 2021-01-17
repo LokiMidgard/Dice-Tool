@@ -270,7 +270,8 @@ namespace SampleApp
                     // 2. Use the AsDataSet extension method
                     using (var result = reader.AsDataSet())
                     {
-
+                        if (result is null)
+                            throw new IOException($"Could not parse {Path}");
 
                         result.Tables.ToString();
 
@@ -279,7 +280,11 @@ namespace SampleApp
                         for (int x = 0; x < table.GetLength(0); x++)
                             for (int y = 0; y < table.GetLength(1); y++)
                             {
-                                table[x, y] = (int)(double)result.Tables[0].Rows[y + 1].ItemArray[x + 1];
+                                var currentValue = result.Tables[0].Rows[y + 1].ItemArray[x + 1];
+                                if (currentValue is null)
+                                    throw new IOException($"Could not parse {Path} row {y} collumn {x}");
+
+                                table[x, y] = (int)(double)currentValue;
                             }
 
                         return table;

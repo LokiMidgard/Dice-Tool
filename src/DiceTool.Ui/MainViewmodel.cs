@@ -57,11 +57,15 @@ namespace Dice.Ui
                 this.mainViewmodel = mainViewmodel;
             }
 
-            public event EventHandler CanExecuteChanged;
+            public event EventHandler? CanExecuteChanged
+            {
+                add { }
+                remove { }
+            }
 
-            public bool CanExecute(object parameter) => true;
+            public bool CanExecute(object? parameter) => true;
 
-            public void Execute(object parameter)
+            public void Execute(object? parameter)
             {
                 var dialog = new InputDialog();
                 if (dialog.ShowDialog() ?? false)

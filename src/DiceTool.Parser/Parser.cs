@@ -21,7 +21,7 @@ namespace Dice.Parser
 
         }
 
-        public static Type GetReturnType(string program)
+        public static Type? GetReturnType(string program)
         {
             var p = Program.Parse(program);
             var variables = Validator.Validate(p);
@@ -233,7 +233,9 @@ namespace Dice.Parser
         static readonly Parser<StatementSyntax> VariableAssignment = from assignedTo in VariableDeclaration.Or<object>(Identifier)
                                                                      from assigneOperator in Parse.Char('=').Token()
                                                                      from exp in Expr
-                                                                     select assignedTo is IdentifierSyntax ? new VariableAssignmentSyntax(assignedTo as IdentifierSyntax, exp) : new VariableAssignmentSyntax(assignedTo as VariableDeclarationSyntax, exp);
+                                                                     select assignedTo is IdentifierSyntax 
+                                                                        ? new VariableAssignmentSyntax((IdentifierSyntax)assignedTo, exp) 
+                                                                        : new VariableAssignmentSyntax((VariableDeclarationSyntax)assignedTo, exp);
 
 
         static readonly Parser<BlockSyntax> Block = from opening in Parse.Char('{').Token()

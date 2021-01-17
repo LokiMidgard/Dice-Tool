@@ -29,7 +29,7 @@ namespace Dice.Caches
                 this.Propability = propability;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
 
                 if (obj is CacheRow other)
@@ -38,9 +38,9 @@ namespace Dice.Caches
 
             }
 
-            public bool Equals(CacheRow other)
+            public bool Equals(CacheRow? other)
             {
-                if (other == null
+                if (other is null
                     || !EqualityComparer<OptimizedTableCache>.Default.Equals(this.parent, other.parent)
                     || this.columns.Length != other.columns.Length)
                     return false;

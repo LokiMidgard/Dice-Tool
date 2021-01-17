@@ -7,11 +7,13 @@ namespace Dice.Misc
 {
     class ArrayEqualityComparer<T> : EqualityComparer<T[]>
     {
-        public override bool Equals(T[] x, T[] y)
+        public override bool Equals(T[]? x, T[]? y)
         {
-            if (x.Length != y.Length)
+            if (x?.Length != y?.Length)
                 return false;
-            return x.SequenceEqual(y);
+            if (y is null)
+                return false;
+            return x?.SequenceEqual(y) ?? false;
         }
 
         public override int GetHashCode(T[] obj)

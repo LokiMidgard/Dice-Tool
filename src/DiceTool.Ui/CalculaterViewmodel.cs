@@ -68,7 +68,7 @@ namespace Dice.Ui
 
         private static void PropertyChagned(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var me = d as CalculaterViewmodel;
+            var me = (CalculaterViewmodel)d;
             var codeFile = me.GetCodeFile();
             File.WriteAllText(codeFile.FullName, (string)e.NewValue, Encoding.UTF8);
         }
@@ -123,7 +123,7 @@ namespace Dice.Ui
 
         private static void IsBusyChanging(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var me = d as CalculaterViewmodel;
+            var me = (CalculaterViewmodel)d;
             me.IsReady = !(bool)e.NewValue;
         }
 
@@ -164,7 +164,7 @@ namespace Dice.Ui
                 var updateTask = UpdateTimer();
                 try
                 {
-                    var returnType = Parser.SimpleParser.GetReturnType(this.Code);
+                    var returnType = Parser.SimpleParser.GetReturnType(this.Code) ?? throw new FormatException("Was unable to determan the return type.");
                     Task calculateTask;
 
                     if (returnType == typeof(int))
@@ -199,7 +199,8 @@ namespace Dice.Ui
                 }
 
 
-                async Task Calculate<T>()
+                async Task Calculate<T>() 
+                    where T : notnull
                 {
                     this.calculateCommand.FireCanExecuteChange();
                     var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
@@ -208,6 +209,7 @@ namespace Dice.Ui
                     this.indexLookup.Clear();
                     executor.Epsylon = 0.0001;
                     var cal = executor.Calculate(0);
+
                     await foreach (var t in cal)
                     {
                         this.Percentage = t.CompletePercentage;
@@ -265,11 +267,13 @@ namespace Dice.Ui
             {
                 var doc = XDocument.Load(stream);
                 var results = doc.Root;
-                this.CalculationTime = TimeSpan.Parse(results.Attribute(XName.Get(TimeAttribute, Namespace)).Value, System.Globalization.CultureInfo.InvariantCulture);
+                if (results is null)
+                    throw new IOException($"{resultFile} did not had expected format.");
+                this.CalculationTime = TimeSpan.Parse(results?.Attribute(XName.Get(TimeAttribute, Namespace))?.Value ?? throw new IOException($"{resultFile} did not had expected format."), System.Globalization.CultureInfo.InvariantCulture);
 
                 foreach (var item in results.Nodes().OfType<XElement>())
                 {
-                    var propability = double.Parse(item.Attribute(XName.Get(PropabilityAttribute, Namespace)).Value, System.Globalization.CultureInfo.InvariantCulture);
+                    var propability = double.Parse(item?.Attribute(XName.Get(PropabilityAttribute, Namespace))?.Value ?? throw new IOException($"{resultFile} did not had expected format."), System.Globalization.CultureInfo.InvariantCulture);
                     var value = item.Value;
                     this.Results.Add(new ResultViewmodel() { Value = value, Propability = propability });
                 }
@@ -291,14 +295,14 @@ namespace Dice.Ui
                 this.calculaterViewmodel = calculaterViewmodel;
             }
 
-            public event EventHandler CanExecuteChanged;
+            public event EventHandler? CanExecuteChanged;
 
-            public bool CanExecute(object parameter)
+            public bool CanExecute(object? parameter)
             {
                 return !this.calculaterViewmodel.IsBuisy;
             }
 
-            public async void Execute(object parameter)
+            public async void Execute(object? parameter)
             {
                 await this.calculaterViewmodel.StartCalculation();
             }

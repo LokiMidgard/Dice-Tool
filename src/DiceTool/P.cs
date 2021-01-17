@@ -38,7 +38,7 @@ namespace Dice
 
         Type IP.Type => typeof(T);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is P<T> && this.Equals((P<T>)obj);
         }

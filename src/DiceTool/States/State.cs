@@ -67,7 +67,7 @@ namespace Dice.States
         internal void PreCalculatePath(in WhileManager manager)
         {
             var currentWhileManager = manager;
-            State? currentState = this;
+            var currentState = this;
             int dept = 0;
             do
             {

@@ -22,7 +22,7 @@ namespace Dice.Parser
 
             var errors = missingVariables.Concat(invalidCast);
 
-            var errorText = String.Join("\n", errors);
+            var errorText = string.Join("\n", errors);
 
             if (!string.IsNullOrWhiteSpace(errorText))
                 throw new Exception(errorText);
@@ -76,9 +76,9 @@ namespace Dice.Parser
 
         }
 
-        public static Type GetType(ExpresionSyntax expresion, Dictionary<string, Type> typeLookup) => GetTypeOrError(expresion, typeLookup).t;
+        public static Type? GetType(ExpresionSyntax expresion, Dictionary<string, Type> typeLookup) => GetTypeOrError(expresion, typeLookup).t;
 
-        private static (Type t, String error) GetTypeOrError(ExpresionSyntax expresion, Dictionary<string, Type> typeLookup)
+        private static (Type? t, string? error) GetTypeOrError(ExpresionSyntax expresion, Dictionary<string, Type> typeLookup)
         {
             switch (expresion)
             {
