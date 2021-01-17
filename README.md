@@ -62,13 +62,15 @@ In Addition you can also use a literal for dices. The literal is constructed as 
 It does not matter if you use `D` or `W`. `D` stands for dice and `W` for Werfel the German word for dice.
 
 
-## retrun
+## Retrun
 
 To actually get some output you need to return a value. A return statement looks like following:
 ```
 return {expression}
 ```
 E.g `return D6` which is a complete valid programm.
+
+Only one return Statement is allowed and it must be the last statement.
 
 ## Variables
 
