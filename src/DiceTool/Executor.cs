@@ -4,6 +4,7 @@ using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,8 +15,8 @@ namespace Dice
     public interface IExecutor<TResult, Tin>
     {
 
-        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(IEnumerable<Tin> input, System.Threading.CancellationToken cancel = default);
-        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(System.Threading.CancellationToken cancel = default, params Tin[] input);
+        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(IEnumerable<Tin> input);
+        IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(params Tin[] input);
         double Epsylon { get; set; }
 
     }
@@ -36,15 +37,14 @@ namespace Dice
             //this.lastState = composer.State.Current;
         }
 
-        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(IEnumerable<TIn> input, System.Threading.CancellationToken cancel = default) => new Wraper(this.CalculateInternal(input, cancel));
-        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(System.Threading.CancellationToken cancel, params TIn[] input) => this.Calculate(input as IEnumerable<TIn>, cancel);
+        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(IEnumerable<TIn> input) => this.CalculateInternal(input);
+        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(params TIn[] input) => this.Calculate(input as IEnumerable<TIn>);
 
 
         public double Epsylon { get; set; } = 0.000000001;
 
 
-
-        private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, System.Threading.CancellationToken cancel)
+        private async IAsyncEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, [EnumeratorCancellation] System.Threading.CancellationToken cancel = default)
         {
 
             //var sum = new Dictionary<TResult, double>();
@@ -71,7 +71,6 @@ namespace Dice
             var statistics = new RunningStatistics();
             uint count = 0;
 #endif
-
             while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsylon)
             {
                 if (cancel.IsCancellationRequested)
@@ -85,7 +84,6 @@ namespace Dice
                     this.lastState.PreCalculatePath(whileManager);
 
                 this.lastState.Optimize(whileManager);
-
 
                 var currentSum = 0.0;
                 var statePropability = this.lastState.GetStatePropability(whileManager);
