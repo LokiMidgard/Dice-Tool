@@ -58,7 +58,8 @@
                         <ScrollViewer Margin="3" Grid.ColumnSpan="2" Grid.RowSpan="3">
                             <TextBox Text="{Binding Code, Delay=1,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"   IsReadOnly="{Binding IsBuisy}"/>
                         </ScrollViewer>
-                        <Button Content="Calculate" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Padding="10" Margin="3" Command="{Binding CalculateCommand}"/>
+                        <Button Content="Calculate" Grid.Column="1"  Grid.Row="3" Padding="10" Margin="3" Command="{Binding CalculateCommand}"/>
+                        <Button Content="Cancel" Grid.Column="0"  Grid.Row="3" Padding="10" Margin="3" Command="{Binding CancelCommand}"/>
                      
                     </Grid>
                 </DataTemplate>

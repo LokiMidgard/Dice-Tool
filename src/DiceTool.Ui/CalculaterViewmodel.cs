@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -33,7 +34,8 @@ namespace Dice.Ui
 
 
 
-            this.calculateCommand = new Command(this);
+            this.calculateCommand = new CalculateCommandImplementation(this);
+            this.cancelCommand = new CancelCommandImplementation(this);
 
         }
 
@@ -136,7 +138,9 @@ namespace Dice.Ui
         public ObservableCollection<ResultViewmodel> Results { get; } = new ObservableCollection<ResultViewmodel>();
 
         private readonly Dictionary<object, int> indexLookup = new Dictionary<object, int>();
-        private readonly Command calculateCommand;
+        private readonly CalculateCommandImplementation calculateCommand;
+        private readonly CancelCommandImplementation cancelCommand;
+        private CancellationTokenSource? cancel;
 
         private void AddResult(object result, double propability)
         {
@@ -199,25 +203,35 @@ namespace Dice.Ui
                 }
 
 
-                async Task Calculate<T>() 
+                async Task Calculate<T>()
                     where T : notnull
                 {
-                    this.calculateCommand.FireCanExecuteChange();
-                    var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
-                    this.Percentage = 0;
-                    this.Results.Clear();
-                    this.indexLookup.Clear();
-                    executor.Epsylon = 0.0001;
-                    var cal = executor.Calculate(0);
-
-                    await foreach (var t in cal)
+                    this.cancel = new System.Threading.CancellationTokenSource();
+                    try
                     {
-                        this.Percentage = t.CompletePercentage;
-                        this.AddResult(t.Result, t.Propability * 100);
-                    }
+                        this.calculateCommand.FireCanExecuteChange();
+                        this.cancelCommand.FireCanExecuteChange();
+                        var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code);
+                        this.Percentage = 0;
+                        this.Results.Clear();
+                        this.indexLookup.Clear();
+                        executor.Epsylon = 0.0001;
+                        var cal = executor.Calculate(0);
 
-                    this.Percentage = 1;
-                    await this.PersistResult();
+                        await foreach (var t in cal.WithCancellation(this.cancel.Token))
+                        {
+                            this.Percentage = t.CompletePercentage;
+                            this.AddResult(t.Result, t.Propability * 100);
+                        }
+
+                        this.Percentage = 1;
+                        await this.PersistResult();
+                    }
+                    finally
+                    {
+                        this.cancel.Dispose();
+                        this.cancel = null;
+                    }
                 }
 
             }
@@ -227,6 +241,7 @@ namespace Dice.Ui
             }
             finally
             {
+                this.cancelCommand.FireCanExecuteChange();
                 this.calculateCommand.FireCanExecuteChange();
             }
         }
@@ -284,13 +299,14 @@ namespace Dice.Ui
 
 
         public ICommand CalculateCommand => this.calculateCommand;
+        public ICommand CancelCommand => this.cancelCommand;
 
 
-        private class Command : ICommand
+        private class CalculateCommandImplementation : ICommand
         {
             private CalculaterViewmodel calculaterViewmodel;
 
-            public Command(CalculaterViewmodel calculaterViewmodel)
+            public CalculateCommandImplementation(CalculaterViewmodel calculaterViewmodel)
             {
                 this.calculaterViewmodel = calculaterViewmodel;
             }
@@ -305,6 +321,33 @@ namespace Dice.Ui
             public async void Execute(object? parameter)
             {
                 await this.calculaterViewmodel.StartCalculation();
+            }
+
+            internal void FireCanExecuteChange()
+            {
+                this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        private class CancelCommandImplementation : ICommand
+        {
+            private CalculaterViewmodel calculaterViewmodel;
+
+            public CancelCommandImplementation(CalculaterViewmodel calculaterViewmodel)
+            {
+                this.calculaterViewmodel = calculaterViewmodel;
+            }
+
+            public event EventHandler? CanExecuteChanged;
+
+            public bool CanExecute(object? parameter)
+            {
+                return this.calculaterViewmodel.IsBuisy && this.calculaterViewmodel.cancel is not null && !this.calculaterViewmodel.cancel.IsCancellationRequested;
+            }
+
+            public void Execute(object? parameter)
+            {
+                this.calculaterViewmodel.cancel?.Cancel();
+                this.FireCanExecuteChange();
             }
 
             internal void FireCanExecuteChange()
