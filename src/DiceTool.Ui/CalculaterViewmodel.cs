@@ -216,10 +216,20 @@ namespace Dice.Ui
                 index = this.Results.Count;
                 this.indexLookup.Add(result, index);
                 this.Results.Add(new ResultViewmodel() { Value = result });
+
             }
 
             var vm = this.Results[index];
             vm.Propability += propability;
+            var newIndex = index;
+            while (newIndex > 0 && this.Results[newIndex - 1].Propability < vm.Propability)
+                newIndex--;
+            while (newIndex < this.Results.Count - 1 && this.Results[newIndex + 1].Propability > vm.Propability)
+                newIndex++;
+            if (newIndex != index)
+            {
+                this.Results.Move(index, newIndex);
+            }
         }
 
 
