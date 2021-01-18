@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -77,6 +78,46 @@ namespace Dice.Ui
         public static readonly DependencyPropertyKey CalculationTimePropertyKey =
             DependencyProperty.RegisterReadOnly("CalculationTime", typeof(TimeSpan), typeof(CalculaterViewmodel), new PropertyMetadata(default(TimeSpan)));
         public static readonly DependencyProperty CalculationTimeProperty = CalculationTimePropertyKey.DependencyProperty;
+
+
+
+
+        public TimeSpan TimeSinceLastStep
+        {
+            get { return (TimeSpan)GetValue(TimeSinceLastStepProperty); }
+            set { SetValue(TimeSinceLastStepProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for TimeSinceLastStep.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TimeSinceLastStepProperty =
+            DependencyProperty.Register("TimeSinceLastStep", typeof(TimeSpan), typeof(CalculaterViewmodel), new PropertyMetadata(default(TimeSpan)));
+
+
+
+
+        public TimeSpan LastStepTime
+        {
+            get { return (TimeSpan)this.GetValue(LastStepTimeProperty); }
+            set { this.SetValue(LastStepTimeProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for timeSpan.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LastStepTimeProperty =
+            DependencyProperty.Register("LastStepTime", typeof(TimeSpan), typeof(CalculaterViewmodel), new PropertyMetadata(default(TimeSpan)));
+
+
+
+        public double LastStepPropabilityGain
+        {
+            get { return (double)this.GetValue(LastStepPropabilityGainProperty); }
+            set { this.SetValue(LastStepPropabilityGainProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LastStepPropabilityGain.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LastStepPropabilityGainProperty =
+            DependencyProperty.Register("LastStepPropabilityGain", typeof(double), typeof(CalculaterViewmodel), new PropertyMetadata(0.0));
+
+
 
 
 
@@ -185,6 +226,8 @@ namespace Dice.Ui
         private async Task StartCalculation()
         {
             var stopWatch = System.Diagnostics.Stopwatch.StartNew();
+            var oneTurnStopwatch = new System.Diagnostics.Stopwatch();
+
             try
             {
                 this.IsBuisy = true;
@@ -220,8 +263,9 @@ namespace Dice.Ui
                 {
                     while (this.IsBuisy)
                     {
-                        await Task.Delay(200);
+                        await Task.Delay(500);
                         this.CalculationTime = stopWatch.Elapsed;
+                        this.TimeSinceLastStep = oneTurnStopwatch.Elapsed;
                     }
                 }
 
@@ -232,6 +276,7 @@ namespace Dice.Ui
                     this.cancel = new System.Threading.CancellationTokenSource();
                     try
                     {
+                        //var statistics = new RunningStatistics();
                         this.calculateCommand.FireCanExecuteChange();
                         this.cancelCommand.FireCanExecuteChange();
                         var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code.Text);
@@ -241,17 +286,35 @@ namespace Dice.Ui
                         executor.Epsylon = 0.0001;
                         var cal = executor.Calculate(0);
 
+                        oneTurnStopwatch.Start();
+                        var lastPropability = 0.0;
                         await foreach (var t in cal.WithCancellation(this.cancel.Token))
                         {
+                            var elapse = oneTurnStopwatch.Elapsed;
+                            oneTurnStopwatch.Restart();
+
+                            if (elapse.TotalSeconds > 1)
+                            {
+                                lastPropability = this.Percentage;
+                                this.LastStepTime = elapse;
+                            }
                             this.Percentage = t.CompletePercentage;
                             this.AddResult(t.Result, t.Propability * 100);
+
+                            if (elapse.TotalSeconds <= 1)
+                            {
+                                this.LastStepPropabilityGain = this.Percentage - lastPropability;
+                            }
+
                         }
+                        //statistics.
 
                         this.Percentage = 1;
                         await this.PersistResult();
                     }
                     finally
                     {
+                        oneTurnStopwatch.Stop();
                         this.cancel.Dispose();
                         this.cancel = null;
                     }

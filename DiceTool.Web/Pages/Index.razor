@@ -232,8 +232,6 @@ return result
                     this.Results.Clear();
                     this.indexLookup.Clear();
                     executor.Epsylon = 0.0001;
-                    executor.YieldStep = 1;
-                    executor.YieldTimeout = TimeSpan.FromMilliseconds(2000);
                     var cal = executor.Calculate(0);
 
                     await foreach (var t in cal.WithCancellation(this.cancel.Token))

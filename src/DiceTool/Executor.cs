@@ -37,14 +37,22 @@ namespace Dice
             //this.lastState = composer.State.Current;
         }
 
-        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(IEnumerable<TIn> input) => this.CalculateInternal(input);
+        public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(IEnumerable<TIn> input) => this.CalculateWraper(input);
         public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(params TIn[] input) => this.Calculate(input as IEnumerable<TIn>);
 
 
         public double Epsylon { get; set; } = 0.000000001;
 
 
-        private async IAsyncEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, [EnumeratorCancellation] System.Threading.CancellationToken cancel = default)
+        private async IAsyncEnumerable<ResultEntry<TResult, TIn>> CalculateWraper(IEnumerable<TIn> input, [EnumeratorCancellation] System.Threading.CancellationToken cancel = default)
+        {
+            var enumerator = this.CalculateInternal(input, cancel).GetEnumerator();
+            while (await Task.Run(() => enumerator.MoveNext()))
+                yield return enumerator.Current;
+        }
+
+
+        private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, System.Threading.CancellationToken cancel = default)
         {
 
             //var sum = new Dictionary<TResult, double>();
@@ -79,13 +87,10 @@ namespace Dice
                 watch.Restart();
                 count++;
 #endif
-                await Task.Run(() =>
-                {
-                    using (choiseManager.EnableMutation())
-                        this.lastState.PreCalculatePath(whileManager);
+                using (choiseManager.EnableMutation())
+                    this.lastState.PreCalculatePath(whileManager);
 
-                    this.lastState.Optimize(whileManager);
-                }, cancel);
+                this.lastState.Optimize(whileManager);
 
                 var currentSum = 0.0;
                 var statePropability = this.lastState.GetStatePropability(whileManager);

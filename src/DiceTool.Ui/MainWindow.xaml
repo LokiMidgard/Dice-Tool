@@ -6,12 +6,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Dice.Ui"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:system="clr-namespace:System;assembly=netstandard"
     Title="Dice Tool"
     Width="800"
     Height="450"
     MinWidth="605"
     MinHeight="300"
     mc:Ignorable="d">
+    <Window.Resources>
+        <local:MultiplayConverter x:Key="multiplierConverter" />
+        <system:String x:Key="timespanFormat">mm':'ss</system:String>
+    </Window.Resources>
     <Window.DataContext>
         <local:MainViewmodel />
     </Window.DataContext>
@@ -50,12 +55,61 @@
                             Margin="3"
                             Maximum="1"
                             Minimum="0"
+                            
                             Value="{Binding Percentage}" />
-                        <TextBlock
+                        <Grid
                             Grid.Row="1"
                             Grid.Column="3"
-                            Margin="3"
-                            Text="{Binding CalculationTime, StringFormat=g}" />
+                            Margin="3">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Text="Time since last step" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="Last Step Time" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Text="Last Step Gain" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Text="Total Time" />
+
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Text="{Binding TimeSinceLastStep, StringFormat={StaticResource timespanFormat}}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Text="{Binding LastStepTime, StringFormat={StaticResource timespanFormat}}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Text="{Binding LastStepPropabilityGain, Converter={StaticResource multiplierConverter}, ConverterParameter=100, StringFormat={}{0:f2}%}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="3"
+                                Text="{Binding CalculationTime, StringFormat={StaticResource timespanFormat}}" />
+                        </Grid>
                         <ListBox
                             Grid.Row="2"
                             Grid.RowSpan="2"
