@@ -8,16 +8,13 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		  <Language Condition=" '$(Language)' == '' ">C#</Language>
 		<PackageId>DiceTool</PackageId>
 		<Description>This library helps with the calculation of dice provability's.</Description>
 		<PackageTags>Dice; Dice Calculation</PackageTags>
 		<IncludeSymbols>true</IncludeSymbols>
-		<!--<Version>2.0.0-beta</Version>-->
-		<!--<Version Condition="'$(Configuration)'=='Debug'">$(Version)-Debug</Version>-->
 		<Authors>Patrick Kranz</Authors>
 		<IconUrl>https://raw.githubusercontent.com/LokiMidgard/Dice-Tool/master/icon.png</IconUrl>
-		<PackageLicenseUrl>https://github.com/LokiMidgard/Dice-Tool/blob/master/License.txt</PackageLicenseUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/LokiMidgard/Dice-Tool</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/LokiMidgard/Dice-Tool.git</RepositoryUrl>
 		<Copyright>Patrick Kranz</Copyright>
@@ -37,8 +34,8 @@ Reimplemented version, which is much faster.
 
 	<ItemGroup>
 		<PackageReference Include="GitVersion.MsBuild" Version="5.6.3">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="MathNet.Numerics" Version="4.7.0" />
 	</ItemGroup>

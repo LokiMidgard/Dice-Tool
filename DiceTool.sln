@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28315.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5AB13D4A-CCA9-4616-A5D2-9255D164697F}"
 	ProjectSection(SolutionItems) = preProject
-		azure-pipelines.yml = azure-pipelines.yml
+		GitVersion.yml = GitVersion.yml
 		icon.png = icon.png
 		icon.svg = icon.svg
 		License.txt = License.txt
@@ -21,6 +21,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Ui", "src\DiceTool.Ui\DiceTool.Ui.csproj", "{4923D4B4-9884-44BF-84A0-9EA4030DC7F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Web", "src\DiceTool.Web\DiceTool.Web.csproj", "{0A924CA0-559D-4EF1-9C76-3A357DDD584C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{96D19BC2-ECA7-4C45-997C-D94122766555}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\release.yml = .github\workflows\release.yml
+		.github\workflows\testBuild.yml = .github\workflows\testBuild.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
