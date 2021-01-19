@@ -4,7 +4,7 @@
 		<TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
-		<AssemblyName>Dice.Parser</AssemblyName>
+		<AssemblyName>DiceTool.Parser</AssemblyName>
 		<RootNamespace>Dice.Parser</RootNamespace>
 	</PropertyGroup>
 
