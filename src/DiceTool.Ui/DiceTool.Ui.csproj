@@ -9,6 +9,7 @@
 		<LangVersion>9.0</LangVersion>
 		<RootNamespace>Dice.Ui</RootNamespace>
 		<AssemblyName>DiceTool</AssemblyName>
+		<PackageId>DiceTool.Ui</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>
