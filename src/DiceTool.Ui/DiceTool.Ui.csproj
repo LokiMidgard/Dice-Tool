@@ -8,7 +8,7 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<LangVersion>9.0</LangVersion>
 		<RootNamespace>Dice.Ui</RootNamespace>
-		<AssemblyName>DiceTool</AssemblyName>
+		<AssemblyName>Dice-Tool</AssemblyName>
 		<PackageId>DiceTool.Ui</PackageId>
 	</PropertyGroup>
 
@@ -31,8 +31,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\DiceTool.Core\DiceTool.Core.csproj" />
 		<ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
-		<ProjectReference Include="..\DiceTool\DiceTool.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

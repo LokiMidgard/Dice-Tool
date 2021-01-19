@@ -16,8 +16,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\DiceTool.Core\DiceTool.Core.csproj" />
 		<ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
-		<ProjectReference Include="..\DiceTool\DiceTool.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
