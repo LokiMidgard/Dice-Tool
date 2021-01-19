@@ -41,7 +41,7 @@ jobs:
             <NoWarn>CS0618;CS1591;CS1701;CS8618;CS8632;NU5048;NU5105;NU5125</NoWarn>
           </PropertyGroup>
 
-          <PropertyGroup Condition=" ''$(GitVersion_SemVer)'' != ''">
+          <PropertyGroup Condition=" ''$(GitVersion_SemVer)'' != ''''">
             <GetVersion>false</GetVersion>
             <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
             <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
