@@ -26,14 +26,13 @@ Reimplemented version, which is much faster.
 		<AssemblyName>Dice.core</AssemblyName>
 	</PropertyGroup>
 
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<WarningsAsErrors>NU1605;CS8603</WarningsAsErrors>
 	</PropertyGroup>
 
 
 	<ItemGroup>
-		<PackageReference Include="GitVersion.MsBuild" Version="5.6.3">
+		<PackageReference Include="GitVersion.MsBuild" Version="5.6.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
