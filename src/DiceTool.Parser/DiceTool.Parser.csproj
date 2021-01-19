@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net5.0</TargetFrameworks>
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<AssemblyName>DiceTool.Parser</AssemblyName>
@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DiceTool\DiceTool.csproj" />
+		<ProjectReference Include="..\DiceTool\DiceTool.Core.csproj" />
 	</ItemGroup>
 
 
