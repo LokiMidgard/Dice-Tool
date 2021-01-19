@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\DiceTool.Parser\DiceTool.Parser.csproj" />
-    <ProjectReference Include="..\src\DiceTool\DiceTool.csproj" />
+    <ProjectReference Include="..\DiceTool.Parser\DiceTool.Parser.csproj" />
+    <ProjectReference Include="..\DiceTool\DiceTool.csproj" />
   </ItemGroup>
 
   <ItemGroup>
