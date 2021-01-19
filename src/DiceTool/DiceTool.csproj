@@ -5,6 +5,7 @@
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Dice</RootNamespace>
+		<AssemblyName>DiceTool.Core</AssemblyName>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -23,7 +24,6 @@
 Reimplemented version, which is much faster.
 ]]>
 		</PackageReleaseNotes>
-		<AssemblyName>Dice.core</AssemblyName>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
