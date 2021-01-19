@@ -1,4 +1,4 @@
-name: .NET
+name: Release
 
 on:
   push:
@@ -16,6 +16,21 @@ jobs:
     - uses: actions/checkout@v2
       with:  
         fetch-depth: 0
+      
+    - name: Fetch Tags
+      run: |
+            git fetch --tags --force
+         
+    - name: Set Version
+      run: |
+          v=`echo "${{ github.ref }}" | rev | cut -d"/" -f1  | rev`
+          v2=`echo "${{ github.ref }}" | rev | cut -d"v" -f1  | rev`
+          echo "GIT_Verion=$v" >> $GITHUB_ENV
+          echo "GIT_Verion2=$v2" >> $GITHUB_ENV
+    - name: Set env
+      run: |
+          echo "$(git tag -l --format='%(contents)' ${{ env.GIT_Verion }})" >> changes.md
+
       
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -35,4 +50,50 @@ jobs:
       run: dotnet publish src/DiceTool.Ui --framework net5.0-windows --configuration Release --self-contained false -o publish/net5.0
 
     - name: Pack X64
-      run: compress-archive publish/x64 publish/x64.zip
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-x64.zip
+    - name: Pack X86
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-x86.zip
+    - name: Pack Framework Dependent (Net 5.0)
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0.zip         
+      
+    - name: Create Release
+      uses: actions/create-release@v1.1.4
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        # The name of the tag. This should come from the webhook payload, `github.GITHUB_REF` when a user pushes a new tag
+        tag_name: ${{ github.ref }}
+        # The name of the release. For example, `Release v1.0.1`
+        release_name: Release ${{ github.ref }}
+
+    - name: Upload Release Asset x64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-x64.zip
+        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-x64
+        asset_content_type: application/x-compressed
+
+    - name: Upload Release Asset x86
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-x86.zip
+        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-x86
+        asset_content_type: application/x-compressed
+
+    - name: Upload Release Asset .Net 5.0
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0.zip
+        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0
+        asset_content_type: application/x-compressed
