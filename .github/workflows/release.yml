@@ -24,7 +24,7 @@ jobs:
 
     - name: Disable GitVersionTask on builds
       run: |
-        set-content -Path Directory.build.props -Value @'
+        set-content -Path Directory.build.props -Value '
         <?xml version="1.0" encoding="utf-8"?>
         <Project>
           <PropertyGroup>
@@ -37,7 +37,7 @@ jobs:
             <NoWarn>CS0618;CS1591;CS1701;CS8618;CS8632;NU5048;NU5105;NU5125</NoWarn>
           </PropertyGroup>
 
-          <PropertyGroup Condition=" '$(GitVersion_SemVer)' != ''">
+          <PropertyGroup Condition=" ''$(GitVersion_SemVer)'' != ''">
             <GetVersion>false</GetVersion>
             <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
             <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
@@ -45,17 +45,17 @@ jobs:
 
             <Version>$(GitVersion_FullSemVer)</Version>
             <VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
-            <VersionSuffix Condition=" '$(UseFullSemVerForNuGet)' == 'false' ">$(GitVersion_NuGetPreReleaseTag)</VersionSuffix>
-            <VersionSuffix Condition=" '$(UseFullSemVerForNuGet)' == 'true' ">$(GitVersion_PreReleaseTag)</VersionSuffix>
-            <PackageVersion Condition=" '$(UseFullSemVerForNuGet)' == 'false' ">$(GitVersion_NuGetVersion)</PackageVersion>
-            <PackageVersion Condition=" '$(UseFullSemVerForNuGet)' == 'true' ">$(GitVersion_FullSemVer)</PackageVersion>
-            <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(GitVersion_InformationalVersion)</InformationalVersion>
-            <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(GitVersion_AssemblySemVer)</AssemblyVersion>
-            <FileVersion Condition=" '$(FileVersion)' == '' ">$(GitVersion_AssemblySemFileVer)</FileVersion>
-            <RepositoryBranch Condition=" '$(RepositoryBranch)' == '' ">$(GitVersion_BranchName)</RepositoryBranch>
-            <RepositoryCommit Condition=" '$(RepositoryCommit)' == '' ">$(GitVersion_Sha)</RepositoryCommit>
+            <VersionSuffix Condition=" ''$(UseFullSemVerForNuGet)'' == ''false'' ">$(GitVersion_NuGetPreReleaseTag)</VersionSuffix>
+            <VersionSuffix Condition=" ''$(UseFullSemVerForNuGet)'' == ''true'' ">$(GitVersion_PreReleaseTag)</VersionSuffix>
+            <PackageVersion Condition=" ''$(UseFullSemVerForNuGet)'' == ''false'' ">$(GitVersion_NuGetVersion)</PackageVersion>
+            <PackageVersion Condition=" ''$(UseFullSemVerForNuGet)'' == ''true'' ">$(GitVersion_FullSemVer)</PackageVersion>
+            <InformationalVersion Condition=" ''$(InformationalVersion)'' == '''' ">$(GitVersion_InformationalVersion)</InformationalVersion>
+            <AssemblyVersion Condition=" ''$(AssemblyVersion)'' == '''' ">$(GitVersion_AssemblySemVer)</AssemblyVersion>
+            <FileVersion Condition=" ''$(FileVersion)'' == '''' ">$(GitVersion_AssemblySemFileVer)</FileVersion>
+            <RepositoryBranch Condition=" ''$(RepositoryBranch)'' == '''' ">$(GitVersion_BranchName)</RepositoryBranch>
+            <RepositoryCommit Condition=" ''$(RepositoryCommit)'' == '''' ">$(GitVersion_Sha)</RepositoryCommit>
           </PropertyGroup>
-        </Project>'@
+        </Project>'
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
