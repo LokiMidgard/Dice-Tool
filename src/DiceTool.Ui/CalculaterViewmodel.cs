@@ -84,8 +84,8 @@ namespace Dice.Ui
 
         public TimeSpan TimeSinceLastStep
         {
-            get { return (TimeSpan)GetValue(TimeSinceLastStepProperty); }
-            set { SetValue(TimeSinceLastStepProperty, value); }
+            get { return (TimeSpan)this.GetValue(TimeSinceLastStepProperty); }
+            set { this.SetValue(TimeSinceLastStepProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for TimeSinceLastStep.  This enables animation, styling, binding, etc...

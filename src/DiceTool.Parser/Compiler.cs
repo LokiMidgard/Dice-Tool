@@ -22,6 +22,7 @@ namespace Dice.Parser
 
 
         internal IExecutor<T, int> Compile<T>(ProgramSyntax p)
+            where T : notnull
         {
             var returnType = Validator.GetType(p.Return, this.variables);
             if (returnType == typeof(T))
@@ -30,6 +31,7 @@ namespace Dice.Parser
         }
 
         private IExecutor<T, int> Configure<T>(ProgramSyntax p)
+            where T : notnull
         {
             return Dice.Calculator<int>.Configure(x =>
             {
@@ -111,6 +113,7 @@ namespace Dice.Parser
 
 
                     void GenerateSwitch<TIn, TOut>()
+                        where TOut : notnull
                     {
                         var conditions = switchSyntax.Cases.Select(c => this.GenerateBinarayExpresion<TIn, TIn, bool>(c.Op, switchSyntax.Input, c.Input, x)).ToArray();
                         var combinedConditions = x.Combine(conditions);
@@ -143,12 +146,13 @@ namespace Dice.Parser
 
 
         private P<T> GenerateExpression<T>(ExpresionSyntax expresion, Composer<int> x)
+            where T : notnull
         {
 
             switch (expresion)
             {
                 case ParentisedSyntax parentised:
-                    return GenerateExpression<T>(parentised.Expression, x);
+                    return this.GenerateExpression<T>(parentised.Expression, x);
                 case ConstSyntax<T> constSyntax:
                     return x.Const(constSyntax.Value);
 

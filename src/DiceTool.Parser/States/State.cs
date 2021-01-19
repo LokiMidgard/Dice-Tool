@@ -137,13 +137,13 @@ namespace Dice.Parser.Syntax
     }
 
     internal class ConstSyntax<T> : ConstSyntax
+        where T : notnull
     {
-        public ConstSyntax([DisallowNull] T value) : base(value)
+        public ConstSyntax(T value) : base(value)
         {
             this.Value = value;
         }
 
-        [NotNull]
         public new T Value { get; }
 
         public override Type Type => typeof(T);
@@ -152,9 +152,9 @@ namespace Dice.Parser.Syntax
         {
             if (typeof(T) == typeof(string))
                 return $"\"{this.Value}\"";
-            if (typeof(T) == typeof(bool) && this.Value is not null)
+            if (typeof(T) == typeof(bool))
                 return ((bool)base.Value) ? "true" : "false";
-            return this.Value.ToString()!;
+            return this.Value.ToString()!; // everything that may be in Value retunrs a string, not null
         }
     }
 

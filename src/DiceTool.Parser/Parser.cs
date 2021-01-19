@@ -17,6 +17,7 @@ namespace Dice.Parser
             return p.ToString();
         }
         public static IExecutor<TReturn, int> ParseExpression<TReturn>(string program)
+            where TReturn : notnull
         {
             var p = Program.Parse(program);
             var variables = Validator.Validate(p);
