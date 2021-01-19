@@ -334,7 +334,7 @@ There is a Windows Desktop application that allows "fast" testing. You can add
 multiple dice programs and it will save the results if they where already
 calculated.
 
-![Sample UI](Docs/Ui-Sample.png)
+![Sample UI](docs/Ui-Sample.png)
 
 You can write the code on the left side and the results will appear on the
 right. There you also find a progress bar that shows the overall progress. It
