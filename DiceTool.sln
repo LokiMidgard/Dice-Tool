@@ -35,7 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E177
 		docs\samples\TDE-Fight.md = docs\samples\TDE-Fight.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Core", "src\DiceTool.Core\DiceTool.Core.csproj", "{F8934153-A672-4EA5-9EDF-3B1BB9A63ECD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Core", "src\DiceTool\DiceTool.Core.csproj", "{F8934153-A672-4EA5-9EDF-3B1BB9A63ECD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

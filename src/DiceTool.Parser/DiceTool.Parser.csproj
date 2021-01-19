@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\DiceTool.Core\DiceTool.Core.csproj" />
+	  <ProjectReference Include="..\DiceTool\DiceTool.Core.csproj" />
 	</ItemGroup>
 
 
