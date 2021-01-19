@@ -28,9 +28,9 @@ jobs:
 #    - name: Test
 #      run: dotnet test --no-build --verbosity normal
     - name: Publish X64
-      run: dotnet publish src/DiceTool --runtime win-x64 --configuration Release --self-contained true -o publish/x64
+      run: dotnet publish src/DiceTool.Ui --runtime win-x64 --configuration Release --self-contained true -o publish/x64
     - name: Publish X86
-      run: dotnet publish src/DiceTool --runtime win-x86 --configuration Release --self-contained true -o publish/x86
+      run: dotnet publish src/DiceTool.Ui --runtime win-x86 --configuration Release --self-contained true -o publish/x86
     - name: Publish Framework Dependent (Net 5.0)
-      run: dotnet publish src/DiceTool --framework net5.0 --configuration Release --self-contained false -o publish/net5.0
+      run: dotnet publish src/DiceTool.Ui --framework net5.0 --configuration Release --self-contained false -o publish/net5.0
 
