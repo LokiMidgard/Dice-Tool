@@ -16,20 +16,6 @@ jobs:
       with:  
         fetch-depth: 0
       
-    - name: Fetch Tags
-      run: |
-            git fetch --tags --force
-         
-    - name: Set Version
-      run: |
-          v=`echo "${{ github.ref }}" | rev | cut -d"/" -f1  | rev`
-          v2=`echo "${{ github.ref }}" | rev | cut -d"v" -f1  | rev`
-          echo "GIT_Verion=$v" >> $GITHUB_ENV
-          echo "GIT_Verion2=$v2" >> $GITHUB_ENV
-    - name: Set env
-      run: |
-          echo "$(git tag -l --format='%(contents)' ${{ env.GIT_Verion }})" >> changes.md
-      
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
