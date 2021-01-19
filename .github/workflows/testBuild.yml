@@ -26,6 +26,9 @@ jobs:
 #      run: dotnet build --no-restore
 #    - name: Test
 #      run: dotnet test --no-build --verbosity normal
+
+    - name: Build Library
+      run: dotnet pack .\src\DiceTool -o publish/
     - name: Publish X64
       run: dotnet publish src/DiceTool.Ui --runtime win-x64 --configuration Release --self-contained true -o publish/x64
     - name: Publish X86
