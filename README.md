@@ -9,7 +9,8 @@ It is no longer possible to just implement a class in C# and use normal local va
 Instead you need to call and chain some library methods to represent your logic. This allows for higher performance since we have a greater
 understanding of the shape of your code.
 
-To make it easier to simulate your dices a DSL was also added.
+To make it easier to simulate your dices, a DSL was also added.
+You find a Windows Program under [Releases](https://github.com/LokiMidgard/Dice-Tool/releases/latest) that uses this DSL.
 
 # The Dice Language
 
