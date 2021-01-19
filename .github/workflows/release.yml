@@ -72,7 +72,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64.zip
-        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64.zip
         asset_content_type: application/x-compressed
 
     - name: Upload Release Asset x86
@@ -82,7 +82,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86.zip
-        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86.zip
         asset_content_type: application/x-compressed
 
     - name: Upload Release Asset .Net 5.0
@@ -93,7 +93,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0.zip
-        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0.zip
         asset_content_type: application/x-compressed
 
     - name: Publish Nuget Packages
