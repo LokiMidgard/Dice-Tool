@@ -17,19 +17,10 @@ jobs:
       with:  
         fetch-depth: 0
       
-    - name: Fetch Tags
-      run: |
-            git fetch --tags --force
-         
-    - name: Set Version
-      run: |
-          v=`echo "${{ github.ref }}" | rev | cut -d"/" -f1  | rev`
-          v2=`echo "${{ github.ref }}" | rev | cut -d"v" -f1  | rev`
-          echo "GIT_Verion=$v" >> $GITHUB_ENV
-          echo "GIT_Verion2=$v2" >> $GITHUB_ENV
-    - name: Set env
-      run: |
-          echo "$(git tag -l --format='%(contents)' ${{ env.GIT_Verion }})" >> changes.md
+    - name: GitVersion
+      run: | 
+        dotnet tool install --global GitVersion.Tool --version 5.6.3
+        dotnet gitversion /output buildserver
 
       
     - name: Setup .NET
@@ -42,19 +33,24 @@ jobs:
 #      run: dotnet build --no-restore
 #    - name: Test
 #      run: dotnet test --no-build --verbosity normal
-    - name: Publish X64
+
+
+    - name: Build Library
+      run: dotnet pack .\src\DiceTool -o publish/
+  
+    - name: Build X64
       run: dotnet publish src/DiceTool.Ui --runtime win-x64 --configuration Release --self-contained true -o publish/x64
-    - name: Publish X86
+    - name: Build X86
       run: dotnet publish src/DiceTool.Ui --runtime win-x86 --configuration Release --self-contained true -o publish/x86
-    - name: Publish Framework Dependent (Net 5.0)
+    - name: Build Framework Dependent (Net 5.0)
       run: dotnet publish src/DiceTool.Ui --framework net5.0-windows --configuration Release --self-contained false -o publish/net5.0
 
     - name: Pack X64
-      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-x64.zip
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64.zip
     - name: Pack X86
-      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-x86.zip
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86.zip
     - name: Pack Framework Dependent (Net 5.0)
-      run: compress-archive publish/x64 publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0.zip         
+      run: compress-archive publish/x64 publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0.zip         
       
     - name: Create Release
       uses: actions/create-release@v1.1.4
@@ -73,8 +69,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-x64.zip
-        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-x64
+        asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64.zip
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x64
         asset_content_type: application/x-compressed
 
     - name: Upload Release Asset x86
@@ -83,8 +79,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-x86.zip
-        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-x86
+        asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86.zip
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-x86
         asset_content_type: application/x-compressed
 
     - name: Upload Release Asset .Net 5.0
@@ -94,6 +90,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0.zip
-        asset_name: publish/DiceTool-${{ env.GIT_Verion2 }}-net5.0
+        asset_path: ./publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0.zip
+        asset_name: publish/DiceTool-${{ env.GitVersion_FullSemVer }}-net5.0
         asset_content_type: application/x-compressed
+
+    - name: Publish Nuget Packages
+      run: |
+        dotnet nuget push ./publish/DiceTool.${{ env.GitVersion_FullSemVer }}.nupkg -k {{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push ./publish/DiceTool.${{ env.GitVersion_FullSemVer }}.symbols.nupkg -k {{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+      
+          
