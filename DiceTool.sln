@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Parser", "src\Dice
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Ui", "src\DiceTool.Ui\DiceTool.Ui.csproj", "{4923D4B4-9884-44BF-84A0-9EA4030DC7F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceTool.Web", "DiceTool.Web\DiceTool.Web.csproj", "{AA9AFCF2-83CF-4657-ADE9-EE648EF5BC8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceTool.Web", "src\DiceTool.Web\DiceTool.Web.csproj", "{0A924CA0-559D-4EF1-9C76-3A357DDD584C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,10 +44,10 @@ Global
 		{4923D4B4-9884-44BF-84A0-9EA4030DC7F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4923D4B4-9884-44BF-84A0-9EA4030DC7F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4923D4B4-9884-44BF-84A0-9EA4030DC7F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA9AFCF2-83CF-4657-ADE9-EE648EF5BC8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA9AFCF2-83CF-4657-ADE9-EE648EF5BC8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA9AFCF2-83CF-4657-ADE9-EE648EF5BC8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA9AFCF2-83CF-4657-ADE9-EE648EF5BC8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A924CA0-559D-4EF1-9C76-3A357DDD584C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A924CA0-559D-4EF1-9C76-3A357DDD584C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A924CA0-559D-4EF1-9C76-3A357DDD584C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A924CA0-559D-4EF1-9C76-3A357DDD584C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
