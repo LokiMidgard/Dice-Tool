@@ -1,5 +1,5 @@
 [![NuGet](https://img.shields.io/nuget/v/DiceTool.svg?style=flat-square)](https://www.nuget.org/packages/DiceTool/)
-![Test Build](https://github.com/LokiMidgard/Dice-Tool/workflows/Test%20Build/badge.svg)
+[![Test Build](https://github.com/LokiMidgard/Dice-Tool/workflows/Test%20Build/badge.svg)](https://github.com/LokiMidgard/Dice-Tool/actions?query=workflow%3A%22Test+Build%22)
 [![GitHub license](https://img.shields.io/github/license/LokiMidgard/Dice-Tool.svg?style=flat-squar)](https://tldrlegal.com/license/mit-license#summary)
 
 # Dice-Tool
@@ -333,6 +333,8 @@ E.g the switch statement normaly spans multiple lines. You must not write a comm
 There is a Windows Desktop application that allows "fast" testing. You can add
 multiple dice programs and it will save the results if they where already
 calculated.
+
+![Docs/Ui-Sample.png]
 
 You can write the code on the left side and the results will appear on the
 right. There you also find a progress bar that shows the overall progress. It
