@@ -30,7 +30,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{A8DED3BD-9708-484B-9637-0C0CC748372F}"
 	ProjectSection(SolutionItems) = preProject
+		docs\dice-language.md = docs\dice-language.md
 		docs\Ui-Sample.png = docs\Ui-Sample.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E1772C6A-8DEF-4440-9B28-AB1D288413C7}"
+	ProjectSection(SolutionItems) = preProject
+		docs\samples\TDE-Fight.md = docs\samples\TDE-Fight.md
 	EndProjectSection
 EndProject
 Global
@@ -62,6 +68,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1772C6A-8DEF-4440-9B28-AB1D288413C7} = {A8DED3BD-9708-484B-9637-0C0CC748372F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6043B5B-B82F-4CBC-89AF-6FB0026C5CF8}
