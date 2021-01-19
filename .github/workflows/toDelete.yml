@@ -1,0 +1,34 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        depth: 0
+
+    
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: install GitVersion
+      run: dotnet tool install --global GitVersion.Tool --version 5.6.3
+
+    - name: runn GitVersion
+      run:  dotnet gitversion /output file
+
+
+
+    - name: Restore dependencies
+      run: |
+        $o = [Environment]::GetEnvironmentVariables()
+        echo $o
