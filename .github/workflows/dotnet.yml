@@ -34,3 +34,5 @@ jobs:
     - name: Publish Framework Dependent (Net 5.0)
       run: dotnet publish src/DiceTool.Ui --framework net5.0-windows --configuration Release --self-contained false -o publish/net5.0
 
+    - name: Pack X64
+      run: compress-archive publish/x64 publish/x64.zip
