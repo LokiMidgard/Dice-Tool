@@ -22,7 +22,7 @@ Lets look at a simple sample.
 
 You can draw a diagram to visualize how the probability's are distributed:
 
-![probability graph](images\simple-propability.png)
+![probability graph](images/simple-propability.png)
 
 The Probability is written in the braces, before that is the rolled value. In
 the next line is the result.
