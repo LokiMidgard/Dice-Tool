@@ -335,8 +335,88 @@ return sum
 
 In this sample the first variable does not increase the complexity. Since Line 2 does not require `noLongerUsed` its table can be ignored.
 
-## Loops
+## States
 
+The program is represent with states every operation results in one state. Each
+state knows its parent. A state can have a table which contains variables. If we
+need to know the values of an variable we can ask a state. It will look up the
+value of the variable in its own table, if it's table does not contain the
+searched variable it asks its parent.
 
+```
+var r1: int = D6
+var r2: int = D6
+var sum: int = r1 + r2
+return sum
+```
+
+The sample above creates one state per line. With the exceptions of line 3 that
+has two states. The assign operation gives an variable a name which its own state
+and the + operation creates an anonym variable which stores the result of the
+operation and is the other state.
+
+state 1 in line one has a table with the value of `r1`. state 2 in Line 2 has a
+table with `r2`. state 3 in line 3, the addition has a table that contains also
+`r1` and `r2` in addition to the anonymous variable that is the sum of both. For
+convenient reasons we call that variable `Z`. state 4, also line 3 assigns
+variable `Z` to the named variable `sum`. It contains a table with the values of
+`sum` since neither of the variables `r1`, `r2` and `z` will be needed after
+this state. The last line is the return state and does not have a table.
+
+The next step is to tell every state which variables the following states will
+need, as described in the last section. After that we optimize the tables, we
+start with the first state and calculate/create the table. After that we remove
+all columns that we no longer need and reduce the table rows.
+
+If we now want to calculate the result, we ask the root state for it. The root
+state does not know the result so it asks its parent state, state 4 the
+assignment, for the value of sum. Since state 4 did know it needed the `sum` its
+table retained a column containing the variable and it can be returned.
+
+# Loop
+
+A loop is represented by two states a do state that marks the beginning and a
+while state that has a condition and marks the end.
+
+The do state is a special state since it has 2 parents. The state that was
+created right before it like every other state and its corresponding while state
+as a second.
+
+To prevent that we will never get a result if we have an infinite loop, we
+calculate the results multiple times. increasing the number of times we take the
+loop by one. The first time we calculate the result under the assumption we only
+visit the loop once. The second calculation will visit the loop exactly twice.
+
+In order to get the correct result we need to know what the total probability of
+our result is. Up till now the sum of all our rows would result in a p of 1.
+Using while this is no longer the case.
+
+```
+var sum: int = 0
+do {
+    sum = sum +1
+} while D6 >=4
+return sum
+```
+
+In the example above when we want to calculate sum, we have only a total p of
+0.5. It may be easier to understand if we calculate the probability from bottom
+up. We want to know the total probability of sum. We assume a probability of 1,
+if we can get to the top of the program without having to change it we were
+correct. The first statement before the return is actually the increment of sum,
+this does not change the probability. the statement before that is the do
+statement, there is actually a 50% chance that we had an additional loop this,
+since the condition in the while is a 50/50 chance. So since we only take the
+loop once in the first iteration, we need to reduce every probability of every
+pervious state by 50%. The next and last state is an assignment of an constant.
+Assigning a constant to a variable will result in an table that has only one
+entry with a p of 1. But since there is only a 50% chance to have only one loop,
+we need to set the probability that sum is 0 to 0.5.
+
+Since we check every iteration the probability of the while condition, we know
+if reached the maximum iteration of the loop. That is the case if the previous
+state has a 100% chance an the while state has 0% chance of being the parent.
+
+# Actual implementation
 
 To be continued...
