@@ -307,7 +307,23 @@ sum | p
 11| 2/36
 12| 1/36
 
-Since we backtrack from the result we also eliminate dead variables.
+Of course we need to calculate every of the 36 rows in order to calculate the sum of p. 
+The advantage will be visible if we extend the sample with a third role
+
+```
+var r1: int = D6
+var r2: int = D6
+var r3: int = D6
+var sum1: int = r1 + r2
+var sum2: int = sum1 + r3
+return sum2
+```
+
+The tables of `r1` `r2` `r3` start with 6 rows each. Combining `r1` and `r2` to
+calculate `sum1` will create a table with 36 entry's. Before we combine `sum1` with `r3` we can optimize the table and reduce the number of rows to 11. So we only need to calculate 66 rows (6 * 11) instead of 216 ( 36 * 6).
+
+
+Since we backtrack from the result to find the variables we need, we also eliminate dead variables.
 
 ```
 var noLongerUsed: int D1000
@@ -320,5 +336,7 @@ return sum
 In this sample the first variable does not increase the complexity. Since Line 2 does not require `noLongerUsed` its table can be ignored.
 
 ## Loops
+
+
 
 To be continued...
