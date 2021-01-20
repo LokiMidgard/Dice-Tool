@@ -13,6 +13,8 @@ This Project consists of
  - A Domain Specific Language called `Dice Language` to write down what your intend is
  - A Windows Desktop Application that will give you the results (You can download it under [Releases](https://github.com/LokiMidgard/Dice-Tool/releases/latest))
  
+ You can read [how it wokrs](docs/how-it-works.md) in the docs.
+
  # The Dice Language
 
  It is a simple langunage but should allow you to formulate your Intent.

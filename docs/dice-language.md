@@ -44,18 +44,21 @@ Following keywords are reserved and should not be used as variable names.
 
 ## Constant Literals
 
-You can write Integer (ℤ) and "Quoted strings" with backslash (`\`) as escape character and `ture` and `false`like in most languages.
-In Addition you can also use a literal for dices. The literal is constructed as following: `D|W\d+` e.g. `D6` for a 6 sided dice or `W20` for a 20 sided dice.
-It does not matter if you use `D` or `W`. `D` stands for dice and `W` for Werfel the German word for dice.
+You can write Integer (ℤ) and "Quoted strings" with backslash (`\`) as escape
+character and `ture` and `false`like in most languages. In Addition you can also
+use a literal for dices. The literal is constructed as following: `D|W\d+` e.g.
+`D6` for a 6 sided dice or `W20` for a 20 sided dice. It does not matter if you
+use `D` or `W`. `D` stands for dice and `W` for Werfel the German word for dice.
 
 
-## Retrun
+## Return
 
-To actually get some output you need to return a value. A return statement looks like following:
+To actually get some output you need to return a value. A return statement looks
+like following:
 ```
 return {expression}
 ```
-E.g `return D6` which is a complete valid programm.
+E.g `return D6` which is a complete valid program.
 
 Only one return Statement is allowed and it must be the last statement.
 
@@ -66,9 +69,10 @@ Before you can assign a value to a variable you need to define it.
 var {name} : {type} [= {expression}]
 ```
 
-`name` must be a valid identifier, meaning an alpha numeric word that does start with an character and is not a keyword and nor a dice.
-`type` must be one of `int`, `bool` or `string`.
-You may optionally assign a value at declaration time.
+`name` must be a valid identifier, meaning an alpha numeric word that does start
+with an character and is not a keyword and nor a dice. `type` must be one of
+`int`, `bool` or `string`. You may optionally assign a value at declaration
+time.
 
 To assign a new value use `=`
 ```
@@ -78,7 +82,9 @@ E.g to increment the variable `foo` you can write `foo = foo + 1`
 
 ## Loops
 
-A Loop starts with the keyword `do` followed by a block that is marked with `{` and `}` and ends with a `while` followed by an condition, an expression that evaluates to a Boolean.
+A Loop starts with the keyword `do` followed by a block that is marked with `{`
+and `}` and ends with a `while` followed by an condition, an expression that
+evaluates to a Boolean.
 
 ```
 var sum :int = 0
@@ -90,10 +96,13 @@ This will increment sum until it reaches 10.
 
 ## Branches
 
-> For performance reasons you should preferer the switch statement over the if statement. If possible.
+> For performance reasons you should preferer the switch statement over the if
+> statement. If possible.
 
-A branch is created using the `if` keyword followed by an expression that evaluate to a `boolean`. After the expression comes the one statement.
-A statement may be a block of statements surrounded by `{` and `}`. Optionally the  `else` keyword with another statement may end the branch.
+A branch is created using the `if` keyword followed by an expression that
+evaluate to a `boolean`. After the expression comes the one statement. A
+statement may be a block of statements surrounded by `{` and `}`. Optionally the
+`else` keyword with another statement may end the branch.
 
 ```
 var sum: int = W6
@@ -128,7 +137,8 @@ It is more limited then an if/else. But many if statements can still be written
 as a switch. These limitations allow for better optimsations that can cut
 computation time in half.
 
-As an example we simulate an attack, if we hit we role damage. The intuitive approach would probably be following:
+As an example we simulate an attack, if we hit we role damage. The intuitive
+approach would probably be following:
 
 ```
 var attackValue : int = 14
@@ -148,7 +158,8 @@ damage switch D20:
 
 The later one can be better optimized so it will not increase number of possible
 results as much as the first. If you only have this one if statement it should
-not be a problem. But if you have loops in your program this will get out of hand quickly.
+not be a problem. But if you have loops in your program this will get out of
+hand quickly.
 
 I compared two sample codes that simulate a battle similar to TDE (The Dark
 Eye). Two characters fight each other both have an attack a defense and life
@@ -156,7 +167,8 @@ points. If a character hits (rolling under its attack) and the other does not
 defend (rolling over his defend) damage is substracted from the opponents life
 points.
 
-Both characters try to damage each other alternating until one characters life points reach 0.
+Both characters try to damage each other alternating until one characters life
+points reach 0.
 
 The code returns the winner.
 
@@ -312,5 +324,6 @@ return result
 
 ## Comments
 
-You comment a line if you prepend it with an `#`. The `#` must not be in an statement.
-E.g the switch statement normaly spans multiple lines. You must not write a comment in that.
+You comment a line if you prepend it with an `#`. The `#` must not be in an
+statement. E.g the switch statement normally spans multiple lines. You must not
+write a comment in that.
