@@ -67,20 +67,106 @@ namespace Dice.States
         internal void PreCalculatePath(in WhileManager manager)
         {
             var currentWhileManager = manager;
-            var currentState = this;
             int dept = 0;
-            do
+            var queue = new Queue<State>();
+            var alreadyVisitedStates = new HashSet<State>();
+            queue.Enqueue(this);
+            alreadyVisitedStates.Add(this);
+            while (queue.TryDequeue(out var currentState))
             {
+
                 currentState.Depth = dept;
                 dept--;
-                currentState = currentState.UpdateWhileManager(ref currentWhileManager);
+                foreach (var newState in currentState.UpdateWhileManager(ref currentWhileManager))
+                {
+                    alreadyVisitedStates.Add(newState);
+                    queue.Enqueue(newState);
+                }
             }
-            while (currentState != null);
 
         }
-        internal virtual State? UpdateWhileManager(ref WhileManager manager) => this.Parent;
+        internal virtual StateEnumerable UpdateWhileManager(ref WhileManager manager) => new StateEnumerable(this.Parent);
     }
 
+    internal struct StateEnumerable : IEnumerable<State>
+    {
+        private readonly State? first;
+        private readonly State? second;
+        public static readonly StateEnumerable Empty = default;
+
+        public StateEnumerable(State first, State second)
+        {
+            this.first = first;
+            this.second = second;
+        }
+        public StateEnumerable(State first)
+        {
+            this.first = first;
+            this.second = null;
+        }
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        IEnumerator<State> IEnumerable<State>.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        internal struct Enumerator : IEnumerator<State>
+        {
+            private int call;
+            private StateEnumerable stateEnumerables;
+
+            public Enumerator(StateEnumerable stateEnumerables) : this()
+            {
+                this.stateEnumerables = stateEnumerables;
+            }
+
+            public State Current => this.call switch
+            {
+                0 => throw new InvalidOperationException("You need to call MoveNext() first"),
+                1 => this.stateEnumerables.first ?? throw new InvalidOperationException("No more Elements"),
+                2 => this.stateEnumerables.second ?? throw new InvalidOperationException("No more Elements"),
+                _ => throw new InvalidOperationException("No more Elements")
+            };
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            public void Dispose()
+            {
+
+            }
+
+            public bool MoveNext()
+            {
+                if (this.call == 0 && this.stateEnumerables.first != null)
+                {
+                    this.call += 1;
+                    return true;
+                }
+                else if (this.call == 1 && this.stateEnumerables.second != null)
+                {
+                    this.call += 1;
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            public void Reset()
+            {
+                this.call = 0;
+            }
+        }
+    }
 
 
 }

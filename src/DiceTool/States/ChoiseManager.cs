@@ -100,12 +100,12 @@ namespace Dice.States
                 this.depth = depth;
             }
 
-            public IEnumerator<int> GetEnumerator()
+            public Enumerator GetEnumerator()
             {
                 return new Enumerator(this);
             }
 
-            private struct Enumerator : IEnumerator<int>
+            public struct Enumerator : IEnumerator<int>
             {
                 private readonly PathToGo parent;
                 private readonly int count;
@@ -190,6 +190,11 @@ namespace Dice.States
                     hashCode.Add(item);
 
                 return hashCode.ToHashCode();
+            }
+
+            IEnumerator<int> IEnumerable<int>.GetEnumerator()
+            {
+                return this.GetEnumerator();
             }
 
             public static bool operator ==(PathToGo go1, PathToGo go2)

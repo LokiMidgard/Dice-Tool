@@ -36,7 +36,7 @@ namespace Dice.States
 
     }
 
-    internal readonly struct WhileManager
+    internal readonly struct WhileManager : IEquatable<WhileManager>
     {
         internal int Depth { get; }
         private ChoiseManager Manager { get; }
@@ -58,5 +58,29 @@ namespace Dice.States
         [System.Diagnostics.DebuggerHidden]
         internal int Choise => this.Manager.GetChoise(this.Depth);
 
+        public override bool Equals(object? obj)
+        {
+            return obj is WhileManager manager && this.Equals(manager);
+        }
+
+        public bool Equals(WhileManager other)
+        {
+            return this.Depth == other.Depth;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.Depth);
+        }
+
+        public static bool operator ==(WhileManager left, WhileManager right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(WhileManager left, WhileManager right)
+        {
+            return !(left == right);
+        }
     }
 }

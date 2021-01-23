@@ -23,7 +23,7 @@ namespace Dice.States
 
         public override double GetStatePropability(in WhileManager manager) => 1.0;
 
-        internal override State? UpdateWhileManager(ref WhileManager whileManager) => null;
+        internal override StateEnumerable UpdateWhileManager(ref WhileManager whileManager) => StateEnumerable.Empty;
 
         public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
@@ -41,7 +41,7 @@ namespace Dice.States
 
         internal void SetInput<TIn>(IEnumerable<TIn> input)
         {
-            this.table = new SingelVariableTable<TIn>(this,((Composer<TIn>)this.composer).GetInput(), input.Select(i => (i, 1.0)).ToArray());
+            this.table = new SingelVariableTable<TIn>(this, ((Composer<TIn>)this.composer).GetInput(), input.Select(i => (i, 1.0)).ToArray());
         }
     }
 

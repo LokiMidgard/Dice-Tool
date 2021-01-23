@@ -8,12 +8,30 @@ namespace Dice.Caches
 {
     internal class OptimizedTableCache
     {
-
+        [System.Diagnostics.DebuggerDisplay("{Propability} => {Columns}")]
         private class CacheRow : IEquatable<CacheRow>
         {
             public readonly object[] columns;
             public readonly double Propability;
             private readonly OptimizedTableCache parent;
+
+            private string Columns
+            {
+                get
+                {
+                    var collumn = parent.indexLookup.OrderBy(x => x.Value).Select((x, i) => (collumn:  x.Key.Id, index: i));
+                    var str = new System.Text.StringBuilder();
+                    foreach (var item in collumn)
+                    {
+                        str.Append(item.collumn);
+                        str.Append(": ");
+                        str.Append(this.columns[item.index]);
+                        str.Append(" | ");
+                    }
+                    return str.ToString();
+
+                }
+            }
 
             public CacheRow(int numberOfVariables, OptimizedTableCache parent, double propability)
             {

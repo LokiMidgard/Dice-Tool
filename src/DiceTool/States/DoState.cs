@@ -11,9 +11,9 @@ namespace Dice.States
 
         private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
 
-        internal MergeTable? GetTable(in WhileManager manager)
+        internal DoTable? GetTable(in WhileManager manager)
         {
-            if (this.cache.TryGet<MergeTable>(nameof(GetTable), manager, out var value))
+            if (this.cache.TryGet<DoTable>(nameof(GetTable), manager, out var value))
                 return value;
             return null;
         }
@@ -89,16 +89,16 @@ namespace Dice.States
                 throw new InvalidOperationException("WhileState on DoState was not initilized.");
         }
 
-        internal override State? UpdateWhileManager(ref WhileManager manager)
+        internal override StateEnumerable UpdateWhileManager(ref WhileManager manager)
         {
             var choise = manager.Choise;
             manager = new WhileManager(manager);
 
 
             if (choise == 0)
-                return this.Parent;
+                return new StateEnumerable(this.Parent);
             else if (this.WhileState is not null)
-                return this.WhileState.ContinueState;
+                return new StateEnumerable(this.WhileState.ContinueState);
             else
                 throw new InvalidOperationException("WhileState on DoState was not initilized.");
 
@@ -120,7 +120,7 @@ namespace Dice.States
             else
                 throw new InvalidOperationException("WhileState on DoState was not initilized.");
 
-            this.cache.Create(nameof(GetTable), manager, new MergeTable(this, this.NededVariables, manager));
+            this.cache.Create(nameof(GetTable), manager, new DoTable(this, this.NededVariables, manager));
         }
 
         public override void PrepareOptimize(IEnumerable<IP> ps)

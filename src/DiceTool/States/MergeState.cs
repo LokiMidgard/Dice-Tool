@@ -8,102 +8,99 @@ namespace Dice.States
 {
     class MergeState : State
     {
-        private readonly State parent1;
-        private readonly State parent2;
         private readonly Caches.WhilestateCache cache = new Caches.WhilestateCache();
+
+        internal State Parent1 { get; }
+
+        internal State Parent2 { get; }
 
         internal MergeTable? GetTable(in WhileManager manager)
         {
-            if (this.cache.TryGet<MergeTable>(nameof(GetTable), manager, out var value))
-                return value;
-            return null;
-        }
+           return  this.cache.GetOrCreate(nameof(GetTable), manager, this.CreateTable);
 
+            //if (this.cache.TryGet<MergeTable>(nameof(GetTable), manager, out var value))
+            //    return value;
+            //return null;
+        }
 
         public MergeState(State parent1, State parent2) : base(null!)
         {
-            this.parent1 = parent1;
-            this.parent2 = parent2;
+            this.Parent1 = parent1;
+            this.Parent2 = parent2;
         }
 
         public override double GetStatePropability(in WhileManager manager)
         {
-            var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
-
-            if (choise == 0)
-                return this.parent1.GetStatePropability(newManager);
-            else
-                return this.parent2.GetStatePropability(newManager);
+            var prop1 = this.Parent1.GetStatePropability(manager);
+            var prop2 = this.Parent2.GetStatePropability(manager);
+            var propsum = prop1 + prop2;
+            return propsum;
         }
 
         public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
         {
             var mergeTable = this.GetTable(manager);
-            if (mergeTable?.Contains(variable, manager) ?? false)
+            if (mergeTable is null)
+                throw new InvalidOperationException("The Table must be optimzied before using this method");
+            if (mergeTable.Contains(variable, manager))
                 return (manager, mergeTable);
 
-            var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
 
-            if (choise == 0)
-                return this.parent1.GetTable(variable, newManager);
-            else
-                return this.parent2.GetTable(variable, newManager);
+            if (Parent1.Contains(variable, manager))
+                return this.Parent1.GetTable(variable, manager);
+            return this.Parent2.GetTable(variable, manager);
 
         }
 
+
+
         internal override void Optimize(in WhileManager manager)
         {
-            if (this.GetTable(manager) != null)
-                return;
 
-            var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
 
-            if (choise == 0)
-                this.parent1.Optimize(newManager);
-            else
-                this.parent2.Optimize(newManager);
+            this.Parent1.Optimize(manager);
+            this.Parent2.Optimize(manager);
+            var mergeTable = this.GetTable(manager);
+        }
+
+        private MergeTable CreateTable(in WhileManager manager)
+        {
+            var variablesToCombine = new List<IP>();
+            foreach (var x in this.NededVariables)
+            {
+                var table1 = this.Parent1.GetTable(x, manager);
+                var table2 = this.Parent2.GetTable(x, manager);
+                if (table1.table != null && table2.table != null && table1 != table2)
+                {
+                    variablesToCombine.Add(x);
+                }
+            }
+
+
 
             //this.NededVariables.;
 
-            this.cache.Create(nameof(GetTable), manager, new MergeTable(this, this.NededVariables, manager));
-
-
+            var toStore = new MergeTable(this, variablesToCombine, manager);
+            return toStore;
+            //return new Caches.OptimizedTableCache(toStore, variablesToCombine, manager);
         }
 
         public override void PrepareOptimize(IEnumerable<IP> ps)
         {
             base.PrepareOptimize(ps);
-            this.parent1.PrepareOptimize(ps);
-            this.parent2.PrepareOptimize(ps);
+            this.Parent1.PrepareOptimize(ps);
+            this.Parent2.PrepareOptimize(ps);
         }
 
-        internal override State? UpdateWhileManager(ref WhileManager manager)
+        internal override StateEnumerable UpdateWhileManager(ref WhileManager manager)
         {
-            var choise = manager.Choise;
-            manager = new WhileManager(manager);
-
-            if (choise == 0)
-                return this.parent1;
-            else
-                return this.parent2;
+            return new StateEnumerable(this.Parent1, this.Parent2);
         }
 
         public override bool Contains(IP variable, in WhileManager manager)
         {
-            var mergeTable = this.GetTable(manager);
-            if (mergeTable != null)
-                return mergeTable.Contains(variable, manager);
-
-            var choise = manager.Choise;
-            var newManager = new WhileManager(manager);
-
-            if (choise == 0)
-                return this.parent1.Contains(variable, newManager);
-            else
-                return this.parent2.Contains(variable, newManager);
+            return this.Parent1.Contains(variable, manager)
+                || this.Parent2.Contains(variable, manager);
         }
 
 
