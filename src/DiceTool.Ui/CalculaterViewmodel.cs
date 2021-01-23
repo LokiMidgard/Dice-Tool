@@ -293,8 +293,8 @@ namespace Dice.Ui
                         this.Percentage = 0;
                         this.Results.Clear();
                         this.resultLookup.Clear();
-                        executor.Epsylon = 0.0001;
-                        var cal = executor.Calculate(0);
+                        executor.Epsilon = 0.0001;
+                        var cal = executor.Calculate();
 
                         oneTurnStopwatch.Start();
                         var lastPropability = 0.0;

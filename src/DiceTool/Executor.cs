@@ -17,7 +17,10 @@ namespace Dice
 
         IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(IEnumerable<Tin> input);
         IAsyncEnumerable<ResultEntry<TResult, Tin>> Calculate(params Tin[] input);
-        double Epsylon { get; set; }
+        /// <summary>
+        /// The maximum percentage of the sample space, that may have not been visited.
+        /// </summary>
+        double Epsilon { get; set; }
 
     }
 
@@ -41,7 +44,7 @@ namespace Dice
         public IAsyncEnumerable<ResultEntry<TResult, TIn>> Calculate(params TIn[] input) => this.Calculate(input as IEnumerable<TIn>);
 
 
-        public double Epsylon { get; set; } = 0.000000001;
+        public double Epsilon { get; set; } = 0.000000001;
 
 
         private async IAsyncEnumerable<ResultEntry<TResult, TIn>> CalculateWraper(IEnumerable<TIn> input, [EnumeratorCancellation] System.Threading.CancellationToken cancel = default)
@@ -79,7 +82,7 @@ namespace Dice
             var statistics = new RunningStatistics();
             uint count = 0;
 #endif
-            while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsylon)
+            while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsilon)
             {
                 if (cancel.IsCancellationRequested)
                     yield break;
