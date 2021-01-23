@@ -537,7 +537,7 @@ sum|p
 5|2/27
 
 And have visit 5/9 of the sample space. We will never be able to search the
-complete sample space, but we we can stop if we searched enough, e.g. 99,99% of
+complete sample space (in this example), but we we can stop if we searched enough, e.g. 99,99% of
 it.
 
 You may have noticed, the first part of both runs is identical up to state 4.
