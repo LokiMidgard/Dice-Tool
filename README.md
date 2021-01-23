@@ -155,7 +155,8 @@ composer.DoWhile(() =>
 });
 ```
 
-You can look in the sample project.
+The API should be written discoverable. But you can also look in the sample
+project for more information.
 
 
 # Parser

@@ -7,11 +7,13 @@ on...
 A [sample space](https://en.wikipedia.org/wiki/Sample_space) is a set of all
 possible outcomes.
 
-A dice sequence is a sequence of roles. A sequence is written down as a list of the rolled numbers in braces.
-E.g. (1 3 2) for the sequence of 3 roles, the first dice 1 the second 3 and the third 2.
+A dice sequence is a sequence of roles. A sequence is written down as a list of
+the rolled numbers in braces. E.g. (1 3 2) for the sequence of 3 roles, the
+first dice 1 the second 3 and the third 2.
 
-A terminated dice sequence is a sequence of roles that lead to one outcome in the sample
-space. Multiple terminated dice sequences may result in the same outcome.
+A terminated dice sequence is a sequence of roles that lead to one outcome in
+the sample space. Multiple terminated dice sequences may result in the same
+outcome.
 
 # Basics
 
@@ -603,7 +605,8 @@ one run we take the true case on the next the false case.
 
 However using if statements should be avoided if possible, since they are not
 very performant. There is an more performant alternative for most cases, the
-[switch](dice-language.md#switch) which is some kind of conditional assignment.
+dice language defined the [switch](dice-language.md#switch) for that reason.
+Which is some kind of conditional assignment.
 
 But back to branches and why the if is not very performant. After all it uses
 the same machinic as loops and there was no warning.
