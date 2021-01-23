@@ -164,11 +164,11 @@ The parse does not have ~~many~~ any options. But at least that makes it easier
 to document ;)
 
 To pares dice language code you need to call following method:
-```
+```c#
 string code; // some dice language code.
 var executer = Dice.Parser.SimpleParser.ParseExpression<T>(code);
 var results = executor.Calculate();
-```c#
+```
 Where `T` is the expected return time. Supported are `int`, `bool` and `string`.
 Calculate can have a parameter, but the dice language does not yet support input
 parameters.
