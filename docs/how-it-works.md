@@ -387,36 +387,253 @@ calculate the results multiple times. increasing the number of times we take the
 loop by one. The first time we calculate the result under the assumption we only
 visit the loop once. The second calculation will visit the loop exactly twice.
 
-In order to get the correct result we need to know what the total probability of
-our result is. Up till now the sum of all our rows would result in a p of 1.
-Using while this is no longer the case.
-
 ```
-var sum: int = 0
+var sum: int = D3
 do {
     sum = sum +1
-} while D6 >=4
+} while D6 >4
 return sum
 ```
 
-In the example above when we want to calculate sum, we have only a total p of
-0.5. It may be easier to understand if we calculate the probability from bottom
-up. We want to know the total probability of sum. We assume a probability of 1,
-if we can get to the top of the program without having to change it we were
-correct. The first statement before the return is actually the increment of sum,
-this does not change the probability. the statement before that is the do
-statement, there is actually a 50% chance that we had an additional loop this,
-since the condition in the while is a 50/50 chance. So since we only take the
-loop once in the first iteration, we need to reduce every probability of every
-pervious state by 50%. The next and last state is an assignment of an constant.
-Assigning a constant to a variable will result in an table that has only one
-entry with a p of 1. But since there is only a 50% chance to have only one loop,
-we need to set the probability that sum is 0 to 0.5.
+![statement graph sample](images/while-node-overview.png)
 
-Since we check every iteration the probability of the while condition, we know
-if reached the maximum iteration of the loop. That is the case if the previous
-state has a 100% chance an the while state has 0% chance of being the parent.
+Looking at this example, we visit the statements in the first run in following order:
 
-# Actual implementation
+1. Assign
+2. Do
+3. Increment
+4. While
+5. Return
 
-To be continued...
+In the second run we will visit the loop two times visiting the increment multiple times. The order looks like this:
+
+1. Assign
+2. Do
+3. Increment
+4. While
+5. Do
+6. Increment
+7. While
+8. Return
+
+The third time we will visit the loop 3 times and so on.
+
+Up until now all tables had a total `p` of 1. But when we run the first time, we
+did not get all possible solutions, we only get the probability's of solutions
+that visit the loop exactly one time.
+
+To compensate this we assign every state an additional probability. This
+describes the chance that this state will actually be visited. When we evaluate
+the result we will multiply the probability of each entry in the table with its
+state probability.
+
+Be aware, if we visit a state multiple times its values have changed. This is
+true for the just described state probability as well as the tables describing
+the probability of the variables.
+
+To make things easier we add two new states after the while. We call those
+divide states. One is the true state the other is the false state.
+
+![nodes with divide states](images/while-node-with-devide-node.png)
+
+The first state, the root state, has a probability 1. Each other state has the
+probability of its parent. The exception are the divide states.
+
+A dived state is depended up on a variable. In our example it is the condition
+in our while, `D6 > 4`. The state probability is the probability that the
+variable will be `true` for the `divide (true)` (1/3) state and `false` for the
+`divide (false)` (2/3) state.
+
+Lets look at the example again, when we iterate the loop once:
+
+1. Assign  
+   State P = 1
+   sum| p
+   -|--
+   1|1/3
+   2|1/3
+   3|1/3
+2. Do  
+   State P = 1
+3. Increment  
+   State P = 1
+   sum| p
+   -|--
+   2|1/3
+   3|1/3
+   4|1/3
+
+4. While  
+   State P = 1
+5. Divide (false)  
+   State P = 2/3
+
+6. Return
+   State P = 2/3
+
+The results of the first run are 
+
+sum|p
+-|-
+2|2/9
+3|2/9
+4|2/9
+
+Now when we iterate the loop two times:
+
+1. Assign  
+   State P = 1
+   sum| p
+   -|--
+   1|1/3
+   2|1/3
+   3|1/3
+2. Do  
+   State P = 1
+3. Increment  
+   State P = 1
+   sum| p
+   -|--
+   2|1/3
+   3|1/3
+   4|1/3
+
+4. While  
+   State P = 1
+5. Divide (true)  
+   State P = 1/3
+
+6. Do
+   State P = 1/3
+7. Increment
+   State P = 1/3
+   sum| p
+   -|--
+   3|1/3
+   4|1/3
+   5|1/3
+8. While
+9. Divide (false)  
+   State P = 2/9 (`1/3 * 2/3`)
+10. Return  
+    State P = 2/9
+
+
+The results of the second run are 
+
+sum|p
+-|-
+3|2/27
+4|2/27
+5|2/27
+
+Combined with the first run we get:
+
+sum|p
+-|-
+2|6/27
+3|8/27
+4|8/27
+5|2/27
+
+And have visit 5/9 of the sample space. We will never be able to search the
+complete sample space, but we we can stop if we searched enough, e.g. 99,99% of
+it.
+
+You may have noticed, the first part of both runs is identical up to state 4.
+This allows us to further optimize, we can cache the tables and state
+probability's we have calculated and don't need to to compute them again. The third and second run will be identical up to state 8.
+
+So in our example, for each run, we always need only to compute the last 6
+statements. Which is a linear time `O(n)`. However, this is only true for our
+sample since the tables do not increase. If with every loop your tables get
+bigger, the computation time needed will increase with every loop, so that we
+will no longer have linear time.
+
+This also works with multiple loops we just need to ensure we can iterate all
+possible combinations of loops.
+
+To archive that we use a bit vector. Each time we hit a divide state we store
+our choice. 1, we take the true path, 0 we take the false path. In our example
+the runs have following vectors:
+
+run#|vector
+-|-
+1|0
+2|10
+3|110
+4|1110
+
+You probably noticed that we don't use all possible permutations of the bit
+filed. Since as soon we have a zero the program reaches return. So every vector
+for this program has exactly one zero and it is the last bit in the vector.
+
+```
+var sum: int = D3
+do {
+    sum = sum + 1
+} while D6 >4
+do {
+    sum = sum - 1
+} while D6 >4
+return sum
+```
+
+If we have two while loops like in the updated sample above, we will always have exactly 2 zeros, and one is in the last bit.
+
+```
+var sum: int = D3
+do {
+  sum = sum + 1
+  do {
+    sum = sum - 1
+  } while D6 >4
+} while D6 >4
+return sum
+```
+If we have one loop in another, the vector can have multiple zeros, but not two
+zeros in a row. Unless its the last two bits, which are always zero.
+
+The bit vector describes actually a path through a binary tree. 
+
+# Branches
+
+We can handle branches or if statements the same way we handle while. On 
+one run we take the true case on the next the false case.
+
+However using if statements should be avoided if possible, since they are not
+very performant. There is an more performant alternative for most cases, the
+[switch](dice-language.md#switch) which is some kind of conditional assignment.
+
+But back to branches and why the if is not very performant. After all it uses
+the same machinic as loops and there was no warning.
+
+The problem with if manifest itself if you have many if's. Every if will double
+the number of runs needed to get the result. Even simple code can have multiple
+if's. Unlike while's, most code will often have only one while maybe two. 
+
+The problem starts actually if we put multiple ifs inside a while loop that will
+execute several times. This increases the number of if's executed which let the
+necessary runs skyrocket.
+
+We can use a sample again to show what the problem is. This will give you
+hopefully an hint when it is ok to use if and when you should try to avoid them.
+
+The language documentation has a little example that has 7 if statements inside
+a while loop. If we run the loop once we actually need multiple runs to visit
+all execution paths of the if's. We will need actually 128 (`2^7`). This sounds
+much, but your Computer is probably fast enough to calculate all runs for the
+first loop pretty quickly.
+
+However if we look at the second loop we need to combine every run of the first
+loop with all 128 possible executions paths we can take through the if's. This means 128 times 128. So our second loop needs 16,384 runs.
+
+loop|runs needed
+-|-
+1| 128
+2| 16,384
+3|2,097,152
+4|268,435,456
+5|34,359,738,368
+
+Compared to one run per loop if you have no if statements, it should be easy to see why this gets out of hand quickly.
