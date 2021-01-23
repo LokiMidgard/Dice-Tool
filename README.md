@@ -123,7 +123,7 @@ var variable = composer.GetNamed<T>("NAME")
 ```
 
 A complete program looks like this:
-```#c
+```c#
 var executor = Calculator<int>.Configure(composer =>
     {
         var dice = composer.Dice(6);
@@ -168,7 +168,7 @@ To pares dice language code you need to call following method:
 string code; // some dice language code.
 var executer = Dice.Parser.SimpleParser.ParseExpression<T>(code);
 var results = executor.Calculate();
-```
+```c#
 Where `T` is the expected return time. Supported are `int`, `bool` and `string`.
 Calculate can have a parameter, but the dice language does not yet support input
 parameters.
