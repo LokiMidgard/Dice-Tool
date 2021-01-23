@@ -4,22 +4,28 @@
 
 # Dice-Tool
 
-This Project tries to help you finding out what the propabilitys are when you rolle multiple dice.
+This Project tries to help you finding out what the probability's are when you
+role multiple dice.
 
-While this is easy for a few dice it can get complicated if you chain multiple roles together and change the dices used depending on the previous results.
+While this is easy for a few dice it can get complicated if you chain multiple
+roles together and change the dices used depending on the previous results.
 
 This Project consists of
- - A Library you can include in your own program via [nuget](https://www.nuget.org/packages/DiceTool/)
- - A Domain Specific Language called `Dice Language` to write down what your intend is
- - A Windows Desktop Application that will give you the results (You can download it under [Releases](https://github.com/LokiMidgard/Dice-Tool/releases/latest))
+ - A Library you can include in your own program via
+   [nuget](https://www.nuget.org/packages/DiceTool/)
+ - A Domain Specific Language called `Dice Language` to write down what your
+   intend is
+ - A Windows Desktop Application that will give you the results (You can
+   download it under
+   [Releases](https://github.com/LokiMidgard/Dice-Tool/releases/latest))
  
- You can read [how it wokrs](docs/how-it-works.md) in the docs.
+ You can read [how it works](docs/how-it-works.md) in the docs.
 
  # The Dice Language
 
- It is a simple langunage but should allow you to formulate your Intent.
+ It is a simple language but should allow you to formulate your Intent.
 
- A simple Programm for example looks loke following 
+ A simple Program for example looks like following
 
  ```
 var rolle1: int = D6
@@ -31,10 +37,12 @@ else
 return result
  ```
 
- Every Script must end with an `return`. Variables need to be declared before used using the `var` keyword and with a collon (`:`) after the identifier followed by the type.
- After that you can assign values using equals (`=`). For more information see the [docs](docs/dice-language.md).
+ Every Script must end with an `return`. Variables need to be declared before
+ used using the `var` keyword and with a colon (`:`) after the identifier
+ followed by the type. After that you can assign values using equals (`=`). For
+ more information see the [docs](docs/dice-language.md).
 
- An Example with axploding dices
+ An Example with exploding dices
  ```
  var role: int
  var sum: int = 0
@@ -69,4 +77,101 @@ has found more then 99.99% of the probability space.
 
 # Library
 
-> TODO
+The Library creates a syntax tree by concatenating method calls on an `Composer`
+class.
+
+To get such an `Composer` you can call
+```c#
+Calculator<T>.Configure(composer=>{});
+```
+
+The with this method generated program will accept an input
+
+The type parameter `T` defines the type of this input. 
+
+Generally this library can handle 3 types. `string`, `int` and `bool`.
+
+In the `Configure` callback you can chain your statements that will describe how
+the dice should be rolled.
+
+Every value has the type `P<T>` again `T` may be any supported type. Every time
+you role a dice or set a constant you get a `P<T>` that allows you to reference
+this exact value.
+
+```c#
+// This will create a dice and stores its value in the c# variable dice
+var dice = composer.Dice(6);
+// This will create a constant and stores its value in @const
+var @const = composer.Const(5);
+```
+Also every expression will be stored in such an `P<T>`.
+```c#
+var result = dice.GreaterOrEqual(@const);
+```
+
+You can also create variables that can hold a `P<T>`. Those variables can be
+changed.
+```c#
+composer.AssignName("NAME", dice);
+```
+
+To access the current content of a variable call `GetNamed`. Besides its name
+you also need to supply the type of the variable
+
+```c#
+var variable = composer.GetNamed<T>("NAME")
+```
+
+A complete program looks like this:
+```#c
+var executor = Calculator<int>.Configure(composer =>
+    {
+        var dice = composer.Dice(6);
+        var @const = composer.Const(5);
+        var result = dice.GreaterOrEqual(@const);
+        return result;
+    });
+```
+the return in the callback holds the result. This will role a 6 sided dice and
+test if it is 5 or 6.
+
+To run the program call `Calculate` on the `executor`.
+```c#
+var results = executor.Calculate();
+```
+
+The executor has a property `Epsilon`. This is useful for programs that will
+have an infinite sample space. E.g. with exploding dices. The epsilon is the size
+(in percent 1 equals 100%) of the sample space that may be missing from the
+results.
+
+
+You can also use loops. All loops are do-while loops.
+```c#
+composer.DoWhile(() =>
+{
+    // some operations
+    return // this will be the condition of the while and must be a `P<bool>`
+});
+```
+
+You can look in the sample project.
+
+
+# Parser
+
+The parse does not have ~~many~~ any options. But at least that makes it easier
+to document ;)
+
+To pares dice language code you need to call following method:
+```
+string code; // some dice language code.
+var executer = Dice.Parser.SimpleParser.ParseExpression<T>(code);
+var results = executor.Calculate();
+```
+Where `T` is the expected return time. Supported are `int`, `bool` and `string`.
+Calculate can have a parameter, but the dice language does not yet support input
+parameters.
+
+Results is an async enumerator that will contain the results.
+
