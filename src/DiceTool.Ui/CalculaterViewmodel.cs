@@ -200,7 +200,7 @@ namespace Dice.Ui
 
         public ObservableCollection<ResultViewmodel> Results { get; } = new ObservableCollection<ResultViewmodel>();
 
-        private readonly Dictionary<object, int> indexLookup = new Dictionary<object, int>();
+        private readonly Dictionary<object, ResultViewmodel> resultLookup = new Dictionary<object, ResultViewmodel>();
         private readonly CalculateCommandImplementation calculateCommand;
         private readonly CancelCommandImplementation cancelCommand;
         private readonly FormatCommandImplementation formatCodeCommand;
@@ -208,18 +208,18 @@ namespace Dice.Ui
 
         private void AddResult(object result, double propability)
         {
-            int index;
-            if (this.indexLookup.ContainsKey(result))
-                index = this.indexLookup[result];
+            ResultViewmodel vm;
+            if (this.resultLookup.ContainsKey(result))
+                vm = this.resultLookup[result];
             else
             {
-                index = this.Results.Count;
-                this.indexLookup.Add(result, index);
-                this.Results.Add(new ResultViewmodel() { Value = result });
+                vm = new ResultViewmodel() { Value = result };
+                this.resultLookup.Add(result, vm);
+                this.Results.Add(vm);
 
             }
 
-            var vm = this.Results[index];
+            var index = this.Results.IndexOf(vm);
             vm.Propability += propability;
             var newIndex = index;
             while (newIndex > 0 && this.Results[newIndex - 1].Propability < vm.Propability)
@@ -292,7 +292,7 @@ namespace Dice.Ui
                         var executor = Dice.Parser.SimpleParser.ParseExpression<T>(this.Code.Text);
                         this.Percentage = 0;
                         this.Results.Clear();
-                        this.indexLookup.Clear();
+                        this.resultLookup.Clear();
                         executor.Epsylon = 0.0001;
                         var cal = executor.Calculate(0);
 
