@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Dice.Tables;
 
 namespace Dice.States
@@ -27,9 +28,11 @@ namespace Dice.States
             this.DoState.RegisterWhileState(this);
         }
 
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(Enumerable.Repeat<IP>(this.Condition, 1));
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(Enumerable.Repeat<IP>(this.Condition, 1));
         }
 
 

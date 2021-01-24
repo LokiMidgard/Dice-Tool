@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using Dice.Tables;
+using System.Threading;
 
 namespace Dice.States
 {
@@ -26,14 +27,16 @@ namespace Dice.States
         public override TransformTable<TIn, TOut> Table => this.table;
 
 
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.input });
+            cancellation.ThrowIfCancellationRequested();
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(new IP[] { this.input });
         }
 
-        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState(CancellationToken cancellation)
         {
-            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+            cancellation.ThrowIfCancellationRequested();
+            return base.GetVarialesProvidedByThisState(cancellation).Concat(new IP[] { this.variable });
         }
     }
 }

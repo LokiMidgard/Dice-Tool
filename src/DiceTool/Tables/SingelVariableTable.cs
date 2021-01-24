@@ -1,6 +1,7 @@
 ﻿using Dice.States;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Dice.Tables
 {
@@ -15,14 +16,14 @@ namespace Dice.Tables
             this.distribution = distribution;
         }
 
-        public override int GetCount(in WhileManager manager)
+        public override int GetCount(in WhileManager manager, CancellationToken cancellation)
         {
             return this.distribution.Length;
         }
 
-        protected override bool InternalContains(IP key, in WhileManager manager) => this.variable.Id == key.Id;
+        protected override bool InternalContains(IP key, in WhileManager manager, CancellationToken cancellation) => this.variable.Id == key.Id;
 
-        public override object GetValue(IP p, int index, in WhileManager manager)
+        public override object GetValue(IP p, int index, in WhileManager manager, CancellationToken cancellation)
         {
             switch (p)
             {
@@ -35,7 +36,7 @@ namespace Dice.Tables
             }
         }
 
-        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager, CancellationToken cancellation)
         {
             return Enumerable.Repeat(this.variable as IP, 1);
         }

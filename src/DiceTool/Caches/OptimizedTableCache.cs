@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Dice.Tables;
 using Dice.States;
+using System.Threading;
 
 namespace Dice.Caches
 {
@@ -109,13 +110,15 @@ namespace Dice.Caches
 
         public IEnumerable<IP> Variables => this.indexLookup.Keys;
 
-        public OptimizedTableCache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager)
+        public OptimizedTableCache(Table t, IEnumerable<IP> variablesToKeep, in WhileManager manager, CancellationToken cancellation)
         {
             System.Diagnostics.Debug.Assert(variablesToKeep.Count() > 0);
             var count = 0;
             foreach (var item in variablesToKeep)
             {
-                if (t.Contains(item, manager))
+                cancellation.ThrowIfCancellationRequested();
+
+                if (t.Contains(item, manager, cancellation))
                 {
                     this.indexLookup[item] = count;
                     count++;
@@ -124,13 +127,14 @@ namespace Dice.Caches
 
             var rows = new List<CacheRow>();
 
-            var counter = t.GetCount(manager);
+            var counter = t.GetCount(manager, cancellation);
             for (var i = 0; i < counter; i++)
             {
-                var r = new CacheRow(this.indexLookup.Count, this, t.GetValue(Table.PropabilityKey, i, manager));
+                cancellation.ThrowIfCancellationRequested();
+                var r = new CacheRow(this.indexLookup.Count, this, t.GetValue(Table.PropabilityKey, i, manager, cancellation));
 
                 foreach (var key in this.indexLookup.Keys)
-                    r.columns[this.indexLookup[key]] = t.GetValue(key, i, manager);
+                    r.columns[this.indexLookup[key]] = t.GetValue(key, i, manager, cancellation);
 
                 rows.Add(r);
             }

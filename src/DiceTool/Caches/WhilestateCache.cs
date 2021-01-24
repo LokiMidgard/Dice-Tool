@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace Dice.Caches
 {
@@ -18,9 +19,9 @@ namespace Dice.Caches
             this.lookup = new Dictionary<(string key, ChoiseManager.PathToGo array), object>();
         }
 
-        public delegate T CreateInstanceDelegate<T>(in WhileManager manager);
+        public delegate T CreateInstanceDelegate<T>(in WhileManager manager, CancellationToken cancellation);
 
-        public T GetOrCreate<T>(string key, in WhileManager manager, CreateInstanceDelegate<T> createion)
+        public T GetOrCreate<T>(string key, in WhileManager manager, CreateInstanceDelegate<T> createion, CancellationToken cancellation)
         {
             //throw new NotImplementedException();
             var look = this.GetLookupKey(key, manager);
@@ -31,7 +32,7 @@ namespace Dice.Caches
             }
             else
             {
-                var toStore = createion(manager);
+                var toStore = createion(manager, cancellation);
                 this.lookup.Add(look, toStore!);
 
                 return toStore;

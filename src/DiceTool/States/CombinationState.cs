@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using Dice.Tables;
 using Dice.Caches;
+using System.Threading;
 
 namespace Dice.States
 {
@@ -28,32 +29,42 @@ namespace Dice.States
         }
 
 
-        public override void PrepareOptimize(IEnumerable<IP> p)
+        public override void PrepareOptimize(IEnumerable<IP> p, CancellationToken cancellation)
         {
-            base.PrepareOptimize(p);
+            cancellation.ThrowIfCancellationRequested();
+
+
+            base.PrepareOptimize(p, cancellation);
 
             foreach (var item in p)
                 this.Table.Keep(item);
         }
 
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.in1, this.in2 });
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(new IP[] { this.in1, this.in2 });
         }
-        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState(CancellationToken cancellation)
         {
-            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+            cancellation.ThrowIfCancellationRequested();
+
+
+            return base.GetVarialesProvidedByThisState(cancellation).Concat(new IP[] { this.variable });
         }
 
 
-        internal override void Optimize(in WhileManager manager)
+        internal override void Optimize(in WhileManager manager, CancellationToken cancellation)
         {
             if (this.cache.TryGet(nameof(Optimize), manager, out bool b))
                 return;
-            base.Optimize(manager);
+            cancellation.ThrowIfCancellationRequested();
+
+            base.Optimize(manager, cancellation);
             // If the table has more variables then we need to keep we optimize the table otherwise it will result in no compression.
-            if (this.Table.GetVariables(manager).Except(this.NededVariables).Any())
-                this.Table.Optimize(manager);
+            if (this.Table.GetVariables(manager, cancellation).Except(this.NededVariables).Any())
+                this.Table.Optimize(manager, cancellation);
             this.cache.Create(nameof(Optimize), manager, true);
         }
     }
@@ -73,28 +84,35 @@ namespace Dice.States
         }
 
         public override CombinationTable<T> Table { get; }
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(this.input.Cast<IP>());
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(this.input.Cast<IP>());
         }
-        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState(CancellationToken cancellation)
         {
-            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.p });
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetVarialesProvidedByThisState(cancellation).Concat(new IP[] { this.p });
         }
 
-        public override void PrepareOptimize(IEnumerable<IP> p)
+        public override void PrepareOptimize(IEnumerable<IP> p, CancellationToken cancellation)
         {
-            base.PrepareOptimize(p);
+            cancellation.ThrowIfCancellationRequested();
+
+            base.PrepareOptimize(p, cancellation);
 
             foreach (var item in p)
                 this.Table.Keep(item);
         }
-        internal override void Optimize(in WhileManager manager)
+        internal override void Optimize(in WhileManager manager, CancellationToken cancellation)
         {
             if (this.cache.TryGet(nameof(Optimize), manager, out bool b))
                 return;
-            base.Optimize(manager);
-            this.Table.Optimize(manager);
+            cancellation.ThrowIfCancellationRequested();
+            base.Optimize(manager, cancellation);
+            this.Table.Optimize(manager, cancellation);
             this.cache.Create(nameof(Optimize), manager, true);
         }
     }

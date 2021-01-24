@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Dice.Caches;
 using Dice.Tables;
 
@@ -35,13 +36,18 @@ namespace Dice.States
         }
 
 
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.value });
+            cancellation.ThrowIfCancellationRequested();
+
+
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(new IP[] { this.value });
         }
-        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState()
+        protected internal override IEnumerable<IP> GetVarialesProvidedByThisState(CancellationToken cancellation)
         {
-            return base.GetVarialesProvidedByThisState().Concat(new IP[] { this.variable });
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetVarialesProvidedByThisState(cancellation).Concat(new IP[] { this.variable });
         }
     }
 }

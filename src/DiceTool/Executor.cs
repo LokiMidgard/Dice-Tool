@@ -55,7 +55,7 @@ namespace Dice
         }
 
 
-        private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, System.Threading.CancellationToken cancel = default)
+        private IEnumerable<ResultEntry<TResult, TIn>> CalculateInternal(IEnumerable<TIn> input, System.Threading.CancellationToken cancellation = default)
         {
 
             //var sum = new Dictionary<TResult, double>();
@@ -64,7 +64,7 @@ namespace Dice
             this.composer.Setinput(input);
 
             // prepeare Optimization
-            this.lastState.PrepareOptimize(new IP[] { this.resultVariable, this.inputVariable });
+            this.lastState.PrepareOptimize(new IP[] { this.resultVariable, this.inputVariable },cancellation);
 
 
             var choiseManager = new ChoiseManager();
@@ -84,29 +84,29 @@ namespace Dice
 #endif
             while (!choiseManager.IsCompleted && Math.Abs(choiseManager.SolvedPropability / inputCount - 1) > this.Epsilon)
             {
-                if (cancel.IsCancellationRequested)
+                if (cancellation.IsCancellationRequested)
                     yield break;
 #if DEBUG
                 watch.Restart();
                 count++;
 #endif
                 using (choiseManager.EnableMutation())
-                    this.lastState.PreCalculatePath(whileManager);
+                    this.lastState.PreCalculatePath(whileManager, cancellation);
 
-                this.lastState.Optimize(whileManager);
+                this.lastState.Optimize(whileManager, cancellation);
 
                 var currentSum = 0.0;
-                var statePropability = this.lastState.GetStatePropability(whileManager);
-                var table = this.lastState.GetTable(this.resultVariable, whileManager);
-                var tableCount = table.GetCount();
+                var statePropability = this.lastState.GetStatePropability(whileManager, cancellation);
+                var table = this.lastState.GetTable(this.resultVariable, whileManager, cancellation);
+                var tableCount = table.GetCount(cancellation);
                 for (int i = 0; i < tableCount; i++)
                 {
-                    if (cancel.IsCancellationRequested)
+                    if (cancellation.IsCancellationRequested)
                         yield break;
 
-                    var value = table.GetValue(this.resultVariable, i);
-                    var @in = table.GetValue(this.inputVariable, i);
-                    var p = table.GetValue(Table.PropabilityKey, i);
+                    var value = table.GetValue(this.resultVariable, i, cancellation);
+                    var @in = table.GetValue(this.inputVariable, i, cancellation);
+                    var p = table.GetValue(Table.PropabilityKey, i, cancellation);
                     //if (!sum.ContainsKey(value))
                     //sum.Add(value, 0.0);
                     var propability = p * statePropability;

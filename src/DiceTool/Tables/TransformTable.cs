@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Dice.Tables
 {
@@ -20,28 +21,32 @@ namespace Dice.Tables
             this.func = func;
         }
 
-        internal override IEnumerable<IP> GetVariables(in WhileManager manager)
+        internal override IEnumerable<IP> GetVariables(in WhileManager manager, CancellationToken cancellation)
         {
-            return this.state.Parent.GetTable(this.pFrom, manager).GetVariables().Concat(Enumerable.Repeat(this.pTo as IP, 1));
+            return this.state.Parent.GetTable(this.pFrom, manager, cancellation).GetVariables(cancellation).Concat(Enumerable.Repeat(this.pTo as IP, 1));
         }
 
-        public override int GetCount(in WhileManager manager)
+        public override int GetCount(in WhileManager manager, CancellationToken cancellation)
         {
-            return this.state.Parent.GetTable(this.pFrom, manager).GetCount();
+            return this.state.Parent.GetTable(this.pFrom, manager, cancellation).GetCount(cancellation);
         }
 
-        public override object GetValue(IP p, int index, in WhileManager manager)
+        public override object GetValue(IP p, int index, in WhileManager manager, CancellationToken cancellation)
         {
             if (p.Id == this.pTo.Id)
             {
-                var originalValue = this.state.Parent.GetTable(this.pFrom, manager).GetValue(this.pFrom, index);
+                var originalValue = this.state.Parent.GetTable(this.pFrom, manager, cancellation).GetValue(this.pFrom, index, cancellation);
                 return this.func(originalValue)!;
             }
 
-            return this.state.Parent.GetTable(this.pFrom, manager).GetValue(p, index);
+            return this.state.Parent.GetTable(this.pFrom, manager, cancellation).GetValue(p, index, cancellation);
         }
 
-        protected override bool InternalContains(IP key, in WhileManager manager) => key.Id == this.pTo.Id ? true : this.state.Parent.GetTable(this.pFrom, manager).Contains(key);
+        protected override bool InternalContains(IP key, in WhileManager manager, CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            return key.Id == this.pTo.Id ? true : this.state.Parent.GetTable(this.pFrom, manager, cancellation).Contains(key, cancellation);
+        }
     }
 
 }

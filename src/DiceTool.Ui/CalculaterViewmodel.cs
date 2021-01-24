@@ -322,6 +322,7 @@ namespace Dice.Ui
                         this.Percentage = 1;
                         await this.PersistResult();
                     }
+                    catch (OperationCanceledException) { }
                     finally
                     {
                         oneTurnStopwatch.Stop();

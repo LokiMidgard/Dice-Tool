@@ -1,4 +1,5 @@
 ﻿using Dice.Tables;
+using System.Threading;
 
 namespace Dice.States
 {
@@ -12,18 +13,18 @@ namespace Dice.States
         {
         }
 
-        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager, CancellationToken cancellation)
         {
-            if (this.Table.Contains(variable, manager))
+            if (this.Table.Contains(variable, manager,cancellation))
                 return (manager, this.Table);
-            return base.GetTable(variable, manager);
+            return base.GetTable(variable, manager, cancellation);
         }
 
-        public override bool Contains(IP variable, in WhileManager manager)
+        public override bool Contains(IP variable, in WhileManager manager, CancellationToken cancellation)
         {
-            if (this.Table.Contains(variable, manager))
+            if (this.Table.Contains(variable, manager, cancellation))
                 return true;
-            return base.Contains(variable, manager);
+            return base.Contains(variable, manager, cancellation);
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Dice.Tables;
 using System;
 using Dice.Caches;
+using System.Threading;
 
 namespace Dice.States
 {
@@ -26,30 +27,38 @@ namespace Dice.States
             this.Value = value;
         }
 
-        public override double GetStatePropability(in WhileManager manager)
+        public override double GetStatePropability(in WhileManager manager, CancellationToken cancellation)
         {
-            return this.cache.GetOrCreate(nameof(GetStatePropability), manager, this.CalculatePropability);
+            cancellation.ThrowIfCancellationRequested();
+
+
+            return this.cache.GetOrCreate(nameof(GetStatePropability), manager, this.CalculatePropability, cancellation);
         }
 
-        private double CalculatePropability(in WhileManager manager)
+        private double CalculatePropability(in WhileManager manager, CancellationToken cancellation)
         {
-            var totoalPropability = this.table.GetPartPropability(manager);
+            cancellation.ThrowIfCancellationRequested();
+            var totoalPropability = this.table.GetPartPropability(manager, cancellation);
 
-            return base.GetStatePropability(manager) * totoalPropability;
+            return base.GetStatePropability(manager, cancellation) * totoalPropability;
         }
 
-        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent()
+        protected internal override IEnumerable<IP> GetOptimizedVariablesForParent(CancellationToken cancellation)
         {
-            return base.GetOptimizedVariablesForParent().Concat(new IP[] { this.condition });
+            cancellation.ThrowIfCancellationRequested();
+
+            return base.GetOptimizedVariablesForParent(cancellation).Concat(new IP[] { this.condition });
         }
 
-        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager)
+        public override (WhileManager manager, Table table) GetTable(IP variable, in WhileManager manager, CancellationToken cancellation)
         {
-            if (this.GetStatePropability(manager) == 0.0)
+            cancellation.ThrowIfCancellationRequested();
+
+            if (this.GetStatePropability(manager, cancellation) == 0.0)
             {
                 return (manager, this.emptyTable);
             }
-            return base.GetTable(variable, manager);
+            return base.GetTable(variable, manager, cancellation);
         }
 
     }
