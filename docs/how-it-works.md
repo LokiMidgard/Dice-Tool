@@ -34,13 +34,14 @@ The purple circles are states where we need to role an additional dice. That's
 the first, the root, state since we haven't rolled any dice yet and the state
 where we have rolled our first 6.
 
-As you can see the the values from 1 - 5 have a probability of 1/6. The values
-from 7 - 12 have a probability of 1/36. To get the probability of the 3 you just
-need to divide one by the number of faces of the dice.
+As you can see the the values from `1` - `5` have a probability of `1/6`. The
+values from `7` - `12` have a probability of `1/36`. Since we need to role again
+there is no value `6`. To get the probability of the `3` you just need to divide
+one by the number of faces of the dice.
 
-To get the probability of the 8, you first need to role a 6, as we've already
-know that has a probability of 1/6. We then need to role a 2. The probability
-for that is 1 / 6 (for the first 6) / 6 (for the followed 2) = 1/36.
+To get the probability of the `8`, you first need to role a 6, as we've already
+know that has a probability of `1/6`. We then need to role a 2. The probability
+for that is `1 / 6 [for the first 6] / 6 [for the followed 2] = 1/36`.
 
 From now on we will write down how we role using pseudo code. The example above
 would be:
