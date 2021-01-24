@@ -2,12 +2,13 @@
 using ExcelDataReader;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace SampleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -78,6 +79,12 @@ namespace SampleApp
                     return x.GetNamed<int>("x").LessThen(x.Const(Faces + 1));
                 });
                 return x.GetNamed<int>("y");
+            });
+
+            var inputDiceRoll = Calculator<int>.Configure(x =>
+            {
+
+                return x.Dice(6).Multiply(x.GetInput());
             });
 
             var multiDiceRoll = Calculator<int>.Configure(x =>
@@ -186,34 +193,40 @@ namespace SampleApp
             Console.WriteLine($"Configuration took {watch.Elapsed}");
 
             Console.WriteLine("simple Rolle");
-            PrintResults(simpleDiceRole);
+            await PrintResults(simpleDiceRole);
 
             Console.WriteLine("simple if");
-            PrintResults(simpleIf);
+            await PrintResults(simpleIf);
 
             Console.WriteLine("double if");
-            PrintResults(doubleIf);
+            await PrintResults(doubleIf);
 
             Console.WriteLine("simple while");
-            PrintResults(simpleWhile);
+            await PrintResults(simpleWhile);
 
             Console.WriteLine("simple while 2");
-            PrintResults(simpleWhile2);
+            await PrintResults(simpleWhile2);
+
+            Console.WriteLine("simple while 3");
+            await PrintResults(simpleWhile3);
+
+            Console.WriteLine("input");
+            await PrintResults(inputDiceRoll, 1, 2, 3);
 
             Console.WriteLine("multi Dice roll");
-            PrintResults(multiDiceRoll);
+            await PrintResults(multiDiceRoll);
 
             Console.WriteLine("Masive role");
-            PrintResults(massiveRole);
+            await PrintResults(massiveRole);
 
             Console.WriteLine("The Dark Eye role");
-            PrintResults(theDarkEyeRole);
+            await PrintResults(theDarkEyeRole);
 
             Console.WriteLine("Nota Miasma");
-            PrintResults(notaMiasma);
+            await PrintResults(notaMiasma);
 
             Console.WriteLine("Parsed");
-            PrintResults(parsedDiceRole);
+            await PrintResults(parsedDiceRole);
 
 
             //await foreach (var item in asyncEnumerable)
@@ -225,31 +238,61 @@ namespace SampleApp
             Console.ReadKey(true);
         }
 
-        private static void PrintResults<T>(IExecutor<T, int> executor)
+        private static async Task PrintResults<TResult, TInput>(IExecutor<TResult, TInput> executor, params TInput[] inputs)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
-            var asyncEnumerable = executor.Calculate(default, 2);
+            var asyncEnumerable = executor.Calculate(inputs);
             double sum = 0;
 
-            var enumerator = asyncEnumerable.GetAsyncEnumerator();
             //Console.WriteLine($"GetEnumerator Took {watch.Elapsed}");
             watch.Restart();
-
-            while (enumerator.MoveNextAsync().Result)
+            Console.WriteLine();
+            if (inputs.Length == 0)
             {
-                var item = enumerator.Current;
-                Console.WriteLine($"{item.Result}:\t{item.Propability * 100:00.00}%");
+                Console.WriteLine($"╔════════╤═════════════╗");
+                Console.WriteLine($"║ Result │ Probability ║");
+                Console.WriteLine($"╟────────┼─────────────╢");
+
+            }
+            else
+            {
+                Console.WriteLine($"╔════════╤════════╤═════════════╗");
+                Console.WriteLine($"║ Intput │ Result │ Probability ║");
+                Console.WriteLine($"╟────────┼────────┼─────────────╢");
+
+            }
+
+            await foreach (var item in asyncEnumerable)
+            {
+                if (inputs.Length == 0)
+                    Console.WriteLine($"║ {item.Result,6} │ {item.Propability * 100,10:00.00}% ║");
+                else
+                    Console.WriteLine($"║ {item.Input,6} │ {item.Result,6} │ {item.Propability * 100,10:00.00}% ║");
                 sum += item.Propability;
 
                 //Console.WriteLine($"GetElement took {watch.Elapsed}");
                 //watch.Restart();
             }
+            if (inputs.Length == 0)
+            {
+                Console.WriteLine($"╚════════╧═════════════╝");
+            }
+            else
+            {
+                Console.WriteLine($"╚════════╧════════╧═════════════╝");
+            }
+
+
+            Console.WriteLine();
             Console.WriteLine($"GetElement took {watch.Elapsed}");
             watch.Restart();
-            enumerator.DisposeAsync().AsTask().Wait();
             Console.WriteLine($"Sum {sum}");
+            Console.WriteLine();
+            Console.Write("Press Any Key to continue...");
             Console.ReadKey(true);
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         private static int[,] T()
