@@ -12,9 +12,9 @@ roles together and change the dices used depending on the previous results.
 
 This Project consists of
  - A Library you can include in your own program via
-   [nuget](https://www.nuget.org/packages/DiceTool/)
+   [![NuGet](https://img.shields.io/nuget/v/DiceTool.svg?style=flat-square)](https://www.nuget.org/packages/DiceTool/)
  - A Domain Specific Language called `Dice Language` to write down what your
-   intend is
+   intend is. (A parser is also available on [![NuGet](https://img.shields.io/nuget/v/DiceTool.Parser.svg?style=flat-square)](https://www.nuget.org/packages/DiceTool.Parser/))
  - A Windows Desktop Application that will give you the results (You can
    download it under
    [Releases](https://github.com/LokiMidgard/Dice-Tool/releases/latest))
