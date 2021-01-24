@@ -26,8 +26,13 @@ You can draw a diagram to visualize how the probability's are distributed:
 
 ![probability graph](images/simple-propability.png)
 
-The Probability is written in the braces, before that is the rolled value. In
-the next line is the result.
+The blue circles, the leaves of the tree, are all possible outcomes. The
+Probability is written in green under the circles. The rolled value is written
+next to the arrows. The sum of all roles are written in the circles.
+
+The purple circles are states where we need to role an additional dice. That's
+the first, the root, state since we haven't rolled any dice yet and the state
+where we have rolled our first 6.
 
 As you can see the the values from 1 - 5 have a probability of 1/6. The values
 from 7 - 12 have a probability of 1/36. To get the probability of the 3 you just
