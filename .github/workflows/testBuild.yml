@@ -2,6 +2,9 @@ name: Test Build
 
 on:
   push:
+    paths:
+      - src/**
+      - .github/workflows/testBuild.yml
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
